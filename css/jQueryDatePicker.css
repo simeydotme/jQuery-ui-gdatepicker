@@ -10,11 +10,20 @@
 		}
 		.ui-gdatepicker.ui-gdatepicker-show { display: block; }
 		
-		.ui-gdatepicker-wrapper { margin: auto; }
-		.ui-gdatepicker-body { max-height: none; overflow: hidden; width: auto; padding-top: 30px; }
-
-
-
+		.ui-gdatepicker .ui-gdatepicker-wrapper { margin: auto; position: relative; }
+		.ui-gdatepicker .ui-gdatepicker-body { max-height: 265px; overflow: hidden; width: auto; }
+		
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow { position: absolute; width: 80px; left: 170px; background: #fff; opacity: 0.2; height: 24px; text-align: center; line-height: 24px; cursor: pointer; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow:hover { opacity: 1; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow.double { width: 30px; left: 252px; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up { top: 0; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-down { bottom: -1px; }
+		
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow > span { display: inline-block; width: 20px; height: 24px; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up > span { background: url(../img/up.gif) no-repeat center center; text-indent: -999em; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-down > span { background: url(../img/down.gif) no-repeat center center; text-indent: -999em; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up.double > span { background: url(../img/double-up.gif) no-repeat center center; }
+		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-down.double > span { background: url(../img/double-down.gif) no-repeat center center; }
 
 		.ui-gdatepicker .ui-gdatepicker-day { width: 22px; text-align: center; border-radius: 0; cursor: pointer; }
 		.ui-gdatepicker .ui-gdatepicker-day:hover { background: #E1F1F8; color: black; }

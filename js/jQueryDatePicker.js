@@ -15,7 +15,7 @@
     // These options will be used as defaults
     options: { 
       	
-		yearRange: 10,
+		yearRange: 3,
 		
 		m: { el: 'div', class: 'ui-gdatepicker-month' },
 		d: { el: 'span', class: 'ui-gdatepicker-day' },
@@ -26,6 +26,10 @@
 		$dptablebody: $('<div class="ui-gdatepicker-body"/>'),
 		$dptablemonth: $('<div class="ui-gdatepicker-month"/>'),
 		$dpmask: $('<div class="ui-gdatepicker-mask"/>'),
+		$dpuparrow: $('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-up"><span>previous month</span></div>'),
+		$dpdownarrow: $('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-down"><span>next month</span></div>'),
+		$dpupyeararrow: $('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-up double"><span>previous year</span></div>'),
+		$dpdownyeararrow: $('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-down double"><span>next year</span></div>'),
 		
 		dayNames: ['M','T','W','T','F','S','S'],
 
@@ -58,23 +62,35 @@
 		
 	},
 	
-	
+	_getYearRange: function( start, end ) {
+		
+		if( start === undefined ) {
+			var start = Date.today().getFullYear() - (Math.floor(this.options.yearRange*0.5));	
+		}
+		
+		if( end === undefined ) {
+			var end = Date.today().getFullYear() + (Math.round(this.options.yearRange*0.5));
+		}
+		
+		return [start,end];
+		
+	},
 	
 	
 	_calendarBuild: function() {
 		
-		this.options.$dptable.append( this.options.$dptablehead , this.options.$dptablebody );
+		this.options.$dptable.append( this.options.$dptablehead , this.options.$dptablebody , this.options.$dpuparrow , this.options.$dpdownarrow , this.options.$dpupyeararrow , this.options.$dpdownyeararrow );
 		this.options.$dptable.appendTo( this.options.$dp );
 		this.options.$dp.before( this.options.$dpmask );
 		
 	},
 	
-	_calendarFill: function( start, end ) {
+	_calendarFill: function( yearStart, yearEnd ) {
 		
-		var start = start || Date.today().getFullYear() - (Math.floor(this.options.yearRange*0.5));
-		var end = end ||  Date.today().getFullYear() + (Math.round(this.options.yearRange*0.5));
+		var yearRange = this._getYearRange( yearStart, yearEnd );
+		console.log( yearRange );
+		
 		var months = 11;
-		
 		var yearname, monthname;
 		
 
@@ -82,54 +98,45 @@
 				
 		// for every year in the range
 		var html = "";
-		for ( y=start; y<=end; y++) {
+		for ( y=yearRange[0]; y<=yearRange[1]; y++) {
 			
 			// for every month in this year
 			for (m=0; m<=months; m++) {
 				
 				// get the current month's name
 				monthname = new Date(y,m,1).toString('MMMM');
-				// display the year number(y) if it's not this year
-				if( Date.today().getFullYear() != y ) { yearname = y; }
+				// get the year number(y) if it's not this year
+				var yearname = ( Date.today().getFullYear() != y ) ? y : "";
 
 
-
-				// add padding cells;
-				// find out the first day of month(m)
+				// find out the first day of month(m) and call it offset
 				var offset = new Date(y,m,1).getDay();
 				if (offset == 0) { offset=7; }
-
-				// open the month tag
-				var clean = ( offset == 1 ) ? "ui-gdatepicker-clean-start" : "";
-				html += "<"+this.options.m.el+" class=\""+this.options.m.class+" "+clean+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
-				
-				
 
 				// get the number of days in this month
 				var days = Date.getDaysInMonth( y , m );
 				// for every day in this month
 				for (d=1; d<=days; d++) {
 					
-					var filler = ( d == 1 && offset > 1 ) ? "ui-gdatepicker-divider-left ui-gdatepicker-filler-"+offset : "";
+					// set some variables for styling the calendar
+					var filler = ( d == 1 && offset > 1 ) ? "ui-gdatepicker-divider-left" : "";
 					var divider = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
+					var gap = ( y == yearRange[0] && m == 0 && d == 1 ) ? "ui-gdatepicker-filler-"+offset : "";
 					
-					html += "<"+this.options.d.el+" class=\""+this.options.d.class +" "+filler+" "+divider+" "+clean+"\" data-day=\""+d+"\">";
+					html += "<"+this.options.d.el+" class=\""+this.options.d.class +" "+filler+" "+divider+" "+gap+"\" data-day=\""+d+"\">";
 					html += d;
 					html += "</"+this.options.d.el+">";
 					
 					// at the end of each week, either show the month and year, or just start a new row.
 					if( (offset+(d-1))%7 == 0 ) {
 						if( (offset+(d-1)) < 8 ) {
-							html += "<span class=\"ui-gdatepicker-monthname ui-gdatepicker-divider-top ui-gdatepicker-newline\">"+monthname+" "+yearname+"</span>";
+							html += "<span class=\"ui-gdatepicker-monthname ui-gdatepicker-divider-top ui-gdatepicker-newline\" data-year=\""+y+"\" data-month=\""+m+"\">"+monthname+" "+yearname+"</span>";
 						} else {
 							html += "<span class=\"ui-gdatepicker-newline\"></span>";
 						}
 					}
 					
 				}
-				
-				// close the month tag
-				html += "</"+this.options.m.el+">";
 				
 			}
 			
