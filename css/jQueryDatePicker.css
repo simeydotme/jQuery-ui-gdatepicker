@@ -1,33 +1,55 @@
 
 
+		.ui-gdatepicker-mask { display: none; position: fixed; left: -10%; top: -10%; width: 120%; height: 120%; background: rgba(0,0,0,0.1); }
+
+		.ui-gdatepicker { 
+			font-size: 11px; display: none;
+			padding: 20px; width: 290px; 
+			font-family: Verdana, Geneva, Arial, sans-serif; 
+			box-shadow: 1px 1px 4px rgba(0,0,0,0.2); border: 1px solid #bbb;
+		}
+		.ui-gdatepicker.ui-gdatepicker-show { display: block; }
 		
-
-		.ui-gdatepicker { font-size: 14px; }
-
-		.ui-gdatepicker-body { max-height: 320px; overflow: auto; width: 330px; padding-top: 30px; }
+		.ui-gdatepicker-wrapper { margin: auto; }
+		.ui-gdatepicker-body { max-height: none; overflow: hidden; width: auto; padding-top: 30px; }
 
 
 
 
-
-		.ui-gdatepicker .ui-gdatepicker-day { width: 22px; height: 22px; display: inline-block; vertical-align: middle; text-align: center; line-height: 22px; }
+		.ui-gdatepicker .ui-gdatepicker-day { width: 22px; text-align: center; border-radius: 0; cursor: pointer; }
+		.ui-gdatepicker .ui-gdatepicker-day:hover { background: #E1F1F8; color: black; }
+		.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-selected { background: #E3585E; color: white; text-shadow: 0 -1px 0 rgba(0,0,0,0.3); }
 		
-		.ui-gdatepicker .ui-gdatepicker-divider-top { border-top-color: red; }
-		.ui-gdatepicker .ui-gdatepicker-divider-left { border-left-color: red; }
+		.ui-gdatepicker .ui-gdatepicker-day,
+		.ui-gdatepicker .ui-gdatepicker-monthname { 
+			height: 22px; display: inline-block; line-height: 22px; vertical-align: middle;
+			border: 1px solid transparent;
+			background: none; color: #999; 
+		}
+		.ui-gdatepicker .ui-gdatepicker-monthname { padding-left: 10px; }
+
 		
-		.ui-gdatepicker .ui-gdatepicker-filler-2 { margin-left: 24px; }
-		.ui-gdatepicker .ui-gdatepicker-filler-3 { margin-left: 48px; }
-		.ui-gdatepicker .ui-gdatepicker-filler-4 { margin-left: 72px; }
-		.ui-gdatepicker .ui-gdatepicker-filler-5 { margin-left: 96px; }
-		.ui-gdatepicker .ui-gdatepicker-filler-6 { margin-left: 120px; }
-		.ui-gdatepicker .ui-gdatepicker-filler-7 { margin-left: 144px; }
+		
+		.ui-gdatepicker .ui-gdatepicker-divider-top { border-top-color: #BFE1F1; border-top-left-radius: 0; border-top-right-radius: 0; }
+		.ui-gdatepicker .ui-gdatepicker-divider-left { border-left-color: #BFE1F1; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+		
+		
+		
+		.ui-gdatepicker .ui-gdatepicker-filler-2 { margin-left: 23px; }
+		.ui-gdatepicker .ui-gdatepicker-filler-3 { margin-left: 47px; }
+		.ui-gdatepicker .ui-gdatepicker-filler-4 { margin-left: 71px; }
+		.ui-gdatepicker .ui-gdatepicker-filler-5 { margin-left: 95px; }
+		.ui-gdatepicker .ui-gdatepicker-filler-6 { margin-left: 119px; }
+		.ui-gdatepicker .ui-gdatepicker-filler-7 { margin-left: 143px; }
 		
 		
 		.ui-gdatepicker .ui-gdatepicker-month { position: relative; margin-top: -24px; }
+		.ui-gdatepicker .ui-gdatepicker-month.ui-gdatepicker-clean-start { position: relative; margin-top: 0; }
 		
-		.ui-gdatepicker .ui-gdatepicker-monthname:after { content: ""; display: block; }
-
-
+ 
+		.ui-gdatepicker .ui-gdatepicker-newline { width: 106px; }
+		.ui-gdatepicker .ui-gdatepicker-monthname:after,
+		.ui-gdatepicker .ui-gdatepicker-newline:after { content: ""; display: block; }
 
 
 
