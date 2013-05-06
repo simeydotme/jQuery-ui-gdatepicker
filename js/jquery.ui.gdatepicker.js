@@ -6,7 +6,7 @@ $(function() {
 $.widget( "simey.gdatepicker", {
 		
 		_dp: $('<div class="ui-gdatepicker"/>'),
-		_dpElement: $('<div class="ui-gdatepicker-input"/>'),
+		_dpElement: $('<div class="ui-gdatepicker-input" contenteditable="true"/>'),
 		
 		_activeMonth:  Date.today().getMonth(),
 		_activeYear:  Date.today().getFullYear(),
@@ -43,18 +43,22 @@ $.widget( "simey.gdatepicker", {
 			
 		},
 		
-		show: function() {
-			
-			this.moveToMonth( this.options.selectedDate[1] , this.options.selectedDate[0] );
+		_positionCalendar: function(e) {
 			
 			var inputPos = this._dpElement.position();
 			var inputSize = { h: this._dpElement.outerHeight() , w: this._dpElement.outerWidth() }
-			
-			this._dp.addClass('ui-gdatepicker-show');
 			this._dp.position({ my: 'left top+3', at: 'left bottom', of: this._dpElement });
 			
+		},
+		
+		show: function(e) {
 			
+			this.moveToMonth( this.options.selectedDate[1] , this.options.selectedDate[0] );
+			this._dp.addClass('ui-gdatepicker-show');
+			this._positionCalendar();
 			this._dpElement.addClass('ui-gdatepicker-active');
+			
+			e.stopPropagation();
 		},
 		
 		hide: function() {
@@ -72,7 +76,7 @@ $.widget( "simey.gdatepicker", {
 			this.options.selectedDate = [ $el.first().data('year') , $el.first().data('month') , $el.first().data('day') ];
 			
 			var date = new Date( $el.first().data('year'), $el.first().data('month'), $el.first().data('day') );
-			var t = date.toString('MMM dS yyyy').replace("S", date.getOrdinal());
+			var t = date.toString('MMM dSX yyyy').replace("SX", date.getOrdinal());
 			
 			this._dpElement.text( t ).addClass( 'ui-gdatepicker-input-set' );
 			this.element.val( date.toString( this.options.dateFormat ) );
@@ -81,7 +85,7 @@ $.widget( "simey.gdatepicker", {
 		
 		_focusInputElement: function( e ) {
 			
-			this.element.trigger('focus'); 
+			this._dpElement.trigger('focus'); 
 			e.stopPropagation();
 			
 		},
@@ -184,15 +188,18 @@ $.widget( "simey.gdatepicker", {
 		// don't close when clicking on the calendar or the element.
 		_bindEvents: function() {
 			
+			$(window).on('resize.gdatepicker', $.proxy(this._handlers.positionCalendar,this));
+			
 			// html/body events
 			$('html').on('click.gdatepicker.html', $.proxy(this._handlers.hide,this));
 			
 			// input/element events
-			this.element.on('focus.gdatepicker.el', $.proxy(this._handlers.show,this));
-			this._dpElement.on('click.gdatepicker.el', $.proxy(this._handlers.focusInputElement,this));
+			this._dpElement.on('focus.gdatepicker.el', $.proxy(this._handlers.show,this));
+			this.element.on('focus.gdatepicker.el', $.proxy(this._handlers.focusInputElement,this));
 			
 			// calendar wrapper events
 			this._dp.on('click.gdatepicker', function(e) { e.stopPropagation(); });
+			this._dpElement.on('click.gdatepicker', function(e) { e.stopPropagation(); });
 			this.element.on('click.gdatepicker', function(e) { e.stopPropagation(); });
 			
 			// calendar body events
@@ -216,9 +223,11 @@ $.widget( "simey.gdatepicker", {
 		// This is used to maintain the 'this' scope, 
 		// basically a 'proxy' for all events.
 		_handlers: {
-			hide: function() { this.hide(); },
-			show: function() { this.show(); },
 			
+			hide: function() { this.hide(); },
+			show: function(e) { this.show(e); },
+			
+			positionCalendar: function(e) { this._positionCalendar(e); } ,
 			focusInputElement: function(e) { this._focusInputElement(e); } ,
 			
 			selectDay: function(e) { this.selectDay(e); },
