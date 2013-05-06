@@ -11,16 +11,18 @@
 	
 	
   $.widget( "simey.gdatepicker", {
- 
+ 	
+	$dp: $('<div class="ui-gdatepicker"/>'),
+	
     // These options will be used as defaults
     options: { 
       	
-		yearRange: 3,
+		yearRange: 11,
+		scrollSpeed: 600,
 		
 		m: { el: 'div', class: 'ui-gdatepicker-month' },
 		d: { el: 'span', class: 'ui-gdatepicker-day' },
 		
-		$dp: $('<div class="ui-gdatepicker"/>') ,
 		$dptable: $('<div class="ui-gdatepicker-wrapper"/>'),
 		$dptablehead: $('<div class="ui-gdatepicker-head"/>'),
 		$dptablebody: $('<div class="ui-gdatepicker-body"/>'),
@@ -45,31 +47,35 @@
       this._super( "_setOption", key, value );
     },
 	
-	show: function() {
-		
-		this.options.$dp.addClass('ui-gdatepicker-show');
-		
-	},
-	hide: function() {
+	_activeMonth:  Date.today().getMonth(),
+	_activeYear:  Date.today().getFullYear(),
 	
-		this.options.$dp.removeClass('ui-gdatepicker-show');
-		
+	
+	
+	
+	show: function() {
+		this.$dp.addClass('ui-gdatepicker-show');
+	},
+	
+	hide: function() {
+		this.$dp.removeClass('ui-gdatepicker-show');
 	},
 	
 	selectDay: function( el ) {
-		
-		$(el).addClass('ui-gdatepicker-selected');
-		
+		this.$dp.find('.ui-gdatepicker-selected').removeClass('ui-gdatepicker-selected');
+		$(el).first().addClass('ui-gdatepicker-selected');
 	},
 	
 	_getYearRange: function( start, end ) {
 		
 		if( start === undefined ) {
-			var start = Date.today().getFullYear() - (Math.floor(this.options.yearRange*0.5));	
+			if( this.options.yearRange == 1 ) { var start = Date.today().getFullYear(); }
+			else { var start = Date.today().getFullYear() - (Math.floor(this.options.yearRange*0.5)); }
 		}
 		
 		if( end === undefined ) {
-			var end = Date.today().getFullYear() + (Math.round(this.options.yearRange*0.5));
+			if( this.options.yearRange == 1 ) { var end = Date.today().getFullYear(); }
+			else { var end = Date.today().getFullYear() + (Math.floor(this.options.yearRange*0.5)); }
 		}
 		
 		return [start,end];
@@ -77,18 +83,136 @@
 	},
 	
 	
+
+	
+	moveToMonth: function( month, year, duration ) {
+		
+		if( month === undefined ) { var month = this._activeMonth; }
+		if( year === undefined ) { var year = this._activeYear; }
+		if( duration === undefined ) { var duration = this.options.scrollSpeed; }
+		
+		var getScrolledPos = function(that) {
+			
+			// find scrolled position of the body
+			var btop = that.options.$dptablebody.scrollTop();
+			
+			// if we can find a year and month, scroll to it, otherwise scroll to the end?
+			if( that.options.$dptablebody.find('[data-year='+ year +'][data-month='+ month +']').length > 0 ) {
+				var mt = btop + that.options.$dptablebody.find('[data-year='+ year +'][data-month='+ month +']').position().top - 24;
+			} else if( year < parseInt( that.options.$dptablebody.find('.ui-gdatepicker-monthname').first().data('year') ) ) {
+				var mt = btop + that.options.$dptablebody.find('.ui-gdatepicker-monthname').first().position().top - 24;
+			} else if( year > parseInt( that.options.$dptablebody.find('.ui-gdatepicker-monthname').last().data('year') ) ) {
+				var mt = btop + that.options.$dptablebody.find('.ui-gdatepicker-monthname').last().position().top - 24;
+			}
+			
+			return mt;
+			
+		};
+		
+		
+		// if the element is hidden, we need to trick it to change it's scroll position.
+		if( this.$dp.is(':visible') ) {
+			this.options.$dptablebody.animate({'scrollTop': getScrolledPos() }, duration );
+		} else {
+			var position = this.$dp.css('top');
+			this.$dp.css('top','-30000px'); this.show();
+			this.options.$dptablebody.scrollTop( getScrolledPos(this) );
+			this.hide(); this.$dp.css('top',position);
+		}
+		
+	},
+	
+	_setEventBindings: function() {
+		
+		var that = this;
+		
+		// bind the calendar to show/hide. 
+		// don't close when clicking on the calendar or the element.
+		$('html').on('click.gdatepicker', function(e) { that.hide(); });
+		this.element.on('focus.gdatepicker', function(e) { that.show(); });
+		this.element.on('click.gdatepicker', function(e) { e.stopPropagation(); });
+		this.$dp.on('click.gdatepicker', function(e) { e.stopPropagation(); });
+		
+		this.options.$dpuparrow.on('click.gdatepicker', function(e) {
+			
+			that._activeMonth -= 1;
+			
+		});
+		
+		this.$dp.on('click.gdatepicker', '.ui-gdatepicker-day', function(e) { that.selectDay( $(this) ); });
+		
+		this._activeMonth = that._activeMonth;
+		this._activeYear = that._activeYear;
+		
+		
+		console.log( this._activeMonth );
+
+	},
+
+
+
+
+
+
+
+
+
+
+    // Create the Widget
+    _create: function() {
+		
+		base = this;
+		
+		// cant run if no Date.js library
+		if( Date.today === undefined ) { console.log("Date.js Library (http://www.datejs.com/) is required for proper functioning. Destroying gdatepicker."); this._destroy(); return false; }
+		
+		// fill the calendar with datey goodness.
+		// give the element a class to reflect it has a datepicker.
+		this._calendarFill();
+		
+		this.element.addClass('has-gdatepicker');
+				
+		this._setEventBindings();
+		
+		// whack that bad boy into the DOM.
+		$('body').append( this.$dp );
+		
+		//this.show();
+		this.moveToMonth( this._activeMonth, this._activeYear, 0 );
+		//this.hide();
+		
+    },
+ 
+ 	// Destroy the Widget
+    _destroy: function() {
+		
+		this.element.removeClass('has-gdatepicker');
+		this.$dp.remove();
+		
+		this.element.off('.gdatepicker');
+	},
+	
+	
+	
+	
+	
+	
+	
+	
+	// main grunt functions for building hte calendar
+	
 	_calendarBuild: function() {
 		
 		this.options.$dptable.append( this.options.$dptablehead , this.options.$dptablebody , this.options.$dpuparrow , this.options.$dpdownarrow , this.options.$dpupyeararrow , this.options.$dpdownyeararrow );
-		this.options.$dptable.appendTo( this.options.$dp );
-		this.options.$dp.before( this.options.$dpmask );
+		this.options.$dptable.appendTo( this.$dp );
+		this.$dp.before( this.options.$dpmask );
 		
 	},
 	
 	_calendarFill: function( yearStart, yearEnd ) {
 		
 		var yearRange = this._getYearRange( yearStart, yearEnd );
-		console.log( yearRange );
+		console.log( "Populating Calendar from " +yearRange[0]+ " to " +yearRange[1] );
 		
 		var months = 11;
 		var yearname, monthname;
@@ -123,7 +247,7 @@
 					var divider = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
 					var gap = ( y == yearRange[0] && m == 0 && d == 1 ) ? "ui-gdatepicker-filler-"+offset : "";
 					
-					html += "<"+this.options.d.el+" class=\""+this.options.d.class +" "+filler+" "+divider+" "+gap+"\" data-day=\""+d+"\">";
+					html += "<"+this.options.d.el+" class=\""+this.options.d.class +" "+filler+" "+divider+" "+gap+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
 					html += d;
 					html += "</"+this.options.d.el+">";
 					
@@ -160,46 +284,6 @@
 			
 		this._calendarBuild();
 		
-	},
-
-
-    // Set up the widget
-    _create: function() {
-		
-		// cant run if no Date.js library
-		if( Date.today === undefined ) { console.log("Date.js Library (http://www.datejs.com/) is required for proper functioning. Destroying gdatepicker."); this._destroy(); return false; }
-		
-		// fill the calendar with datey goodness.
-		// give the element a class to reflect it has a datepicker.
-		this._calendarFill();
-		this.element.addClass('has-gdatepicker');
-				
-		// bind the element to show/hide. 
-		// don't close when clicking on the calendar or the element.
-		var that = this;
-		$('html').on('click.gdatepicker', function(e) { that.hide(); });
-		this.element.on('focus.gdatepicker', function(e) { that.show(); });
-		this.element.on('click.gdatepicker', function(e) { e.stopPropagation(); });
-		this.options.$dp.on('click.gdatepicker', function(e) { e.stopPropagation(); });
-		
-		
-		this.options.$dp.on('click.gdatepicker', '.ui-gdatepicker-day', function(e) {
-			that.selectDay( $(this) );
-		});
-		
-		
-		// whack that bad boy into the DOM.
-		$('body').append( this.options.$dp );
-		
-    },
- 
- 	// destroy the widget
-    _destroy: function() {
-		
-		this.element.removeClass('has-gdatepicker');
-		this.options.$dp.remove();
-		
-		this.element.off('.gdatepicker');
 	}
 	
   });
