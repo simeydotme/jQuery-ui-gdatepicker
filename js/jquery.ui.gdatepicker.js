@@ -210,8 +210,8 @@ $.widget( "simey.gdatepicker", {
 			
 			
 			// day cell events
-			this._dp.on('click.gdatepicker.day', '.ui-gdatepicker-day', $.proxy(this._handlers.selectDay,this));
-			this._dp.on('mouseenter.gdatepicker.day', '.ui-gdatepicker-day', $.proxy(this._handlers.hoverDay,this));
+			this._dp.on('click.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.selectDay,this));
+			this._dp.on('mouseenter.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.hoverDay,this));
 			
 			// move arrow events
 			this._dp.on('click.gdatepicker.arrows', '.ui-gdatepicker-scroll-arrow-up', $.proxy(this._handlers.upOneMonth,this));
