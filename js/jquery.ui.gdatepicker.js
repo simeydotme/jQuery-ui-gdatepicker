@@ -13,12 +13,14 @@ $.widget( "simey.gdatepicker", {
 
 		options: { 
       	
-			yearRange: 5,
+			yearStart: Date.today().getFullYear()-1,
+			yearRange: 2,
 			scrollSpeed: 300,
 			dayNames: ['M','T','W','T','F','S','S'],
 			placeholderText: "Select a date",
 			selectedDate: [ Date.today().getFullYear() , Date.today().getMonth() , Date.today().getDay() ],
-			dateFormat: "dd-MM-yyyy"
+			dateFormat: "dd-MM-yyyy",
+			dateOutput: "MMM dSX, yyyy"
 		
 		},
 		
@@ -76,7 +78,7 @@ $.widget( "simey.gdatepicker", {
 			this.options.selectedDate = [ $el.first().data('year') , $el.first().data('month') , $el.first().data('day') ];
 			
 			var date = new Date( $el.first().data('year'), $el.first().data('month'), $el.first().data('day') );
-			var t = date.toString('MMM dSX yyyy').replace("SX", date.getOrdinal());
+			var t = date.toString( this.options.dateOutput ).replace("SX", date.getOrdinal());
 			
 			this._dpElement.text( t ).addClass( 'ui-gdatepicker-input-set' );
 			this.element.val( date.toString( this.options.dateFormat ) );
@@ -178,10 +180,6 @@ $.widget( "simey.gdatepicker", {
 				this._dp.css({'top':position, 'display':""});
 			}
 			
-			// ----------------------------------------------------- //
-			console.log( this._activeYear + ' ' + this._activeMonth );
-			// ----------------------------------------------------- //
-
 		},
 		
 		// bind the calendar to show/hide. 
@@ -260,30 +258,25 @@ $.widget( "simey.gdatepicker", {
 		_destroy: function() {
 			
 			this.element.removeClass('has-gdatepicker');
+			this._dp.empty().remove();
+			this._dpElement.remove();
 			
 		},
 		
 		
 		
-		_getYearRange: function( start, end ) {
+		_getYearRange: function() {
 			
-			if( start === undefined ) {
-				if( this.options.yearRange == 1 ) { var start = Date.today().getFullYear(); }
-				else { var start = Date.today().getFullYear() - (Math.floor(this.options.yearRange*0.5)); }
-			}
-			
-			if( end === undefined ) {
-				if( this.options.yearRange == 1 ) { var end = Date.today().getFullYear(); }
-				else { var end = Date.today().getFullYear() + (Math.floor(this.options.yearRange*0.5)); }
-			}
+			var start = this.options.yearStart;
+			var end = start + this.options.yearRange;
 			
 			return [start,end];
 			
 		},
 
-		_calendarPopulate: function( yearStart, yearEnd ) {
+		_calendarPopulate: function() {
 			
-			var yearRange = this._getYearRange( yearStart, yearEnd );
+			var yearRange = this._getYearRange();
 			console.log( "Populating Calendar from " +yearRange[0]+ " to " +yearRange[1] );
 			
 			var months = 11, yearname, monthname;
