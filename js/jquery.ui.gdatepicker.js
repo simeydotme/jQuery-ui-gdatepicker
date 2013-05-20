@@ -6,7 +6,7 @@ $(function() {
 $.widget( "simey.gdatepicker", {
 		
 		_dp: $('<div class="ui-gdatepicker"/>'),
-		_dpElement: $('<div class="ui-gdatepicker-input" contenteditable="true"/>'),
+		_dpElement: $('<input class="ui-gdatepicker-input" type="text"/>'),
 		
 		_activeMonth:  Date.today().getMonth(),
 		_activeYear:  Date.today().getFullYear(),
@@ -15,10 +15,10 @@ $.widget( "simey.gdatepicker", {
       	
 			yearStart: Date.today().getFullYear()-1,
 			yearRange: 2,
-			scrollSpeed: 300,
+			scrollSpeed: 100,
 			dayNames: ['M','T','W','T','F','S','S'],
 			placeholderText: "Select a date",
-			selectedDate: [ Date.today().getFullYear() , Date.today().getMonth() , Date.today().getDay() ],
+			selectedDate: [ Date.today().getFullYear() , Date.today().getMonth() , Date.today().getDate() ],
 			dateFormat: "dd-MM-yyyy",
 			dateOutput: "MMM dSX, yyyy"
 		
@@ -41,7 +41,7 @@ $.widget( "simey.gdatepicker", {
 			this._dp.append( $dpWrapper ).appendTo( $('body') );
 			
 			if( this.element.attr('placeholder') !== undefined ) { this.options.placeholderText = this.element.attr('placeholder'); }
-			this._dpElement.text( this.options.placeholderText ).insertAfter( this.element );
+			this._dpElement.insertAfter( this.element );
 			
 		},
 		
@@ -55,12 +55,19 @@ $.widget( "simey.gdatepicker", {
 		
 		show: function(e) {
 			
-			this.moveToMonth( this.options.selectedDate[1] , this.options.selectedDate[0] );
-			this._dp.addClass('ui-gdatepicker-show');
-			this._positionCalendar();
+			
 			this._dpElement.addClass('ui-gdatepicker-active');
 			
+			this._activeYear = this.options.selectedDate[0];
+			this._activeMonth = this.options.selectedDate[1];
+			this._dp.find('.ui-gdatepicker-body').empty().prepend( this._calendarPopulate() );
+			this.moveToMonth();
+			
+			this._dp.addClass('ui-gdatepicker-show');
+			this._positionCalendar();
+			
 			e.stopPropagation();
+			
 		},
 		
 		hide: function() {
@@ -68,19 +75,22 @@ $.widget( "simey.gdatepicker", {
 			this._dpElement.removeClass('ui-gdatepicker-active');
 		},
 		
+		highlightDay: function( e ) {
+			
+			var $el = $('[data-year='+this.options.selectedDate[0]+'][data-month='+this.options.selectedDate[1]+'][data-day='+this.options.selectedDate[2]+']');
+			this._dp.find('.ui-gdatepicker-selected').removeClass('ui-gdatepicker-selected');
+			if( $el.length > 0 ) { $el.first().addClass('ui-gdatepicker-selected'); }
+			
+		},
+		
 		selectDay: function( e ) {
 			
-			var $el = $(e.target);
-			this._dp.find('.ui-gdatepicker-selected').removeClass('ui-gdatepicker-selected');
-			$el.first().addClass('ui-gdatepicker-selected');
-			
-			
-			this.options.selectedDate = [ $el.first().data('year') , $el.first().data('month') , $el.first().data('day') ];
-			
-			var date = new Date( $el.first().data('year'), $el.first().data('month'), $el.first().data('day') );
+			this.options.selectedDate = [ $(e.target).data('year') , $(e.target).data('month') , $(e.target).data('day') ];
+					
+			var date = new Date( this.options.selectedDate[0], this.options.selectedDate[1], this.options.selectedDate[2] );
 			var t = date.toString( this.options.dateOutput ).replace("SX", date.getOrdinal());
 			
-			this._dpElement.text( t ).addClass( 'ui-gdatepicker-input-set' );
+			this._dpElement.val( t ).addClass( 'ui-gdatepicker-input-set' );
 			this.element.val( date.toString( this.options.dateFormat ) );
 			
 		},
@@ -107,23 +117,27 @@ $.widget( "simey.gdatepicker", {
 		upOneMonth: function() {
 			this._activeMonth = this._activeMonth-1;
 			if( this._activeMonth == -1 ) { this._activeMonth = 11; this._activeYear = this._activeYear -1;	}
-			this.moveToMonth();
+			this._dp.find('.ui-gdatepicker-body').empty().prepend( this._calendarPopulate() );
+			this.moveToMonth("up");
 		},
 				
 		upOneYear: function() {
 			this._activeYear = this._activeYear-1;
-			this.moveToMonth( null, null, (this.options.scrollSpeed*2.5) );
+			this._dp.find('.ui-gdatepicker-body').empty().prepend( this._calendarPopulate() );
+			this.moveToMonth("up");
 		},
 				
 		downOneMonth: function() {
 			this._activeMonth = this._activeMonth+1;
 			if( this._activeMonth == 12 ) { this._activeMonth = 0; this._activeYear = this._activeYear +1;	}
+			this._dp.find('.ui-gdatepicker-body').empty().prepend( this._calendarPopulate() );
 			this.moveToMonth();
 		},
 				
 		downOneYear: function() {
 			this._activeYear = this._activeYear+1;
-			this.moveToMonth( null, null, (this.options.scrollSpeed*2.5) );
+			this._dp.find('.ui-gdatepicker-body').empty().prepend( this._calendarPopulate() );
+			this.moveToMonth();
 		},
 				
 		_getScrolledPos: function(month,year) {
@@ -134,32 +148,12 @@ $.widget( "simey.gdatepicker", {
 			var $el = this._dp.find('.ui-gdatepicker-body');
 			// find scrolled position of the body
 			var top = $el.scrollTop();
-			var yearRange = this._getYearRange();
-			
-			// if we can find a year and month, scroll to it
-			if( $el.find('[data-year='+ year +'][data-month='+ month +']').length > 0 ) {
-				var mt = top +$el.find('[data-year='+ year +'][data-month='+ month +']').position().top - offset;
-				this._activeYear = year;
-				this._activeMonth = month;
-			
-			// if the chosen year is less than the selectable year range, go to beginning
-			} else if( year < yearRange[0] ) {
-				var mt = top + $el.find('.ui-gdatepicker-monthname').first().position().top - offset;
-				this._activeYear = yearRange[0];
-				this._activeMonth = 0;
-
-			// if the chosen year is more than the selectable year rang, go to the end
-			} else if( year > yearRange[1] ) {
-				var mt = top + $el.find('.ui-gdatepicker-monthname').last().position().top - offset;
-				this._activeYear = yearRange[1];
-				this._activeMonth = 11;
-			}
-			
+			var mt = top + $el.find('[data-year='+ year +'][data-month='+ month +']').position().top - offset;
 			return mt;
 				
 		},
 
-		moveToMonth: function( month, year, duration ) {
+		moveToMonth: function( direction ) {
 			
 			var $el = this._dp.find('.ui-gdatepicker-body');
 			
@@ -167,18 +161,46 @@ $.widget( "simey.gdatepicker", {
 			if( year === undefined  || year === null ) { var year = this._activeYear; }
 			if( duration === undefined ) { var duration = this.options.scrollSpeed; }
 			
-			
 			if( this._dp.is(':visible') ) {
+				
 				// if the element is visible / active, we scroll down to the chosen month.
-				$el.stop(true).animate({'scrollTop': this._getScrolledPos(month,year) }, duration );
+				if( direction == "up" ) {  $el.scrollTop(210); } else { $el.scrollTop(0); }
+				$el.stop(true).animate({'scrollTop': this._getScrolledPos(month,year) }, duration);
+
 			} else {
 				// if the element is hidden, we need to trick it to be visible
 				// very quickly, then change it's scroll position, and revert it's positioning.
+				this._dp.find('.ui-gdatepicker-body').empty().prepend( this._calendarPopulate() );
+				
 				var position = this._dp.css('top');
 				this._dp.css({'top':'-30000px', 'display': 'block'});
 				$el.scrollTop( this._getScrolledPos(month,year) );
 				this._dp.css({'top':position, 'display':""});
 			}
+			
+			this.highlightDay();
+			
+		},
+		
+		_parseDate: function(e) {
+			
+			if( e.which == 13 ) {
+				
+				var $el = $(e.target);
+				var d = Date.parse( $el.val() );
+				
+				if( d !== null ) {
+				
+					this.options.selectedDate = [ d.getFullYear() , d.getMonth() , d.getDate() ];
+					this._activeYear = this.options.selectedDate[0];
+					this._activeMonth = this.options.selectedDate[1];
+					this.hide(e);
+					this.show(e);
+				
+				} else { alert('bad date!'); }
+			}
+			
+			
 			
 		},
 		
@@ -195,6 +217,8 @@ $.widget( "simey.gdatepicker", {
 			this._dpElement.on('focus.gdatepicker.el', $.proxy(this._handlers.show,this));
 			this.element.on('focus.gdatepicker.el', $.proxy(this._handlers.focusInputElement,this));
 			
+			this._dpElement.on('keyup.gdatepicker.el', $.proxy(this._handlers.keyup,this));
+
 			// calendar wrapper events
 			this._dp.on('click.gdatepicker', function(e) { e.stopPropagation(); });
 			this._dpElement.on('click.gdatepicker', function(e) { e.stopPropagation(); });
@@ -209,6 +233,7 @@ $.widget( "simey.gdatepicker", {
 			
 			// day cell events
 			this._dp.on('click.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.selectDay,this));
+			this._dp.on('click.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.highlightDay,this));
 			this._dp.on('mouseenter.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.hoverDay,this));
 			
 			// move arrow events
@@ -227,8 +252,10 @@ $.widget( "simey.gdatepicker", {
 			
 			positionCalendar: function(e) { this._positionCalendar(e); } ,
 			focusInputElement: function(e) { this._focusInputElement(e); } ,
+			keyup: function(e) { this._parseDate(e); } ,
 			
 			selectDay: function(e) { this.selectDay(e); },
+			highlightDay: function(e) { this.highlightDay(e); },
 			hoverDay: function(e) { this._highlightMonth(e); },
 			
 			mouseWheel: function(e,delta) { if( delta > 0 ) { this.upOneMonth(); } else if( delta < 0 ) { this.downOneMonth(); }},
@@ -264,51 +291,74 @@ $.widget( "simey.gdatepicker", {
 		},
 		
 		
-		
-		_getYearRange: function() {
-			
-			var start = this.options.yearStart;
-			var end = start + this.options.yearRange;
-			
-			return [start,end];
-			
-		},
-
 		_calendarPopulate: function() {
 			
-			var yearRange = this._getYearRange();
-			console.log( "Populating Calendar from " +yearRange[0]+ " to " +yearRange[1] );
-			
-			var months = 11, yearname, monthname;
-			
-			// for every year in the range
 			var html = "";
-			for ( y=yearRange[0]; y<=yearRange[1]; y++) {
+			
+			var year = this._activeYear;
+			var month = this._activeMonth;
+			
+			// basically cheat and pad the visible area with a month each way.
+			if ( month == 0 ) { month=12; year-=1; } else { month-=1; }
+			//howMany+=2;
+			
+			
+			// function to get the previous-days
+			function previousDays( month, year ) {
 				
-				// for every month in this year
-				for (m=0; m<=months; m++) {
+				var html = "";
+				
+				var previousMonth = ( month==0 ) ? 11 : month-1;
+				var previousMonthYear = ( month==0 ) ? year-1 : year;
+				var daysInPreviousMonth = Date.getDaysInMonth(previousMonthYear,previousMonth);
+				
+				// ooffset is the first day of the week (0=sunday, 1=monday, 2=tuesday...)
+				var ooffset = new Date(year,month,1).getDay();
+				if (ooffset == 0) { ooffset=7; }
+				
+				// count down from the offset to populate all days in previous 
+				for( o = ooffset-1; o>0; o-- ) {
+					
+					var oday = daysInPreviousMonth-o+1;
+					
+					html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month\" data-day=\""+oday+"\" data-year=\""+previousMonthYear+"\" data-month=\""+previousMonth+"\">";
+					html += oday;
+					html += "</span>";	
+					
+				}
+				
+				return html;
+					
+			}
+			
+			//function to get the months needed
+			function addMonths( month, year, howMany ) {
+				
+				var html = "";
+				var y = year;
+				
+				for( mo = month; mo < month+howMany; mo++ ) {
+					var m = mo;
+					if (mo > 11) { var m = mo-12; y = year+1; }
 					
 					// get the current month's name
-					monthname = new Date(y,m,1).toString('MMMM');
+					var monthname = new Date(y,m,1).toString('MMMM');
 					// get the year number(y) if it's not this year
 					var yearname = ( Date.today().getFullYear() != y ) ? y : "";
-	
-	
+					// get the number of days in the month
+					var daysInMonth = Date.getDaysInMonth(y,m);
+					
 					// find out the first day of month(m) and call it offset
 					var offset = new Date(y,m,1).getDay();
 					if (offset == 0) { offset=7; }
-	
-					// get the number of days in this month
-					var days = Date.getDaysInMonth( y , m );
-					// for every day in this month
-					for (d=1; d<=days; d++) {
+					
+					for( d = 1; d <= daysInMonth; d++ ) {
 						
 						// set some variables for styling the calendar
 						var filler = ( d == 1 && offset > 1 ) ? "ui-gdatepicker-divider-left" : "";
 						var divider = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
-						var gap = ( y == yearRange[0] && m == 0 && d == 1 ) ? "ui-gdatepicker-filler-"+offset : "";
-						
-						html += "<span class=\"ui-gdatepicker-day " +filler+" "+divider+" "+gap+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
+							
+						html += "<span class=\"ui-gdatepicker-day " +filler+" "+divider+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
 						html += d;
 						html += "</span>";
 						
@@ -325,8 +375,15 @@ $.widget( "simey.gdatepicker", {
 					
 				}
 				
-			};
+				return html;	
+				
+			}
+						
+					
+			html += previousDays( month, year );
+			html += addMonths( month, year, 5 );
 			
+	
 			return html;
 			
 		},

@@ -3,7 +3,7 @@
 
 
 		.ui-gdatepicker-input { 
-			display: inline-table; vertical-align: middle;
+			display: block; vertical-align: middle;
 			width: 200px; height: 22px; line-height: 22px; 
 			padding: 3px 8px; font-size: 13px;
 			border: 1px solid #ccc;  color: #999;
@@ -59,7 +59,8 @@
 		}
 		.ui-gdatepicker .ui-gdatepicker-monthname { padding-left: 10px; }
 		.ui-gdatepicker .ui-gdatepicker-monthname-highlight { color: black; }
-
+		.ui-gdatepicker .ui-gdatepicker-previous-month { color: #ddd; }
+		.ui-gdatepicker .ui-gdatepicker-previous-month:hover { background: #ECF4F5; color: #666; }
 		
 		
 		.ui-gdatepicker .ui-gdatepicker-divider-top { border-top-color: rgba(227, 88, 94, 0.46); border-top-left-radius: 0; border-top-right-radius: 0; }
