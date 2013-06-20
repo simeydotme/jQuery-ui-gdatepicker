@@ -5,9 +5,10 @@
 <title>Untitled Document</title>
 
 <link rel="stylesheet" type="text/css" href="css/normalize.css">
+<link rel="stylesheet" type="text/css" href="css/demo.css">
 
 <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">
-<link rel="stylesheet" type="text/css" href="css/jQueryDatePicker.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.ui.gdatepicker.css">
 
 
 
@@ -18,7 +19,10 @@
 
 	<div class="container" style="width: 600px; margin: auto;">
 	<p>Date Picker example</p>
-	<input type="text" id="#cal" placeholder="Pikk sum datez!">
+	<input type="text" id="cal" placeholder="Pikk sum datez!" value="21-05-1985">
+	<hr>
+	<input type="text" id="cal2">
+	<p>Try typing "today" for example"</p>
 	</div>
 
 
@@ -26,11 +30,12 @@
 <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
 <script src="js/jquery.mousewheel.js"></script>
 <script src="js/date.js"></script>
-<script src="js/jquery.ui.gdatepicker.js"></script>
+<script src="js/jquery.ui.gdatepicker2.js"></script>
 
 <script>
 	$(function() {
-		$('input').gdatepicker();
+		$('#cal').gdatepicker();
+		$('#cal2').gdatepicker();
 	});
 </script>
 

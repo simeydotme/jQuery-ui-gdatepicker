@@ -1,5 +1,5 @@
 
-		.has-gdatepicker { position: absolute; width: 1px; height: 1px; opacity: 0; clip: rect(0,0,0,0); }
+		.has-gdatepicker { position: absolute; width: 1px; height: 1px; opacity: 0; clip: rect(0,0,0,0); overflow: hidden; left: -9999em; top: -9999em; }
 
 
 		.ui-gdatepicker-input { 
@@ -9,6 +9,9 @@
 			border: 1px solid #ccc;  color: #999;
 			cursor: text; box-shadow: 1px 1px 1px rgba(0,0,0,0.1) inset;
 			-webkit-transition: border-color 0.2s ease, color 0.4s ease;
+			-moz-transition: border-color 0.2s ease, color 0.4s ease;
+			-ms-transition: border-color 0.2s ease, color 0.4s ease;
+			transition: border-color 0.2s ease, color 0.4s ease;
 		}
 		.ui-gdatepicker-input:focus { outline: none; }
 		.ui-gdatepicker-input:hover { border-color: #999; }
@@ -19,13 +22,16 @@
 
 
 		.ui-gdatepicker { 
-			font-size: 11px; display: none; position: absolute;
+			font-size: 11px; display: none; opacity: 0; position: absolute;
 			padding: 20px; width: 290px; margin: 3px 0;
-			font-family: Verdana, Geneva, Arial, sans-serif; 
+			font-family: Verdana, Geneva, Arial, sans-serif; background: #fefefe;
 			box-shadow: 1px 1px 4px rgba(0,0,0,0.2); border: 1px solid #bbb;
-			-webkit-transition: opacity 1s ease;
+			-webkit-transition: opacity 0.3s ease;
+			-moz-transition: opacity 0.3s ease;
+			-ms-transition: opacity 0.3s ease;
+			transition: opacity 0.3s ease;
 		}
-		.ui-gdatepicker.ui-gdatepicker-show { display: block; }
+		.ui-gdatepicker.ui-gdatepicker-show { display: block; opacity: 1; }
 		
 		.ui-gdatepicker .ui-gdatepicker-wrapper { margin: auto; position: relative; }
 		.ui-gdatepicker .ui-gdatepicker-body { max-height: 265px; overflow: hidden; width: auto; }
@@ -47,12 +53,13 @@
 		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up-year > span { background: url(../img/double-up.gif) no-repeat center center; text-indent: -999em; }
 		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-down-year > span { background: url(../img/double-down.gif) no-repeat center center; text-indent: -999em; }
 
-		.ui-gdatepicker .ui-gdatepicker-day { width: 23px; text-align: center; border-radius: 0; cursor: pointer; margin-left: -1px; }
+		.ui-gdatepicker .ui-gdatepicker-day { width: 23px; text-align: center; border-radius: 2px; cursor: pointer; margin-left: -1px; }
 		.ui-gdatepicker .ui-gdatepicker-day:hover { background: #D3EBF3; color: black; }
 		.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-selected { background: #E3585E; border-color: #E3585E; color: white; text-shadow: 0 -1px 0 rgba(0,0,0,0.3); }
 		
 		.ui-gdatepicker .ui-gdatepicker-day,
-		.ui-gdatepicker .ui-gdatepicker-monthname { 
+		.ui-gdatepicker .ui-gdatepicker-monthname,
+		.ui-gdatepicker .ui-gdatepicker-newline { 
 			height: 22px; display: inline-block; line-height: 22px; vertical-align: middle;
 			border: 1px dotted transparent;
 			background: none; color: #999; 

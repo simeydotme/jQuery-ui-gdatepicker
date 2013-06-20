@@ -8,8 +8,8 @@ $.widget( "simey.gdatepicker", {
 		_dp: $('<div class="ui-gdatepicker"/>'),
 		_dpElement: $('<input class="ui-gdatepicker-input" type="text"/>'),
 		
-		_activeMonth:  Date.today().getMonth(),
-		_activeYear:  Date.today().getFullYear(),
+		_activeMonth: Date.today().getMonth(),
+		_activeYear: Date.today().getFullYear(),
 
 		options: { 
       	
@@ -17,9 +17,10 @@ $.widget( "simey.gdatepicker", {
 			scrollSpeed: 90,
 			dayNames: ['M','T','W','T','F','S','S'],
 			placeholderText: "Select a date",
-			selectedDate: [ Date.today().getFullYear() , Date.today().getMonth() , Date.today().getDate() ],
 			dateFormat: "dd-MM-yyyy",
-			dateDisplay: "MMM dSX, yyyy"
+			dateDisplay: "MMM dSX, yyyy",
+			
+			selectedDate: [ Date.today().getFullYear() , Date.today().getMonth() , Date.today().getDate() ]
 		
 		},
 		
@@ -41,6 +42,20 @@ $.widget( "simey.gdatepicker", {
 			
 			if( this.element.attr('placeholder') !== undefined ) { this.options.placeholderText = this.element.attr('placeholder'); }
 			this._dpElement.prop('placeholder', this.options.placeholderText).insertAfter( this.element );
+						
+			var val = this.element.val();
+			var form = this.options.dateFormat;
+			
+			if( val !== "") {
+				
+				if( Date.parseExact( val, form ) !== null ) {
+					this._activeMonth = Date.parseExact( val, form ).getMonth();
+					this._activeYear = Date.parseExact( val, form ).getFullYear();
+					this.options.selectedDate = [ Date.parseExact( val, form ).getFullYear() , Date.parseExact( val, form ).getMonth() , Date.parseExact( val, form ).getDate() ];
+				}
+				this.selectDay();
+				
+			}
 			
 		},
 		
@@ -54,7 +69,6 @@ $.widget( "simey.gdatepicker", {
 		
 		show: function(e) {
 			
-			
 			this._dpElement.addClass('ui-gdatepicker-active');
 			
 			this._activeYear = this.options.selectedDate[0];
@@ -65,7 +79,7 @@ $.widget( "simey.gdatepicker", {
 			this._dp.addClass('ui-gdatepicker-show');
 			this._positionCalendar();
 			
-			e.stopPropagation();
+			if( e !== undefined) { e.stopPropagation(); }
 			
 		},
 		
@@ -74,7 +88,7 @@ $.widget( "simey.gdatepicker", {
 			this._dpElement.removeClass('ui-gdatepicker-active');
 		},
 		
-		highlightDay: function( e ) {
+		_highlightDay: function( e ) {
 			
 			var $el = $('[data-year='+this.options.selectedDate[0]+'][data-month='+this.options.selectedDate[1]+'][data-day='+this.options.selectedDate[2]+']');
 			this._dp.find('.ui-gdatepicker-selected').removeClass('ui-gdatepicker-selected');
@@ -83,14 +97,16 @@ $.widget( "simey.gdatepicker", {
 		},
 		
 		selectDay: function( day, month, year ) {
-			
-			this.options.selectedDate = [ year , month , day ];
+
+			if( day !== undefined ) { this.options.selectedDate = [ year , month , day ]; }
 					
 			var date = new Date( this.options.selectedDate[0], this.options.selectedDate[1], this.options.selectedDate[2] );
 			var t = date.toString( this.options.dateDisplay ).replace("SX", date.getOrdinal());
 			
 			this._dpElement.val( t ).addClass( 'ui-gdatepicker-input-set' );
 			this.element.val( date.toString( this.options.dateFormat ) );
+			
+			this._highlightDay();
 			
 		},
 		
@@ -177,7 +193,7 @@ $.widget( "simey.gdatepicker", {
 				this._dp.css({'top':position, 'display':""});
 			}
 			
-			this.highlightDay();
+			this._highlightDay();
 			
 		},
 		
@@ -196,10 +212,23 @@ $.widget( "simey.gdatepicker", {
 					this._calendarPopulate();
 					this.hide(e);
 					this.selectDay( this.options.selectedDate[2] , this.options.selectedDate[1] , this.options.selectedDate[0] );
-					this.highlightDay();
 					this.show(e);
 				
-				} else { alert('bad date!'); }
+				} else {
+				
+					alert("That date appears invalid, please try another");
+					
+				}
+				
+			} else {
+			
+				if( $(e.target).val() === "" ) {
+					
+					this._dpElement.val("");
+					this.element.val("");
+						
+				}	
+				
 			}
 			
 			
@@ -210,21 +239,19 @@ $.widget( "simey.gdatepicker", {
 		// don't close when clicking on the calendar or the element.
 		_bindEvents: function() {
 			
-			$(window).on('resize.gdatepicker', $.proxy(this._handlers.positionCalendar,this));
-			
+			$(window).on(		'resize.gdatepicker', $.proxy(this._handlers.positionCalendar,this));
 			// html/body events
-			$('html').on('click.gdatepicker.html', $.proxy(this._handlers.hide,this));
-			
+			$('html').on(		'click.gdatepicker.html', $.proxy(this._handlers.hide,this));
 			// input/element events
-			this._dpElement.on('focus.gdatepicker.el', $.proxy(this._handlers.show,this));
-			this.element.on('focus.gdatepicker.el', $.proxy(this._handlers.focusInputElement,this));
+			this._dpElement.on(	'focus.gdatepicker.el', $.proxy(this._handlers.show,this));
+			this._dpElement.on(	'keyup.gdatepicker.el', $.proxy(this._handlers.keyup,this));
+			this._dpElement.on(	'click.gdatepicker', function(e) { e.stopPropagation(); });
 			
-			this._dpElement.on('keyup.gdatepicker.el', $.proxy(this._handlers.keyup,this));
-
-			// calendar wrapper events
-			this._dp.on('click.gdatepicker', function(e) { e.stopPropagation(); });
-			this._dpElement.on('click.gdatepicker', function(e) { e.stopPropagation(); });
-			this.element.on('click.gdatepicker', function(e) { e.stopPropagation(); });
+			this.element.on(	'focus.gdatepicker.el', $.proxy(this._handlers.focusInputElement,this));
+			
+			// stop click propagating to window, else it closes itself.
+			this._dp.on(		'click.gdatepicker', function(e) { e.stopPropagation(); });
+			this.element.on(	'click.gdatepicker', function(e) { e.stopPropagation(); });
 			
 			// calendar body events
 			if( $.event.special.mousewheel !== undefined ) {
@@ -235,7 +262,6 @@ $.widget( "simey.gdatepicker", {
 			
 			// day cell events
 			this._dp.on('click.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.selectDay,this));
-			this._dp.on('click.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.highlightDay,this));
 			this._dp.on('mouseenter.gdatepicker.day', '.ui-gdatepicker-body .ui-gdatepicker-day', $.proxy(this._handlers.hoverDay,this));
 			
 			// move arrow events
@@ -245,8 +271,9 @@ $.widget( "simey.gdatepicker", {
 			this._dp.on('click.gdatepicker.arrows', '.ui-gdatepicker-scroll-arrow-down-year', $.proxy(this._handlers.downOneYear,this));
 			
 		},
-		// This is used to maintain the 'this' scope, 
-		// basically a 'proxy' for all events.
+		
+		// Handlers is used to maintain the 'this' scope, 
+		// basically a 'proxy' for all events. Kinda sucks, wonder if there's a better way?
 		_handlers: {
 			
 			hide: function() { this.hide(); },
@@ -257,7 +284,6 @@ $.widget( "simey.gdatepicker", {
 			keyup: function(e) { this._parseDate(e); } ,
 			
 			selectDay: function(e) { this.selectDay( $(e.target).data('day') , $(e.target).data('month') , $(e.target).data('year') ); },
-			highlightDay: function(e) { this.highlightDay(e); },
 			hoverDay: function(e) { this._highlightMonth(e); },
 			
 			mouseWheel: function(e,delta) { if( delta > 0 ) { this.upOneMonth(); } else if( delta < 0 ) { this.downOneMonth(); }},
@@ -268,6 +294,7 @@ $.widget( "simey.gdatepicker", {
 			downOneYear: function(e) { this.downOneYear(); }
 			
 		},
+		
         _create: function() {
 			
 			// cant run if no Date.js library
