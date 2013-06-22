@@ -36,6 +36,15 @@
 		.ui-gdatepicker .ui-gdatepicker-wrapper { margin: auto; position: relative; }
 		.ui-gdatepicker .ui-gdatepicker-body { max-height: 265px; overflow: hidden; width: auto; }
 		
+		.ui-gdatepicker-overlay {
+			position: absolute;top: 115px; left: 50%; margin-left: -110px;
+			width: 220px; height: 50px; 
+			text-align: center; font-size: 2em; line-height: 2.2;
+			background: rgba(227, 88, 94, 0.6); color: #FFF;
+			border-radius: 5px;	display: none;
+		}
+		
+		
 		.ui-gdatepicker .ui-gdatepicker-scroll-arrow,
 		.ui-gdatepicker .ui-gdatepicker-scroll-arrow-year { position: absolute; width: 80px; left: 170px; background: #fff; opacity: 0.2; height: 24px; text-align: center; line-height: 24px; cursor: pointer; }
 		.ui-gdatepicker .ui-gdatepicker-scroll-arrow:hover,

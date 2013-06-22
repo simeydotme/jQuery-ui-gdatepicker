@@ -35,7 +35,7 @@
 <script>
 	$(function() {
 		$('#cal').gdatepicker();
-		$('#cal2').gdatepicker();
+		$('#cal2').gdatepicker({ selectday: function(e,ui) { console.log( e ); console.log( ui ); } });
 	});
 </script>
 

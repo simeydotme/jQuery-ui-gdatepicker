@@ -22,8 +22,6 @@ $.widget('simey.gdatepicker', {
 		
 			var mommy = this;
 			
-			
-			
 		// --------------------------------------------------------------------------------------------------
 		// before we do anything, make sure we can access date.js
 		// it is needed for core functionality.
@@ -34,24 +32,35 @@ $.widget('simey.gdatepicker', {
 				return false; 
 			}
 			
+		// --------------------------------------------------------------------------------------------------
+		// we need a timer defined for use with scrolling overlay
+		
+			this._otimer = "";
+		
+			
+		// --------------------------------------------------------------------------------------------------
+		// set the active month and year.
+
+			this._active = { month: Date.today().getMonth(), year: Date.today().getFullYear() }
 			
 		// --------------------------------------------------------------------------------------------------
 		// generate HTML needed for creating Calendar,
 		// and append them all to the this._$picker
 			
-			this._$picker =					$('<div class="ui-gdatepicker"/>');
+			this._$picker =					$('<div class="ui-gdatepicker"/>').attr( 'id' , 'gdatepicker_' + this.uuid );
 			this._$pickerInner = 			$('<div class="ui-gdatepicker-wrapper"/>').appendTo( this._$picker );
 			this._$pickerHead = 			$('<div class="ui-gdatepicker-head"/>').appendTo( this._$pickerInner );
 			this._$pickerBody = 			$('<div class="ui-gdatepicker-body"/>').appendTo( this._$pickerInner );
+			
 			this._$pickerUpArrow = 			$('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-up"><span>previous month</span></div>').appendTo( this._$pickerInner );
 			this._$pickerDownArrow = 		$('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-down"><span>next month</span></div>').appendTo( this._$pickerInner );
 			this._$pickerUpArrowYear = 		$('<div class="ui-gdatepicker-scroll-arrow-year ui-gdatepicker-scroll-arrow-up-year"><span>previous year</span></div>').appendTo( this._$pickerInner );
 			this._$pickerDownArrowYear = 	$('<div class="ui-gdatepicker-scroll-arrow-year ui-gdatepicker-scroll-arrow-down-year"><span>next year</span></div>').appendTo( this._$pickerInner );
+			this._$pickerDateOverlay =		$('<div class="ui-gdatepicker-overlay">'+ new Date( this._active.year , this._active.month , 1 ).toString('MMMM') +" "+ this._active.year +'</div>').appendTo( this._$pickerInner );
 			
-			this._$pickerInput = 			$('<input class="ui-gdatepicker-input" type="text"/>');
+			this._$pickerInput = 			$('<input class="ui-gdatepicker-input" type="text"/>').attr( 'id' , 'gdatepicker_input_' + this.uuid );
 			this._$pickerElement =			this.element;
 			
-			this._active = { month: Date.today().getMonth(), year: Date.today().getFullYear() }
 			
 			this._generateHead();
 			this._generateBody( this._active.month , this._active.year );
@@ -83,17 +92,14 @@ $.widget('simey.gdatepicker', {
 			this._slctd.value = this._$pickerElement.val();
 			this._slctd.format = this.options.format;
 				
-				
-			if( this._slctd.value !== "" ) { 
-				if( Date.parseExact( this._slctd.value , this._slctd.format ) !== null ) {
+			if( this._slctd.value !== "" && ( Date.parseExact( this._slctd.value , this._slctd.format ) !== null ) ) { 
 					
 					this._slctd.day = 	Date.parseExact( this._slctd.value, this._slctd.format ).getDate();
 					this._slctd.month = Date.parseExact( this._slctd.value, this._slctd.format ).getMonth();
 					this._slctd.year = 	Date.parseExact( this._slctd.value, this._slctd.format ).getFullYear();
 						
 					this._setOption( "selected" , [ this._slctd.day , this._slctd.month , this._slctd.year ] );
-					
-				}
+
 			}
 			
 		// --------------------------------------------------------------------------------------------------
@@ -124,12 +130,8 @@ $.widget('simey.gdatepicker', {
 			// accordingly, and also trigger an event
 			this._$pickerBody.on( 'click', '.ui-gdatepicker-day', function (e) {
 				
-				// remove all the currently selected days.
-				mommy._$pickerBody.find('.ui-gdatepicker-day').removeClass('ui-gdatepicker-selected');
-				// select the target day.
-				$(e.target).addClass('ui-gdatepicker-selected');
-				// exposed event callback for users to hook.
-				mommy._trigger( "selectday", "click" );
+				// select the date we've clicked on.
+				mommy.selectDate( $(e.target) );
 				
 			});
 			
@@ -169,12 +171,17 @@ $.widget('simey.gdatepicker', {
 				var y = mommy._active.year;
 				if( m === -1 ) { m = 11; y--; }
 				
-				// generate the content based on these new months
-				// and scroll the body in the correct direction
-				mommy._generateBody( m , y );
-				mommy._active.month = m;
-				mommy._active.year = y;
-				mommy._scrollBody('up');
+				mommy.goToNewMonth( m , y );
+				
+			});
+			
+			this._$pickerUpArrowYear.on( 'click', function(e) {
+				
+				// figure out what the new months will be
+				var m = mommy._active.month;
+				var y = mommy._active.year - 1;
+				
+				mommy.goToNewMonth( m , y );
 				
 			});
 			
@@ -185,14 +192,49 @@ $.widget('simey.gdatepicker', {
 				var y = mommy._active.year;
 				if( m === 12 ) { m = 0; y++; }
 				
-				// generate the content based on these new months
-				// and scroll the body in the correct direction
-				mommy._generateBody( m , y );
-				mommy._active.month = m;
-				mommy._active.year = y;
-				mommy._scrollBody('down');
+				mommy.goToNewMonth( m , y );
 				
 			});
+			
+			this._$pickerDownArrowYear.on( 'click', function(e) {
+				
+				// figure out what the new months will be
+				var m = mommy._active.month;
+				var y = mommy._active.year + 1;
+				
+				mommy.goToNewMonth( m , y );
+				
+			});
+			
+			// if mousewheel scroll plugin is present...
+			if( $.event.special.mousewheel !== undefined ) {
+				this._$picker.on('mousewheel', function(e,delta) {
+					
+					// we stop the main window scrolling, or it'll be annoying
+					e.preventDefault();
+					
+					// trigger the up/down arrow clicks
+					if( delta > 0 )			{ mommy._$pickerUpArrow.trigger('click'); }
+					else if( delta < 0 ) 	{ mommy._$pickerDownArrow.trigger('click'); }
+					
+					// we use a timer to fade out the helpful overlay
+					// after we've stopped scrolling for more than 700ms
+					
+					var speed = mommy.options.scrollSpeed;
+					
+					// clear the timeout so it wont trigger.
+					clearTimeout( mommy._otimer );
+					// set the text to the current month and year
+					mommy._$pickerDateOverlay.text( new Date( mommy._active.year , mommy._active.month , 1 ).toString('MMMM') +" "+ mommy._active.year );
+					// fade in the overlay if it's not visible
+					mommy._$pickerDateOverlay.fadeIn( speed / 2 );
+					// fade out the overlay after 700ms
+					mommy._otimer = setTimeout( function() {
+						mommy._$pickerDateOverlay.fadeOut( speed );
+					} , speed * 2 )
+					
+				});
+			}
 			
 			
 			
@@ -206,7 +248,8 @@ $.widget('simey.gdatepicker', {
 		
 		this._$picker.addClass('ui-gdatepicker-show');
 		
-		this.showCurrentDate();
+		this.selectDate();
+		this.scrollToCurrentDate();
 		this.reposition( this.options.position[0] , this.options.position[1] );
 		
 		this._trigger( "show" );
@@ -220,6 +263,8 @@ $.widget('simey.gdatepicker', {
 		
 	},
 	
+	
+	
 	reposition: function( top , left ) {
 		
 		// set the distance to offset the calendar
@@ -232,10 +277,87 @@ $.widget('simey.gdatepicker', {
 			
 	},
 	
-	showCurrentDate: function() {
+	
+	
+	selectDate: function( date ) {
+		
+		// selectDate function takes parameter of either:
+		// [dd,mm,yyyy] or a $()
+		
+		var $target;
+		
+		// if date is supplied then we proceed to figure out the target,
+		// otherwise we just set to previously stored date.
+		
+		if( date ) {
+			
+			if( $.type(date) === "array" ) {
+				
+				// set target from array in format: [dd,mm,yyyy]
+				$target = $(
+					'[data-day='+date[0]+']'+
+					'[data-month='+date[1]+']'+
+					'[data-year='+date[2]+']'
+				);
+				// update the selected option
+				this._setOption( "selected" , [ date[0] , date[1] , date[2] ] );
+				
+			} else if ( $.type(date) === "object" ) {
+				
+				// set target from the passed jQuery object
+				$target = $(date);
+				// update the selected option
+				this._setOption( "selected" , [ 
+					parseInt($target.data('day')) , 
+					parseInt($target.data('month')) , 
+					parseInt($target.data('year')) 
+				] );
+				
+			} else {
+				
+				throw new Error("Incorrect paramter: 'date' in function: selectDate();");
+				
+			}
+			
+		} else {
+			
+			// previously stored date
+			$target = $(
+				'[data-day='+this.options.selected[0]+']'+
+				'[data-month='+this.options.selected[1]+']'+
+				'[data-year='+this.options.selected[2]+']'
+			);
+			
+		}
+		
+		
+			// remove all the currently selected days.
+			this._$pickerBody.find('.ui-gdatepicker-day').removeClass('ui-gdatepicker-selected');
+			// select the target day.
+			this._$pickerBody.find( $target ).addClass('ui-gdatepicker-selected');
+		
+			// exposed event callback for users to hook.
+			this._trigger( "selectday", "click", { 
+				target: $target, 
+				date: new Date(this.options.selected[2], this.options.selected[1], this.options.selected[0] ) 
+			});
+			
+
+			
+	},
+	
+	
+	
+	scrollToCurrentDate: function() {
+		
+		// scrollToCurrentDate is a helper function used mainly
+		// for positioning the calendar in the right place on
+		// first load
 		
 		var m = this._active.month;
 		var y = this._active.year;
+		
+		
 		
 		// we use a 'trick' to position the body, if the datepicker
 		// is hidden; this is because we cannot get positions of hidden elements
@@ -257,13 +379,52 @@ $.widget('simey.gdatepicker', {
 		
 	},
 	
-	_scrollBody: function( direction ) {
-				
+	
+	
+	
+	goToNewMonth: function( month , year ) {
+		
+		// set the "original month" and "original year"
+		var om = this._active.month;
+		var oy = this._active.year;
+		
+		// if the passed month or year is greater than
+		// the original month or year, then scroll up
+		var direction = "down";
+		if( ( om > month && oy === year ) || 
+			( om < month && oy > year ) || 
+			( om === month && oy > year ) ) { direction = "up"; }
+		
+		// if we're going up a whole year, increase the speed a little
+		// mainly cos it looks strange otherwise.
+		var duration = this.options.scrollSpeed;
+		if( ( oy > year || oy < year ) && om === month ) { duration = duration / 2; }
+		
+		// generate the content based on these new months,
+		// select the current date,
+		// and scroll the body in the correct direction
+		this._generateBody( month , year );
+		this._active.month = month;
+		this._active.year = year;
+		
+		this._scrollBody( direction , duration );
+		
+	},
+	
+	
+	
+	_scrollBody: function( direction , duration ) {
+		
+		// scrollBody is a purely cosmetic function which gives the
+		// look that the calendar is infinitely scrolling, when really it's re-generating.
+		
 		var m = this._active.month;
 		var y = this._active.year;
 		
 		var nm = ( m+1 > 11 ) ? 0 : m+1;
 		var ny = ( m+1 > 11 ) ? y+1 : y;
+		
+		var duration = duration || this.options.scrollSpeed;
 		
 		// set the height of a day.
 		// set the position of active month
@@ -271,8 +432,8 @@ $.widget('simey.gdatepicker', {
 		var h = this._$pickerBody.find('.ui-gdatepicker-day:first').outerHeight();
 		
 		var opt = {
-			to: 	$('[data-month='+m+'][data-year='+y+']').first().position().top ,
-			from: 	$('[data-month='+nm+'][data-year='+ny+']').first().position().top ,
+			to: 	this._$picker.find('[data-month='+m+'][data-year='+y+']').first().position().top ,
+			from: 	this._$picker.find('[data-month='+nm+'][data-year='+ny+']').first().position().top ,
 			now:	this._$pickerBody.scrollTop()
 		}
 		
@@ -281,10 +442,10 @@ $.widget('simey.gdatepicker', {
 		var offset = ( direction === "down" ) ? 0 : opt.now + opt.from - h;
 
 		// scroll the body to the current month
-		this._$pickerBody.scrollTop( offset ).stop().animate({ scrollTop: opt.now + opt.to - h }, this.options.scrollSpeed );
-		
+		this._$pickerBody.scrollTop( offset ).stop().animate({ scrollTop: opt.now + opt.to - h }, duration );		
 		
 	},
+	
 		
 		
 	_destroy: function () {
