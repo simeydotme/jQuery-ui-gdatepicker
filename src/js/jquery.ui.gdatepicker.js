@@ -1,5 +1,4 @@
-
-
+// Version 0.3.0
 
 $.widget('simey.gdatepicker', {
 		
