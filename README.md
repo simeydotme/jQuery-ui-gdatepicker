@@ -1,4 +1,4 @@
-#jQuery UI gDatepicker - WIP.
+#jQuery UI gDatepicker - WIP.  
 ###A Google inspired Datepicker.
 This widget is built on the jQuery UI framework.  
 Temporary demo at: http://sites.simey.me/jquery-gdatepicker/demo/
@@ -34,7 +34,7 @@ Temporary demo at: http://sites.simey.me/jquery-gdatepicker/demo/
   - jQuery UI (1.10.2+)
   - Date.js (http://www.datejs.com/)
   
-###Optional
+####Optional
   - jQuery Mousewheel (for mouse scrolling) (https://github.com/brandonaaron/jquery-mousewheel)
   
 ------------------------------------  
