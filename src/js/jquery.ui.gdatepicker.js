@@ -35,7 +35,7 @@ $.widget('simey.gdatepicker', {
 			
 			if( $.type( Date.today ) === "undefined" ) { 
 				this._destroy();
-				throw new Error("Date.js Library (http://www.datejs.com/) is required for fate handling. Destroying gdatepicker."); 
+				throw new Error("Date.js Library (http://www.datejs.com/) is required for date handling. Destroying gdatepicker."); 
 				return false; 
 			}
 			
@@ -727,11 +727,15 @@ $.widget('simey.gdatepicker', {
 	
 	
 	_destroy: function () {
+		
+		if( this._$picker !== undefined ) {
+		
+			this._$picker.empty().remove();
+			this._$pickerInput.remove();
+			this._$pickerEmpty.remove();
+			this._$pickerElement.removeClass('has-gdatepicker');
 			
-		this._$picker.empty().remove();
-		this._$pickerInput.remove();
-		this._$pickerEmpty.remove();
-		this._$pickerElement.removeClass('has-gdatepicker');
+		}
 		
 	},
 	
