@@ -1,24 +1,65 @@
 // Version 0.3.0
+;if( typeof( $.widget ) !== "function" ) {
+	throw new Error("Plugin requires jQuery UI Widget Factory (http://jqueryui.com/widget/)");
+}
 
-$.widget('simey.gdatepicker', {
+;$.widget('simey.gdatepicker', {
 		
 	options: {
 			
-			placeholder:		"Pick a date...",						// string:			eg: "Pick me!" - generated input's placeholder if original input doesn't have.
-			selected:			"",										// array:			eg: [ 31, 12, 2012 ] - default date that is selected/highlighted. leave blank for today.
-			format:				"dd-MM-yyyy",							// string:			eg: "dd-MM-yyyy" - format of original input
-			formatOutput:		"MMM dSX, yyyy",						// string:			eg: "dd of MMMM, yyyy" - format of generated output
-			days: 				['M','T','W','T','F','S','S'],			// array:			eg: ['L','M','M','J','V','S','D'] - days of week in header
-			position: 			[3,0],									// array: 			eg: [0,0] - position of calendar
-			scrollSpeed:		300,									// integer: 		eg: 300
-			overlayType:		"both",									// string, bool: 	eg: false, "both", "month", "year"
-			overlayAnimation:	"drop",									// string: 			eg: "drop", "fade"
-			theme:				false									// string, bool: 	eg: false, "dark", "green" - sets the css theme style.
-			
-			
-			
+			placeholder:		"Pick a date...",						
+								// string:	
+								// eg: "Pick me!"
+								// generated input's placeholder if original input doesn't have.
+								
+			selected:			"",										
+								// array
+								// eg: [ 31, 12, 2012 ]
+								// default date that is selected/highlighted. leave blank for today.
+								
+			format:				"dd-MM-yyyy",							
+								// string 
+								// eg: "dd-MM-yyyy"
+								// format of original input
+								
+			formatOutput:		"MMM dSX, yyyy",						
+								// string
+								// eg: "dd of MMMM, yyyy" 
+								// format of generated output
+								
+			days: 				['M','T','W','T','F','S','S'],			
+								// array
+								// eg: ['L','M','M','J','V','S','D']
+								// days of week in header
+								
+			position: 			[3,0],									
+								// array
+								// eg: [0,0] 
+								// position of calendar
+								
+			scrollSpeed:		300,									
+								// integer
+								// eg: 300
+								// how fast the calendar scrolls up and down
+								
+			overlayType:		"both",									
+								// string, bool
+								// eg: false, "both", "month", "year"
+								// do we show the overlay for scrolling months/years
+								
+			overlayAnimation:	"drop",									
+								// string
+								// eg: "drop", "fade"
+								// how the overlay is animated in and out
+								
+			theme:				false									
+								// string, bool
+								// eg: false, "dark", "green"
+								// sets the css theme style.
 			
 	},
+	
+	
 	
 	_create: function () {
 			
@@ -39,7 +80,14 @@ $.widget('simey.gdatepicker', {
 				return false; 
 			}
 			
+		// --------------------------------------------------------------------------------------------------
+		// before we do anything, make sure we have $.ui.position
+		// it is needed for positioning the calendar.
 			
+			if( typeof( $.ui.position ) === undefined ) {
+				throw new Error("Plugin requires jQuery UI Position (http://jqueryui.com/position/)");
+			}
+
 			
 		// --------------------------------------------------------------------------------------------------
 		// set the active month and year.
@@ -775,7 +823,7 @@ $.widget('simey.gdatepicker', {
 		// So technically there's only ever 5 months in the calendar.
 			
 			// set month to the month before.
-			if ( month == 0 ) { 
+			if ( month === 0 ) { 
 				month = 11; 
 				year -= 1; 
 			} else { 
@@ -813,7 +861,7 @@ $.widget('simey.gdatepicker', {
 				// if the offset is 0 we actually want to count down from 7, because
 				// we show sunday as the last day in the week, not the first.
 				var offset = new Date( year, month, 1 ).getDay();
-				if (offset == 0) { offset = 7; }
+				if (offset === 0) { offset = 7; }
 				
 				// count down from the offset to populate all days in previous month 
 				for( o = offset-1; o > 0; o-- ) {
@@ -890,9 +938,9 @@ $.widget('simey.gdatepicker', {
 				
 			}
 						
-			// because of the scroll animation required a lot of
+			// because of the scroll animation requires a lot of
 			// extra space to move around, we set the rendered months
-			// to 5.
+			// to 5, it could be less if there was no animation.
 			
 			html += previousDays( month, year );
 			html += addMonths( month, year, 5 );
@@ -907,7 +955,7 @@ $.widget('simey.gdatepicker', {
 		_generateHead: function() {
 			
 			// populate the head with the days
-			html = "";
+			var html = "";
 			
 			for( i=0; i<7; i++ ) {
 				html += "<span class=\"ui-gdatepicker-day\" data-day=\""+this.options.days[i]+"\">";
@@ -926,21 +974,3 @@ $.widget('simey.gdatepicker', {
 	
 		
 });
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
