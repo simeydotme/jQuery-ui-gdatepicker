@@ -54,7 +54,7 @@
 								
 			theme:				false									
 								// string, bool
-								// eg: false, "dark", "green"
+								// eg: false, "dark", "mint"
 								// sets the css theme style.
 			
 	},
