@@ -65,7 +65,7 @@
 			
 		// --------------------------------------------------------------------------------------------------
 		// we need a synched copy of the "this" object 
-		// for use inside of events or jQuery functions
+		// for use when "this" context changes
 		
 			var mommy = this;
 			
@@ -145,7 +145,7 @@
 				.prop( 'placeholder' , this.options.placeholder )
 				.insertAfter( this._$pickerElement )
 				.after( this._$pickerEmpty );
-			
+							
 			
 			
 		// --------------------------------------------------------------------------------------------------
@@ -167,7 +167,10 @@
 
 			}
 			
+		// --------------------------------------------------------------------------------------------------
+		// place the "x" for clearing the field
 			
+			this.positionEmpty();
 			
 			
 			
@@ -178,7 +181,10 @@
 		// --------------------------------------------------------------------------------------------------
 			
 			$(window).on('resize.gdatepicker' , function() {
+				
 				mommy.reposition();
+				mommy.positionEmpty();
+				
 			});
 			
 			// when we click a day in the calendar we highlight it
@@ -191,30 +197,32 @@
 			});
 			
 			
-			this._$pickerInput
-			
-				.on( 'click' , function( e ) { })
+			this._$pickerInput.on({
 				
-				.on( 'change' , function( e ) {
+				'click': function(e) {},
+				
+				'change': function(e) {
 
-					mommy._trigger( "changeValue", e, { selected: mommy.options.selected } );
+					mommy._trigger( "changeValue", e, { 
+						selected: mommy.options.selected 
+					});
 					
-				})
+				},
 				
-				.on( 'mouseover' , function() {
+				'mouseover': function() {
 					
 					mommy._$pickerEmpty.addClass('ui-gdatepicker-empty-hover');
 					
-				})
+				},
 				
-				.on( 'mouseout' , function() {
+				'mouseout': function() {
 					
 					mommy._$pickerEmpty.removeClass('ui-gdatepicker-empty-hover');
 					
-				})
+				},
 				
 				// show the datepicker on focus of element.
-				.on( 'focus' , function( e ) {
+				'focus': function(e) {
 					
 					if( !mommy._$picker.is(':visible') ) {
 						
@@ -225,10 +233,10 @@
 					
 					}
 				
-				})
+				},
 				
 				// hide the datepicker if we've "tabbed" away from it
-				.on( 'keydown' , function( e ) {
+				'keydown': function(e) {
 					
 					if( e.keyCode === 9 ) {
 						
@@ -238,9 +246,9 @@
 						mommy._$pickerInput.removeClass( "ui-gdatepicker-active" );
 					}
 					
-				})
+				},
 				
-				.on( 'keyup' , function( e ) {
+				'keyup': function(e) {
 				
 					if( e.keyCode == 13 ) {
 					
@@ -269,7 +277,9 @@
 						
 					}
 					
-				});
+				}
+				
+			});
 			
 			
 			
@@ -562,11 +572,31 @@
 		
 		// position the datepicker at the offset of the
 		// input fields position
-		this._$picker.position({ my: 'left+'+left+' top+'+top, at: 'left bottom', of: this._$pickerInput });
+		this._$picker.position({ 
+			my: 'left+'+left+' top+'+top, 
+			at: 'left bottom', 
+			of: this._$pickerInput 
+		});
 			
 	},
 	
 	
+	
+	positionEmpty: function( top , right ) {
+		
+		// set the distance to offset the "x"
+		var top = top || 0;
+		var right = right || -10;
+		
+		// position the "x" at the offset of the
+		// input fields position
+		this._$pickerEmpty.position({
+			my: 'right center',
+			at: 'right+'+right+' center+'+top,
+			of: this._$pickerInput
+		});
+		
+	},
 	
 	
 	
@@ -782,6 +812,8 @@
 			this._$pickerInput.remove();
 			this._$pickerEmpty.remove();
 			this._$pickerElement.removeClass('has-gdatepicker');
+			
+			$(window).off('resize.gdatepicker');
 			
 		}
 		
