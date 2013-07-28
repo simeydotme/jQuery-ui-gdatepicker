@@ -167,10 +167,22 @@
 
 			}
 			
+			
+			
 		// --------------------------------------------------------------------------------------------------
 		// place the "x" for clearing the field
-			
-			this.positionEmpty();
+		// until I can figure out a better way, 
+		// it's in a timeout because it needs to 
+		// be positioned after everything is done
+		// rendering
+		
+			$(document).ready(function(e) {
+				
+				setTimeout( function() {
+					mommy.positionEmpty();
+				},500);
+				
+			});
 			
 			
 			
