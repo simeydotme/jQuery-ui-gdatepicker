@@ -123,7 +123,7 @@
 			
 			this._$pickerElement =			this.element.addClass('has-gdatepicker');
 			this._$pickerInput = 			$('<input class="ui-gdatepicker-input" type="text"/>').attr( 'id' , 'gdatepicker_' + this.uuid ).addClass( addTheme() );
-			this._$pickerEmpty = 			$('<span class="ui-gdatepicker-empty"><span>Clear</span></span>').addClass( addTheme() );
+			this._$pickerEmpty = 			$('<span class="ui-gdatepicker-empty"><span>Clear</span></span>').addClass( addTheme() ).hide();
 			
 			this._generateHead();
 			this._generateBody( this._active.month , this._active.year );
@@ -179,6 +179,7 @@
 			$(document).ready(function(e) {
 				
 				setTimeout( function() {
+					mommy._$pickerEmpty.fadeIn();
 					mommy.positionEmpty();
 				},500);
 				
