@@ -13,9 +13,11 @@
 								// generated input's placeholder if original input doesn't have.
 								
 			selected:			"",										
-								// array
-								// eg: [ 31, 12, 2012 ]
-								// default date that is selected/highlighted. leave blank for today.
+								// string, array
+								// eg: "", [ 31, 12, 2012 ]
+								// default date that is selected/highlighted. 
+								// leave as blank string for none
+								// overridden if input has "value=" with same format as "format" option
 								
 			format:				"dd-MM-yyyy",							
 								// string 
