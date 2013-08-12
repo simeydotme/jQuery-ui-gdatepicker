@@ -1,4 +1,11 @@
-#jQuery UI gDatepicker - WIP.  
+#jQuery UI gDatepicker
+###Work In Progress
+__*I would advise you against using this code in any kind of project that
+requires stability and maintainability as the gdatepicker is not at version 1.0.0 yet.
+Please check back regularly or * (watch) the repo for news on 1.0.0.*__
+
+=========================================
+
 ###A Google inspired Datepicker.
 This widget is built on the jQuery UI framework.  
 Temporary demo at: http://sites.simey.me/jquery-gdatepicker/demo/
