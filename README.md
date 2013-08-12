@@ -5,7 +5,16 @@ Temporary demo at: http://sites.simey.me/jquery-gdatepicker/demo/
 
 ------------------------------------  
   
-   
+###TODO:
+ - Finish README.md
+ - Add Range picker
+ - Remove date.js dependency
+ - Fix positioning on the empty &times;
+ - Add titles to buttons
+ - Add support for overriding month names
+ 
+------------------------------------  
+
 ###Features: 
 
 - **Single Date Select** - Allows selection of single date
@@ -54,11 +63,6 @@ Temporary demo at: http://sites.simey.me/jquery-gdatepicker/demo/
 
 ------------------------------------
 
-###TODO:
- - Create a proper demo page
- - Finish README.md
- - Add Range picker
- - ...
 
 
 
