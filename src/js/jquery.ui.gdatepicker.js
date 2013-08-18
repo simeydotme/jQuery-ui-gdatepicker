@@ -59,10 +59,12 @@
 								// eg: "drop", "fade"
 								// how the overlay is animated in and out
 								
-			theme:				false									
+			theme:				false,									
 								// string, bool
 								// eg: false, "dark", "mint", "..."
 								// sets the css theme style, supply your own string for custom
+								
+			range:				false
 			
 	},
 	
