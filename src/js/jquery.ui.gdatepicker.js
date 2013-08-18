@@ -34,6 +34,11 @@
 								// eg: ['L','M','M','J','V','S','D']
 								// days of week in header
 								
+			months: 			['January','February','March','April','May','June','July','August','September','October','November','December'],			
+								// array
+								// eg: ['Jan','Feb','Mar','...']
+								// month names in sidebar
+								
 			position: 			[3,0],									
 								// array
 								// eg: [0,0] 
@@ -546,12 +551,20 @@
 				if( options.direction === "up" ) { options.opposite = "down"; } else { options.opposite = "up"; }
 				
 					// set the text to the correct format
-					if( options.type === "month" ) {
-						this._$pickerDateOverlay.text( new Date( this._active.year , this._active.month , 1 ).toString('MMMM') );
-					} else if( options.type === "year" ) {
-						this._$pickerDateOverlay.text( this._active.year );
-					} else {
-						this._$pickerDateOverlay.text( new Date( this._active.year , this._active.month , 1 ).toString('MMMM') +" "+ this._active.year );	
+					
+					var overlayMonth = this.options.months[ new Date( this._active.year , this._active.month , 1 ).getMonth() ];
+					var overlayYear =  this._active.year;
+					var overlayBoth =  overlayMonth + " " + overlayYear;
+
+					switch( options.type ) {
+					
+						case "month": 	
+							this._$pickerDateOverlay.text( overlayMonth ); break;
+						case "year":
+							this._$pickerDateOverlay.text( overlayYear ); break;
+						default:
+							this._$pickerDateOverlay.text( overlayBoth );
+						
 					}
 				
 				// fade in the overlay if it's not visible
@@ -851,6 +864,7 @@
 	_generateBody: function( month, year ) {
 			
 			var html = "";
+			var mommy = this;
 			
 			// if month isn't supplied, we used the current month.
 			if( typeof( month ) !== "number" ) {
@@ -944,7 +958,7 @@
 					if (mo > 11) { var m = mo-12; y = year+1; }
 					
 					// get the current month's name to show in the side.
-					var monthname = new Date(y,m,1).toString('MMMM');
+					var monthname = mommy.options.months[ new Date(y,m,1).getMonth() ];
 					
 					// get the year number to show in the side. but we dont want
 					// to show this year's number as that's implied.
