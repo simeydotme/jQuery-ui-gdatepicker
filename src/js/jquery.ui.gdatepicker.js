@@ -129,6 +129,7 @@
 			this._$pickerInner = 			$('<div class="ui-gdatepicker-wrapper"/>').appendTo( this._$picker );
 			this._$pickerHead = 			$('<div class="ui-gdatepicker-head"/>').appendTo( this._$pickerInner );
 			this._$pickerBody = 			$('<div class="ui-gdatepicker-body"/>').appendTo( this._$pickerInner );
+			this._$pickerCache =			$();
 			
 			this._$pickerUpArrow = 			$('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-up"><span>previous month</span></div>').appendTo( this._$pickerInner );
 			this._$pickerDownArrow = 		$('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-down"><span>next month</span></div>').appendTo( this._$pickerInner );
@@ -652,7 +653,7 @@
 		// otherwise we just set to previously stored date.
 		
 				
-		// this will be an array;
+		// this will be a temp array;
 		var tDate = [];
 		
 		
@@ -745,8 +746,9 @@
 		this._highlightDate();
 		
 		// exposed event callback for users to hook.
+		// TODO
 		this._trigger( "selectDay", 'click', { 
-			date: new Date( this.options.selectedFirst[2], this.options.selectedFirst[1], this.options.selectedFirst[0] ) ,
+			date: new Date( tDate[2], tDate[1], tDate[0] ) ,
 			formatted: this._$pickerInput.val() 
 		});
 			
@@ -760,7 +762,7 @@
 			
 		// clear all the highlighted dates
 		//this._$pickerBody.find('.ui-gdatepicker-day').removeClass('ui-gdatepicker-selected');
-		
+				
 		var d = {
 			first: { 
 				d: this.options.selectedFirst[0] , 
@@ -773,35 +775,76 @@
 				y: this.options.selectedLast[2] 
 			}
 		}
+
+		// remove all the existing highlighted dates.
 		
-		var diff = d.last.d - d.first.d;
-		
+		this._$pickerCache.removeClass('ui-gdatepicker-selected');
+
+
+		// if it's not a range picker, we just
+		// highlight the first selected day.
 		
 		if( !this.options.range ) {
 			
-			this._$pickerBody.find(
-				'[data-day='+	d.first.d+']'+
-				'[data-month='+	d.first.m+']'+
-				'[data-year='+	d.first.y+']'
-			).addClass('ui-gdatepicker-selected');
-				
+			this._$pickerCache
+				.filter( '.gdpd-'+d.first.d+'.gdpm-'+d.first.m+'.gdpy-'+d.first.y )
+				.addClass('ui-gdatepicker-selected');
+		
+		// otherwise, we gotta do all the days in
+		// between first and last, including themselves -_-;
+		
 		} else {
 			
+			// if we're currently selecting the first date
+			// in the range, then hilight that.
+			
 			if( this._tempFirst ) {
-		this._$pickerBody.find('.ui-gdatepicker-day').removeClass('ui-gdatepicker-selected');
-				this._$pickerBody.find(
-					'[data-day='+	d.first.d+']'+
-					'[data-month='+	d.first.m+']'+
-					'[data-year='+	d.first.y+']'
-				).addClass('ui-gdatepicker-selected');
+				
+				this._$pickerCache
+					.filter( '.gdpd-'+d.first.d+'.gdpm-'+d.first.m+'.gdpy-'+d.first.y )
+					.addClass('ui-gdatepicker-selected');
+			
+			// otherwise we hilight everything in the range
 				
 			} else {
+				
+				// this compares the two dates in days.
+				var diff = ( Date.UTC( d.last.y , d.last.m , d.last.d , 0 , 0 , 0 ) - Date.UTC( d.first.y , d.first.m , d.first.d , 0 , 0 , 0 )) / 86400000;
+				
+				// need to store the loop dates so we
+				// can manipulate them
+				var loopDay = d.last.d,
+					loopMonth = d.last.m,
+					loopYear = d.last.y;
+				
+				// this will hold all the dates we get
+				var $collection = $();
+				
+				// THIS LOOP IS VERY HEAVY.
+				// TRY TO FIGURE LIGHT WAY TO DO THIS.
+				
+				// basically:
+				// for all the dates between first and last
+				// hilight them.
+				for( i = diff+1; i > 0; i-- ) {
+					 
+					var $current =  this._$pickerCache.filter( '.gdpd-'+loopDay+'.gdpm-'+loopMonth+'.gdpy-'+loopYear );
+					$collection = $collection.add( $current );
+					
+					loopDay--;
+					if( loopDay === 0 ) {
+						loopMonth--;
+						if( loopMonth < 0 ) {
+							loopYear--;
+							loopMonth = 11;
+						}
+						loopDay = new Date( loopYear , loopMonth+1 , 0 ).getDate();	
+					}
+					
+				}
+				
+				$collection.addClass('ui-gdatepicker-selected');
 			
-				this._$pickerBody.find(
-					'[data-day='+	d.last.d+']'+
-					'[data-month='+	d.last.m+']'+
-					'[data-year='+	d.last.y+']'
-				).addClass('ui-gdatepicker-selected');
 				
 			}
 			
@@ -817,6 +860,8 @@
 	
 	
 	updateInputs: function() {
+		
+		console.log( this.options );
 		
 		if( $.type( this.options.selectedFirst ) === "array" ) {
 				
@@ -1045,8 +1090,8 @@
 				for( o = offset-1; o > 0; o-- ) {
 					
 					var oday = daysInPreviousMonth-o+1;
-					
-					html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month\" data-day=\""+oday+"\" data-year=\""+previousMonthYear+"\" data-month=\""+previousMonth+"\">";
+					//
+					html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month gdpd-"+oday+" gdpm-"+previousMonth+" gdpy-"+previousMonthYear+"\" data-day=\""+oday+"\" data-year=\""+previousMonthYear+"\" data-month=\""+previousMonth+"\">";
 					html += oday;
 					html += "</span>";	
 					
@@ -1095,7 +1140,7 @@
 						var divider = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
 						var previous = ( mo == month ) ? "ui-gdatepicker-previous-month" : "";
 							
-						html += "<span class=\"ui-gdatepicker-day " +filler+" "+divider+" "+previous+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
+						html += "<span class=\"ui-gdatepicker-day " +filler+" "+divider+" "+previous+" gdpd-"+d+" gdpm-"+m+" gdpy-"+y+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
 						html += d;
 						html += "</span>";
 						
@@ -1124,6 +1169,10 @@
 			html += addMonths( month, year, 5 );
 			
 			this._$pickerBody.empty().html( html );
+			
+			// store a cache for highlighting against.
+			this._$pickerCache = $();
+			this._$pickerCache = this._$pickerCache.add( this._$pickerBody.find('.ui-gdatepicker-day') );
 			
 		},
 		
