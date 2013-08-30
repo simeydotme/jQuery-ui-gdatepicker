@@ -27,7 +27,7 @@
 			box-shadow: 1px 1px 4px rgba(63, 67, 78, 0.5); border: none;
 		}
 		
-		
+		.ui-gdatepicker-theme-dark.ui-gdatepicker-show { z-index: 999; display: block; }
 		
 		
 		.ui-gdatepicker-theme-dark.ui-gdatepicker .ui-gdatepicker-wrapper { margin: auto; position: relative; }

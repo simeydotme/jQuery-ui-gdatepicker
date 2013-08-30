@@ -26,6 +26,12 @@
 								// leave as blank string for none
 								// overridden if input has "value=" with same format as "format" option
 								
+			selectRange:		14,
+								// number, boolean
+								// eg: 14,
+								// maximum length of the range of dates allowed to pick.
+								// a large number will result in slow performance
+								
 			format:				"dd-MM-yyyy",							
 								// string 
 								// eg: "dd-MM-yyyy"
@@ -36,20 +42,20 @@
 								// eg: "dd of MMMM, yyyy" 
 								// format of generated output
 								
-			days: 				['M','T','W','T','F','S','S'],			
+			days: 				['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],			
 								// array
-								// eg: ['L','M','M','J','V','S','D']
-								// days of week in header
+								// eg: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+								// days of week
 								
 			months: 			['January','February','March','April','May','June','July','August','September','October','November','December'],			
 								// array
-								// eg: ['Jan','Feb','Mar','...']
-								// month names in sidebar
+								// eg: ['January','February','March','...']
+								// month names
 								
 			position: 			[3,0],									
 								// array
 								// eg: [0,0] 
-								// position of calendar
+								// offset position of calendar
 								
 			scrollSpeed:		300,									
 								// integer
@@ -70,8 +76,6 @@
 								// string, bool
 								// eg: false, "dark", "mint", "..."
 								// sets the css theme style, supply your own string for custom
-								
-			range:				5
 			
 	},
 	
@@ -655,8 +659,6 @@
 				
 		// this will be a temp array;
 		var tDate = [];
-		
-		
 		
 		if( date ) {
 			

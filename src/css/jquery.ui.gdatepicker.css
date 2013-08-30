@@ -28,6 +28,8 @@
 			box-shadow: 1px 1px 4px rgba(0,0,0,0.2); border: 1px solid #bbb;
 		}
 
+		.ui-gdatepicker-show { z-index: 999; display: block; }
+
 
 		.ui-gdatepicker .ui-gdatepicker-wrapper { margin: auto; position: relative; }
 		.ui-gdatepicker .ui-gdatepicker-body { max-height: 265px; overflow: hidden; width: auto; }
