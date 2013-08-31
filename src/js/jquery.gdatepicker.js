@@ -7,6 +7,9 @@
   var uid = 0;
 
 
+
+
+
 /*** 
 * http://patorjk.com/software/taag/#p=display&h=2&v=2&c=c&f=Fraktur&t=test
 *                                                                            
@@ -50,6 +53,10 @@
   };
 
 
+
+
+
+
 /***
 *                    ..                .x+=:.      .x+=:.   
 *              x .d88"                z`    ^%    z`    ^%  
@@ -79,6 +86,9 @@
 
 
 
+
+
+
 /***
 *                                                s                
 *                                               :8                
@@ -99,6 +109,11 @@
 
   gDatepicker.prototype = {
     
+
+
+
+
+
 
 
 /***
@@ -137,15 +152,7 @@
 
       // create the picker with the designated theme
       this._createPicker( this._getTheme() );
-
-      var tempBody = 
-        this._generateBody();
-      
-      var tempHead =
-        this._generateHead();
-
-      this._appendHead( tempHead );
-      this._appendBody( tempBody );
+      this._populatePicker();
 
 
 
@@ -176,38 +183,166 @@
 
 
 
-
+    // function for showing the calendar
     show: function() {
 
       this._els.$picker.addClass("ui-gdatepicker-show");
+      this.position();
 
     },
 
+    // function for hiding the calendar
     hide: function() {
 
       this._els.$picker.removeClass("ui-gdatepicker-show");
 
     },
 
+    // function for positioning the calendar
+    position: function( offsetTop , offsetLeft ) {
 
+      var $input = this._els.$pickerInput;
+
+      var offset = {
+        top: offsetTop || this.settings.position.top,
+        left: offsetLeft || this.settings.position.left
+      };
+
+      var origin = {
+        top: $input.offset().top + $input.outerHeight() ,
+        left: $input.offset().left
+      };
+
+      this._els.$picker.css({
+        "top": offset.top + origin.top , "left": offset.left + origin.left
+      });
+
+    },
+
+
+
+
+
+
+
+
+/***
+*                  _                                       s       .x+=:.   
+*                 u                                       :8      z`    ^%  
+*                88Nu.   u.                u.    u.      .88         .   <k 
+*         .u    '88888.o888c      .u     x@88k u@88c.   :888ooo    .@8Ned8" 
+*      ud8888.   ^8888  8888   ud8888.  ^"8888""8888" -*8888888  .@^%8888"  
+*    :888'8888.   8888  8888 :888'8888.   8888  888R    8888    x88:  `)8b. 
+*    d888 '88%"   8888  8888 d888 '88%"   8888  888R    8888    8888N=*8888 
+*    8888.+"      8888  8888 8888.+"      8888  888R    8888     %8"    R88 
+*    8888L       .8888b.888P 8888L        8888  888R   .8888Lu=   @8Wou 9%  
+*    '8888c. .+   ^Y8888*""  '8888c. .+  "*88*" 8888"  ^%888*   .888888P`   
+*     "88888%       `Y"       "88888%      ""   'Y"      'Y"    `   ^"F     
+*       "YP'                    "YP'                                        
+*                                                                           
+*                                                                           
+*                                                                           
+*/
 
     _bindEvents: function() {
 
       var _self = this;
 
+      
+      $("html").on({
 
-      this._els.$pickerInput.on({
+        // when we click on page, if it wasn't a click on the
+        // datepicker, then we close it.
+        "mouseup": function(e) {
 
-        "focus": function(e) {
+          var $target = $(e.target);
+          var $parents = $target.parents();
 
-          _self.show.apply( _self );
+          // assume we are going to hide.
+          var hide = true;
+
+          // exempt from closing the datepicker are itself and
+          // the input element
+          var $exempt = $()
+                .add( _self._els.$picker )
+                .add( _self._els.$pickerInputWrapper );
+
+
+          // if the close button was _not_ clicked, and the
+          // target or it's parent was one of the exempt, we
+          // decide not to close.
+          if( !$target.is( _self._els.$pickerClose ) ) {
+            if( $target.filter( $exempt ).length > 0 ) {
+              hide = false;
+            } else if( $parents.filter( $exempt ).length > 0 ) {
+              hide = false;
+            }
+          }
+
+
+          // if we haven't set hide to false, hide calendar
+          if( hide ) {
+            _self.hide.apply( _self );
+          }
 
         }
 
       });
 
 
+
+      this._els.$pickerInput.on({
+
+        // run the "show" function on focus
+        "focus": function(e) {
+          _self.show.apply( _self );
+        },
+        // run the "hide" function on tab 
+        // (not blur, as that intercepts clicking on the calender)
+        "keydown": function(e) {
+          if( e.keyCode === 9 ) {
+            _self.hide.apply( _self );
+          }
+        }
+
+      });
+
+
+      this._els.$pickerUpArrow.on({
+
+        "click": function(e) {
+          _self._goBackAMonth.apply( _self );
+        }
+
+      });
+
+      this._els.$pickerDownArrow.on({
+
+        "click": function(e) {
+          _self._goForwardAMonth.apply( _self );
+        }
+
+      });
+
+      this._els.$pickerUpArrowYear.on({
+
+        "click": function(e) {
+          _self._goBackAYear.apply( _self );
+        }
+
+      });
+
+      this._els.$pickerDownArrowYear.on({
+
+        "click": function(e) {
+          _self._goForwardAYear.apply( _self );
+        }
+
+      });
+
     },
+
+
 
 
 
@@ -224,9 +359,7 @@
 *    '8888c. .+  .888B . '8888c. .+  "*88%""*88" '888!` .888888P`   
 *     "88888%    ^*888%   "88888%      `~    "    `"`   `   ^"F     
 *       "YP'       "%       "YP'                                    
-*                                                                   
-*                                                                   
-*                                                                   
+*                                                                   *                                                                   
 */
 
   // -----------------------------------------------------------------------
@@ -284,8 +417,10 @@
         );
 
       // give the original input a class for hiding/manip
+      // tabindex stops it being tabbed to
       els.$pickerElement
-        .addClass("has-gdatepicker");
+        .addClass("has-gdatepicker")
+        .attr("tabindex","-1");
 
       // create the wrapper heirarchy and give it a theme class
       els.$pickerInputWrapper
@@ -320,6 +455,11 @@
     },
 
 
+
+
+
+
+
 /***
 *                                                                                  s               
 *                                                                                 :8               
@@ -337,6 +477,25 @@
 *    4888~  J8%                                                                                    
 *     ^"===*"`                                                                                     
 */
+    
+    
+    // function that allows us to populate the datepicker
+    // according to the data supplied.
+    _populatePicker: function( direction ) {
+
+      var tempBody = 
+        this._generateBody();
+      
+      var tempHead =
+        this._generateHead();
+
+      this._appendHead( tempHead );
+      this._appendBody( tempBody );
+
+      this._positionCurrentMonth( direction );
+
+    },
+
 
 
     _generateBody: function( month, year ) {
@@ -345,14 +504,13 @@
 
       // if month isn't supplied correctly, we use the current month.
       if( typeof( month ) !== "number" || ( month > 11 || month < 0 ) ) {
-        month = new Date().getMonth();
+        month = this._active.month;
       }
 
       // if year isn't supplied correctly, we use the current year.
       if( typeof( year ) !== "number" || ( year < 1000 ) ) {
-        year = new Date().getFullYear();
+        year = this._active.year;
       }
-
 
 
     // ----------------------------------------------------------------------
@@ -433,7 +591,7 @@
       // extra space to move around, we set the rendered months
       // to 4 or 5, it could be less if there was no animation.
 
-      for( var mo = beginMonth; mo < beginMonth+4; mo++ ) {
+      for( var mo = beginMonth; mo < beginMonth+5; mo++ ) {
         
         // for each month we loop through, we need
         // to make sure it isn't past December. if it is,
@@ -515,6 +673,10 @@
     },
 
 
+
+
+
+
 /***
 *                                 ..                                          .x+=:.   
 *      .uef^"               x .d88"                                          z`    ^%  
@@ -549,6 +711,117 @@
       }
       return theme;
 
+    },
+
+    _goBackAMonth: function() {
+
+      // figure out what the new months will be
+      // if we go below jan, set to dec of previous year
+
+      if( this._active.month === 0 ) {
+        this._active.year -= 1;
+        this._active.month = 11;
+      } else {
+        this._active.month -=1;
+      }
+
+      this._populatePicker( "up" );      
+
+    },
+
+    _goForwardAMonth: function() {
+
+      // figure out what the new months will be
+      // if we go above dec, set to jan of next year
+      if( this._active.month === 11 ) {
+        this._active.year += 1;
+        this._active.month = 0;
+      } else {
+        this._active.month +=1;
+      }
+      
+      this._populatePicker( "down" );      
+
+    },    
+
+    _goBackAYear: function() {
+
+      // figure out what the new year will be
+      this._active.year -= 1;
+      this._populatePicker( "up" );      
+
+    },
+
+    _goForwardAYear: function() {
+
+      // figure out what the new year will be
+      this._active.year += 1;
+      this._populatePicker( "down" );      
+
+    },
+
+    _positionCurrentMonth: function( direction ) {
+
+      // determine direction (up/down);
+      var dir = direction || false;
+      var $body = this._els.$pickerBody;
+      var $firstday = $body.find(".gdpm-"+this._active.month+".gdpy-" +this._active.year ).first();
+
+      // we use a 'trick' to position the body if the datepicker
+      // is hidden; this is because we cannot get positions of hidden elements
+      var trick = this._els.$picker.is(':hidden');
+      if( trick ) { 
+        this._els.$picker.css({ display: 'block' , opacity: '0' }); 
+      }
+
+      // find out height of a day (can change via CSS)
+      var height = $body.find(".ui-gdatepicker-day").first().outerHeight();
+      // get the offset of first day of active month
+      var offset = $firstday.position().top;
+      // get current scrollTop of body
+      var current = $body.scrollTop();
+      // set the final scroll destination
+      var destination = current + offset - height;
+
+
+
+      if( dir === "up" ) {
+
+        // we find out how many days there are before the current month
+        // and then we find out how many days in current month
+        // and then add them together and divide by 7 to find the
+        // number of weeks/rows ... 
+        var count = $firstday.prevAll(".ui-gdatepicker-day").length;
+        var dim = this._getDaysInMonth( this._active.month , this._active.year );
+        var rows = Math.floor((count + dim) / 7);
+
+        // we then quickly scroll down to the nth row
+        // and then animate back up to the current date.
+        $body.scrollTop( (rows) * height );
+        $body.stop().animate({ "scrollTop": destination }, this.settings.scrollSpeed );
+
+
+
+      } else if( dir === "down" ) {
+
+        // because we always have exactly one month placed
+        // before the current month, we can just set the scroll
+        // to the top, and scroll down to current date.
+        $body.scrollTop( 0 );
+        $body.stop().animate({ "scrollTop": destination }, this.settings.scrollSpeed );
+
+
+      } else {
+
+        // scroll the body statically to show the current month
+        $body.scrollTop( destination );
+
+      }
+
+
+      // put things back how we found them. good boy.
+      if( trick ) { this._els.$picker.css({ display: '' , opacity: '' }); }
+
     }
 
 
@@ -556,6 +829,9 @@
 
 
   };
+
+
+
 
 
 
@@ -624,7 +900,7 @@
     // eg: ['January','February','March','...']
     // month names
               
-    position: [3,0],                  
+    position: { top: 3, left: 0 },                  
     // array
     // eg: [0,0] 
     // offset position of calendar

@@ -2,6 +2,9 @@
 		.has-gdatepicker { position: absolute; width: 1px; height: 1px; opacity: 0; clip: rect(0,0,0,0); overflow: hidden; left: -9999em; top: -9999em; }
 
 
+
+		.ui-gdatepicker-input-wrapper { position: relative; display: inline-block; }
+
 		.ui-gdatepicker-input { 
 			display: inline-block; vertical-align: middle;
 			width: 200px; height: 22px; line-height: 22px; 
@@ -43,8 +46,8 @@
 		}
 		
 		.ui-gdatepicker-empty { 
-			position: absolute; margin-left: 196px; margin-top: -21px;
-			width: 12px; height: 12px; opacity: 0.05; cursor: pointer;
+			position: absolute; right: 0; top: 0;
+			width: 30px; height: 30px; opacity: 0.05; cursor: pointer;
 			background: url(../img/cross.png) no-repeat center center; text-indent: -999em;
 			-webkit-transition: opacity 0.2s ease; 
 			-moz-transition: opacity 0.2s ease; 
