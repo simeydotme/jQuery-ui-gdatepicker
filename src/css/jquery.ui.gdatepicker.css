@@ -26,7 +26,7 @@
 
 		.ui-gdatepicker { 
 			font-size: 11px; position: absolute; display: none;
-			padding: 20px; width: 290px; margin: 3px 0;
+			padding: 20px; width: 290px; margin: 3px 0; color: #666;
 			font-family: Verdana, Geneva, Arial, sans-serif; background: #fefefe;
 			box-shadow: 1px 1px 4px rgba(0,0,0,0.2); border: 1px solid #bbb;
 		}
@@ -101,7 +101,7 @@
 		.ui-gdatepicker .ui-gdatepicker-day { width: 23px; text-align: center; cursor: pointer; margin-left: -1px; }
 		.ui-gdatepicker .ui-gdatepicker-day:hover { background: #D3EBF3; color: black; }
 		
-		.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-dim { opacity: 0.5; }
+		.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-dim { color: #ddd; }
 		.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-selected { background: #E3585E; border-color: #E3585E; color: white; text-shadow: 0 -1px 0 rgba(0,0,0,0.3); }
 
 		.ui-gdatepicker .ui-gdatepicker-day,
@@ -111,7 +111,7 @@
 			height: 22px; display: inline-block; 
 			line-height: 22px; vertical-align: middle;
 			border: 1px dotted transparent;
-			background: none; color: #999;
+			background: none;
 		}
 		
 		.ui-gdatepicker .ui-gdatepicker-monthname { padding-left: 10px; color: #444; }

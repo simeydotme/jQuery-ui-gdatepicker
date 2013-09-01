@@ -39,6 +39,10 @@
 
 <script src="js/jquery-1.10.1.min.js"></script>
 <script src="js/moment.min.js"></script>
+
+<script src="js/lang/en-gb.moment.js"></script>
+<script src="js/lang/fr.moment.js"></script>
+<script src="js/lang/zh-cn.moment.js"></script>
 <!-- <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
 <script src="js/jquery.mousewheel.js"></script>
 <script src="js/date.js"></script>
@@ -47,40 +51,24 @@
 
 <script>
 	$(function() {
+
+		moment.lang("en-gb");
+
+		$('#cal2').gdatepicker({ theme: "dark" });
 		
-		// $('#cal').gdatepicker({ 
-		// 	overlayType: 'month', 
-		// 	theme: 'dark', 
-		// 	overlayAnimation: "fade",
-		// 	formatOutput: "ddSX MMM yyyy",
-		// 	format: "yyyy/dd/MM",
-		// 	months: ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"]
-		// });
-		
-		// $('#cal1').gdatepicker({ 
-		// 	overlayType: false, 
-		// 	theme: 'mint',
-		// 	formatOutput: "dd/MM/yyyy"
-		// });
-		
-		// $('#cal2').gdatepicker({
+		$('#cal1').gdatepicker({ 
+			theme: "", language: "zh-cn", 
+			headerDayFormat: "ddd", 
+			scrollSpeed: 0, selectRange: 30,
+			dualOutputs: true
+		});
+
+		$('#cal').gdatepicker({ 
+			theme: "" , selectRange: 14,
+			language: "fr",
+			formatOutput: "l"
+		});
 			
-		// 	show: function(e) { $('body').append('Showing Calendar...<br>'); },	
-		// 	hide: function(e) { $('body').append('Hiding Calendar...<br>'); },	
-		// 	selectDay: function(e,ui) { $('body').append('Selected Date: '+ ui.date +'...<br>'); },	
-		// 	changeValue: function() { $('body').append("value has changed...<br>"); },	
-		// 	invalidDate: function() { $('body').append("That date seems to be invalid, please try another...<br>"); },
-		// 	changeMonth: function(e,ui) { $('body').append("Changed Month to: " + ui.newMonth + "/" + ui.newYear + "...<br>"); },
-		// 	changeYear: function(e,ui) { $('body').append("Changed Year to: " + ui.newMonth + "/" + ui.newYear + "...<br>"); },
-		// 	clearInput: function(e, ui) { $('body').append("Input cleared...<br>"); }
-				
-		// });
-
-
-	$('#cal').gdatepicker({ theme: "dark" });
-	$('#cal1').gdatepicker({ theme: "" });
-	$('#cal2').gdatepicker({ theme: "" , selectRange: 14 });
-		
 	});
 </script>
 

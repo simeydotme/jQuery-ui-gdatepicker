@@ -1,6 +1,8 @@
-"use strict";
+
 
 (function($){
+
+  "use strict";
 
   // a unique id for each gdatepicker
   var uid = 0;
@@ -78,6 +80,7 @@
     this.settings = settings;
 
     this.selected = { first: null, last: null };
+    this.lang = this.settings.language;
 
     return this;
 
@@ -136,10 +139,18 @@
 
       var _self = this;
 
-      // if the datepicker was already applied to this element,
-      // we need to destroy it first, this is important.
-      if( this.$el.hasClass("has-gdatepicker") ) {
-        this.destroy();
+
+      // if the specified language has no bee loaded correctly,
+      // log an error and set back to default.
+      if( moment().lang( this.lang )._lang === undefined ) {
+        
+        console.error(
+          "The specified language ("+this.lang+") could not be " +
+          "found, please make sure it's loaded correctly"
+        );
+
+        this.lang = ""
+
       }
 
       // this is used for toggling if we selecting first or last
@@ -232,16 +243,25 @@
         // a new input, its wrapper and a element for clearing it.
         $pickerInputWrapper: $("<div class='ui-gdatepicker-input-wrapper'/>") ,
         $pickerInput: $("<input class='ui-gdatepicker-input' type='text'/>") ,
-        $pickerEmpty: $("<span class='ui-gdatepicker-empty'><span>Clear</span></span>")
+        $pickerEmpty: $("<span class='ui-gdatepicker-empty'><span>Clear</span></span>"),
+        
+        // a new input, its wrapper and a element for clearing it.
+        $pickerSecondInputWrapper: $("<div class='ui-gdatepicker-input-wrapper ui-gdatepicker-second-input-wrapper'/>") ,
+        $pickerSecondInput: $("<input class='ui-gdatepicker-input ui-gdatepicker-second-input' type='text'/>") ,
+        $pickerSecondEmpty: $("<span class='ui-gdatepicker-empty ui-gdatepicker-second-empty'><span>Clear</span></span>")
 
       };
+
+
 
       // give the picker a unique id, and a theme class,
       // also append the large inner wrapper.
       els.$picker
         .attr("id", "ui_gdatepicker_" + this.uid )
-        .addClass( theme )
+        .addClass( theme + " ui-gdatepicker-"+this.lang )
         .append( els.$pickerInner );
+
+
 
       // append all the children to the inner wrapper
       // head and body go first as they are position static.
@@ -253,28 +273,47 @@
           els.$pickerDateOverlay , els.$pickerClose 
         );
 
+
+
       // give the original input a class for hiding/manip
       // tabindex stops it being tabbed to
       els.$pickerElement
         .addClass("has-gdatepicker")
         .attr("tabindex","-1");
 
+
+
       // create the wrapper heirarchy and give it a theme class
       els.$pickerInputWrapper
         .append( els.$pickerInput , els.$pickerEmpty )
         .addClass( theme );
 
+      els.$pickerSecondInputWrapper
+        .append( els.$pickerSecondInput , els.$pickerSecondEmpty )
+        .addClass( theme );
       
+
+
       // get the original input's placeholder if it had one.
       if( els.$pickerElement.attr("placeholder") ) {
         this.settings.placeholder = els.$pickerElement.attr("placeholder");
       }
 
 
+
+
       // give the input a unique id
       els.$pickerInput
         .attr("id", "ui_gdatepicker_input_" + this.uid )
         .prop("placeholder", this.settings.placeholder );
+
+      // give the input a unique id
+      els.$pickerSecondInput
+        .attr("id", "ui_gdatepicker_second_input_" + this.uid )
+        .prop("placeholder", this.settings.placeholder );
+
+
+
 
       // give access to the els globally
       this._els = els;
@@ -283,11 +322,20 @@
 
 
       // append fragments to body.
-
       $("body").append( this._els.$picker );
       this._els.$pickerInputWrapper.insertAfter( this._els.$pickerElement );
-
       
+
+
+      // if we've chosen dual outputs, then append second one.
+      if( this.settings.selectRange && this.settings.dualOutputs ) {
+        this._els.$pickerSecondInputWrapper.insertAfter( this._els.$pickerInputWrapper );
+      }
+
+      // collection holding both inputs for events and such.
+      this._els.$pickerBothInputs = 
+        $( this._els.$pickerInput ).add( this._els.$pickerSecondInput );
+
 
     },
 
@@ -321,7 +369,20 @@
 
       var _self = this;
 
-      
+
+
+      $(window).on({
+        
+        // when we press ESC close the picker if it's open!
+        "keyup": function(e) {
+          if( e.keyCode === 27 ) {
+            _self.hide.apply( _self );
+          }
+        }
+
+      });
+
+
       $("html").on({
 
         // when we click on page, if it wasn't a click on the
@@ -337,7 +398,8 @@
           // the datepicker itself and the input element exempt
           var $exempt = $()
                 .add( _self._els.$picker )
-                .add( _self._els.$pickerInputWrapper );
+                .add( _self._els.$pickerInputWrapper )
+                .add( _self._els.$pickerSecondInputWrapper );
 
 
           // if the close button was _not_ clicked, and the
@@ -373,6 +435,7 @@
             _self.selectDate.apply( _self , [ $target ] );
             _self._highlightDates.apply( _self );
             _self._dimDates.apply( _self );
+            _self._outputDates.apply( _self );
 
           }
         }
@@ -380,7 +443,7 @@
       })
 
 
-      this._els.$pickerInput.on({
+      this._els.$pickerBothInputs.on({
 
         // run the "show" function on focus
         "focus": function(e) {
@@ -395,6 +458,22 @@
         }
 
       });
+
+      this._els.$pickerEmpty.on({
+        "click": function(e) {
+          _self._clearOutputs.apply( _self , [ "first" ]);
+          //_self.hide.apply( _self );
+        }
+      });
+
+      this._els.$pickerSecondEmpty.on({
+        "click": function(e) {
+          _self._clearOutputs.apply( _self , [ "last" ]);
+          //_self.hide.apply( _self );
+        }
+      });
+
+
 
 
       this._els.$pickerUpArrow.on({
@@ -459,8 +538,6 @@
 
     // function for showing the calendar
     show: function() {
-
-      console.log( this );
 
       if( this.selected.first !== null ) {
         this._active = { 
@@ -569,10 +646,11 @@
       var d = this.selected;
       //      { first: [year, month, day], last: [year, month, day] };
 
-      if( d.first === null ) { return false; }
-
       // remove previously highlighted dates
       this._els.$pickerCache.removeClass("ui-gdatepicker-selected");
+      if( d.first === null ) { return false; }
+
+
 
       if( !this.settings.selectRange || d.last === null ) {
 
@@ -633,9 +711,12 @@
 
     _dimDates: function() {
 
+      var d = this.selected;
+      //      { first: [year, month, day], last: [year, month, day] };
 
-      // remove all dimming.
+      // remove previously dimmed dates
       this._els.$pickerCache.removeClass("ui-gdatepicker-dim");
+      if( d.first === null ) { return false; }
 
 
       // if we are in a range picker, and we have already
@@ -643,7 +724,6 @@
 
       if( this.settings.selectRange && !this._selectFirstToggle ) {
 
-        var d = this.selected;
         var range = this.settings.selectRange;
 
         // need to store the loop dates so we
@@ -694,6 +774,69 @@
 
     },
 
+
+    _outputDates: function() {
+
+      var d = this.selected,
+          l = this.lang,
+          div = this.settings.divider;
+
+      var $inputx = this._els.$pickerElement,
+          $input1 = this._els.$pickerInput,
+          $input2 = this._els.$pickerSecondInput;
+
+      // outputx is the original input which should be hidden now.
+      
+      var outputx = this._getFormattedDateArray( this.settings.format );
+      var outputn = this._getFormattedDateArray( this.settings.formatOutput );
+
+      outputx.whole = outputx.first + div + outputx.last;
+      outputn.whole = outputn.first + div + outputn.last;
+
+      // handle single-dates first.
+      if( !this.settings.selectRange || !outputx.last ) {
+
+        $inputx.val( outputx.first );
+        $input1.val( outputn.first );
+        $input2.val( "" );
+
+      } else if( this.settings.dualOutputs ) {
+
+        $inputx.val( outputx.whole );
+        $input1.val( outputn.first );
+        $input2.val( outputn.last );
+
+      } else {
+
+        $inputx.val( outputx.whole );
+        $input1.val( outputn.whole );
+
+      }
+
+    },
+
+
+    _clearOutputs: function( which ) {
+
+      which = which || "first";
+
+      this._els.$pickerSecondInput.val("");
+      this.selected.last = null;
+      this._selectFirstToggle = false;
+
+      if( which === "first" ) {
+
+        this._els.$pickerElement.val("");
+        this._els.$pickerInput.val("");
+        this.selected.first = null;
+        this._selectFirstToggle = true;
+
+      }
+
+      this._highlightDates();
+      this._dimDates();
+
+    },
 
 
 
@@ -843,11 +986,20 @@
         
         // get the current month's name and year number to show in the side.
         // but we dont want to show this year's number as it's implied.
-        var monthname = moment([y,m,1]).format( this.settings.sidebarMonthFormat );
         var yearname = "";
-        if( y !== currentYear ) { 
-          yearname = moment([y,m,1]).format( this.settings.sidebarYearFormat );
-        }
+        var monthname = "";
+       
+          monthname = 
+            moment([y,m,1])
+              .lang( this.lang )
+              .format( this.settings.sidebarMonthFormat );
+          
+          if( y !== currentYear ) { 
+            yearname = 
+              moment([y,m,1])
+              .lang( this.lang )
+              .format( this.settings.sidebarYearFormat );
+          }
         
         // get the number of days in the currently looped month
         var daysInMonth = this._getDaysInMonth(m,y);
@@ -904,7 +1056,7 @@
 
       for( var i=0; i<7; i++ ) {
         html += "<span class='ui-gdatepicker-day ui-gdatepicker-header-day'>";
-        html += moment().day(i).format( this.settings.headerDayFormat );
+        html += moment().lang( this.lang ).day(i).format( this.settings.headerDayFormat );
         html += "</span>";
       };
 
@@ -973,6 +1125,27 @@
         theme = "ui-gdatepicker-theme-"+ this.settings.theme; 
       }
       return theme;
+
+    },
+
+    // a function to return object of formatted dates
+    // using the "this.selected" object as a refrence
+    _getFormattedDateArray: function( format ) {
+
+      var ret = {};
+      format = format || "L";
+
+      ret.first = 
+        moment( this.selected.first )
+          .lang( this.lang )
+          .format( format );
+
+      ret.last = ( this.selected.last !== null ) ?
+        moment( this.selected.last )
+          .lang( this.lang )
+          .format( format ) : null;
+
+      return ret;
 
     },
 
@@ -1191,6 +1364,17 @@
     // maximum length of the range of dates allowed to pick.
     // a large number will result in slow performance
     
+    dualOutputs: false,
+    // boolean
+    // eg: true,
+    // if set to true generates an output for beginning
+    // of range and for end of range. only if selectRange != false.
+
+    divider: " ~ ",
+    // string
+    // eg: -
+    // a string divider to put between ranged dates.
+    
     language: "en",
     // string
     // eg: "cn",
@@ -1233,10 +1417,10 @@
     // format of original input
     // http://momentjs.com/docs/#/displaying/format/
               
-    formatOutput: "MMM Do, yyyy",
+    formatOutput: "MMMM Do, YYYY",
     // string
     // eg: "dd of MMMM, yyyy" 
-    // format of generated output
+    // format of generated output(s)
     // http://momentjs.com/docs/#/displaying/format/
                             
     position: { top: 3, left: 0 },                  
