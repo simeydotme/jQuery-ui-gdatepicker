@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Untitled Document</title>
+<title>gDatepicker</title>
 
 <link rel="stylesheet" type="text/css" href="css/normalize.css">
 <link rel="stylesheet" type="text/css" href="css/demo.css">
@@ -38,6 +38,7 @@
 
 
 <script src="js/jquery-1.10.1.min.js"></script>
+<script src="js/moment.min.js"></script>
 <!-- <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
 <script src="js/jquery.mousewheel.js"></script>
 <script src="js/date.js"></script>
@@ -76,8 +77,9 @@
 		// });
 
 
-	$('#cal1').gdatepicker({ theme: "dark" });
-	$('#cal2').gdatepicker({ theme: "" });
+	$('#cal').gdatepicker({ theme: "dark" });
+	$('#cal1').gdatepicker({ theme: "" });
+	$('#cal2').gdatepicker({ theme: "" , selectRange: 14 });
 		
 	});
 </script>

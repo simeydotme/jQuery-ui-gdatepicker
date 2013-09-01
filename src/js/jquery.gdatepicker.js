@@ -1,13 +1,9 @@
+"use strict";
 
 (function($){
 
-  "use strict";
-  
   // a unique id for each gdatepicker
   var uid = 0;
-
-
-
 
 
 /*** 
@@ -34,14 +30,16 @@
 
     return this.each( function() {
 
+      if( typeof( moment ) !== "function" ) {
+        throw new Error( "Moment.js Library is required: http://momentjs.com/" );
+      }
+
       var $el = $(this);
-
       var _settings =  $.extend({}, $.fn.gdatepicker.defaults, settings || {});
-      var plugin = new gDatepicker(_settings, $el, uid++);
-
 
       // ====================================================================
 
+      var plugin = new gDatepicker( _settings, $el, uid++ );
       plugin.init();
 
       // ====================================================================
@@ -77,8 +75,9 @@
     
     this.$el = $el;
     this.uid = uid;
-
     this.settings = settings;
+
+    this.selected = { first: null, last: null };
 
     return this;
 
@@ -131,7 +130,6 @@
 *       ""                    ""             
 */
 
-  // ----------------------------------------------------------------------
   // initialize the plugin
 
     init: function() {
@@ -144,27 +142,24 @@
         this.destroy();
       }
 
+      // this is used for toggling if we selecting first or last
+      // date in the ranged picker
+      this._selectFirstToggle = true;
+
       // set the active month and year.
       this._active = { 
-        month: new Date().getMonth(), 
-        year: new Date().getFullYear() 
+        month: moment().month(), 
+        year: moment().year() 
       };
 
       // create the picker with the designated theme
       this._createPicker( this._getTheme() );
-      this._populatePicker();
-
-
-
-
       this._bindEvents();
 
     },
 
 
-  // ----------------------------------------------------------------------
-  // destroy the current instance
-
+    // destroy the current instance
     destroy: function() {
 
       // get the current instance via it's data bind
@@ -176,171 +171,13 @@
       currentInstance._els.$pickerInputWrapper.remove();
       currentInstance._els.$pickerElement.removeClass("has-gdatepicker");
 
+      currentInstance._els = null;
+
       // finally remove the data bind so it doesn't trip us up.
       this.$el.removeData("_gDatepicker");
 
     },
 
-
-
-    // function for showing the calendar
-    show: function() {
-
-      this._els.$picker.addClass("ui-gdatepicker-show");
-      this.position();
-
-    },
-
-    // function for hiding the calendar
-    hide: function() {
-
-      this._els.$picker.removeClass("ui-gdatepicker-show");
-
-    },
-
-    // function for positioning the calendar
-    position: function( offsetTop , offsetLeft ) {
-
-      var $input = this._els.$pickerInput;
-
-      var offset = {
-        top: offsetTop || this.settings.position.top,
-        left: offsetLeft || this.settings.position.left
-      };
-
-      var origin = {
-        top: $input.offset().top + $input.outerHeight() ,
-        left: $input.offset().left
-      };
-
-      this._els.$picker.css({
-        "top": offset.top + origin.top , "left": offset.left + origin.left
-      });
-
-    },
-
-
-
-
-
-
-
-
-/***
-*                  _                                       s       .x+=:.   
-*                 u                                       :8      z`    ^%  
-*                88Nu.   u.                u.    u.      .88         .   <k 
-*         .u    '88888.o888c      .u     x@88k u@88c.   :888ooo    .@8Ned8" 
-*      ud8888.   ^8888  8888   ud8888.  ^"8888""8888" -*8888888  .@^%8888"  
-*    :888'8888.   8888  8888 :888'8888.   8888  888R    8888    x88:  `)8b. 
-*    d888 '88%"   8888  8888 d888 '88%"   8888  888R    8888    8888N=*8888 
-*    8888.+"      8888  8888 8888.+"      8888  888R    8888     %8"    R88 
-*    8888L       .8888b.888P 8888L        8888  888R   .8888Lu=   @8Wou 9%  
-*    '8888c. .+   ^Y8888*""  '8888c. .+  "*88*" 8888"  ^%888*   .888888P`   
-*     "88888%       `Y"       "88888%      ""   'Y"      'Y"    `   ^"F     
-*       "YP'                    "YP'                                        
-*                                                                           
-*                                                                           
-*                                                                           
-*/
-
-    _bindEvents: function() {
-
-      var _self = this;
-
-      
-      $("html").on({
-
-        // when we click on page, if it wasn't a click on the
-        // datepicker, then we close it.
-        "mouseup": function(e) {
-
-          var $target = $(e.target);
-          var $parents = $target.parents();
-
-          // assume we are going to hide.
-          var hide = true;
-
-          // exempt from closing the datepicker are itself and
-          // the input element
-          var $exempt = $()
-                .add( _self._els.$picker )
-                .add( _self._els.$pickerInputWrapper );
-
-
-          // if the close button was _not_ clicked, and the
-          // target or it's parent was one of the exempt, we
-          // decide not to close.
-          if( !$target.is( _self._els.$pickerClose ) ) {
-            if( $target.filter( $exempt ).length > 0 ) {
-              hide = false;
-            } else if( $parents.filter( $exempt ).length > 0 ) {
-              hide = false;
-            }
-          }
-
-
-          // if we haven't set hide to false, hide calendar
-          if( hide ) {
-            _self.hide.apply( _self );
-          }
-
-        }
-
-      });
-
-
-
-      this._els.$pickerInput.on({
-
-        // run the "show" function on focus
-        "focus": function(e) {
-          _self.show.apply( _self );
-        },
-        // run the "hide" function on tab 
-        // (not blur, as that intercepts clicking on the calender)
-        "keydown": function(e) {
-          if( e.keyCode === 9 ) {
-            _self.hide.apply( _self );
-          }
-        }
-
-      });
-
-
-      this._els.$pickerUpArrow.on({
-
-        "click": function(e) {
-          _self._goBackAMonth.apply( _self );
-        }
-
-      });
-
-      this._els.$pickerDownArrow.on({
-
-        "click": function(e) {
-          _self._goForwardAMonth.apply( _self );
-        }
-
-      });
-
-      this._els.$pickerUpArrowYear.on({
-
-        "click": function(e) {
-          _self._goBackAYear.apply( _self );
-        }
-
-      });
-
-      this._els.$pickerDownArrowYear.on({
-
-        "click": function(e) {
-          _self._goForwardAYear.apply( _self );
-        }
-
-      });
-
-    },
 
 
 
@@ -460,6 +297,409 @@
 
 
 
+
+
+/***
+*                  _                                       s       .x+=:.   
+*                 u                                       :8      z`    ^%  
+*                88Nu.   u.                u.    u.      .88         .   <k 
+*         .u    '88888.o888c      .u     x@88k u@88c.   :888ooo    .@8Ned8" 
+*      ud8888.   ^8888  8888   ud8888.  ^"8888""8888" -*8888888  .@^%8888"  
+*    :888'8888.   8888  8888 :888'8888.   8888  888R    8888    x88:  `)8b. 
+*    d888 '88%"   8888  8888 d888 '88%"   8888  888R    8888    8888N=*8888 
+*    8888.+"      8888  8888 8888.+"      8888  888R    8888     %8"    R88 
+*    8888L       .8888b.888P 8888L        8888  888R   .8888Lu=   @8Wou 9%  
+*    '8888c. .+   ^Y8888*""  '8888c. .+  "*88*" 8888"  ^%888*   .888888P`   
+*     "88888%       `Y"       "88888%      ""   'Y"      'Y"    `   ^"F     
+*       "YP'                    "YP'                                        
+*                                                                           
+*                                                                           
+*                                                                           
+*/
+
+    _bindEvents: function() {
+
+      var _self = this;
+
+      
+      $("html").on({
+
+        // when we click on page, if it wasn't a click on the
+        // datepicker, then we close it.
+        "mouseup": function(e) {
+
+          var $target = $(e.target);
+          var $parents = $target.parents();
+
+          // assume we are going to hide.
+          var hide = true;
+
+          // the datepicker itself and the input element exempt
+          var $exempt = $()
+                .add( _self._els.$picker )
+                .add( _self._els.$pickerInputWrapper );
+
+
+          // if the close button was _not_ clicked, and the
+          // target or it's parent was one of the exempt, we
+          // decide not to close.
+          if( !$target.is( _self._els.$pickerClose ) ) {
+            if( $target.filter( $exempt ).length > 0 ) {
+              hide = false;
+            } else if( $parents.filter( $exempt ).length > 0 ) {
+              hide = false;
+            }
+          }
+
+          // if we haven't set hide to false, hide calendar
+          if( hide ) {
+            _self.hide.apply( _self );
+          }
+
+        }
+
+      });
+      
+      
+      this._els.$pickerBody.on({
+
+        "click": function(e) {
+          // if we clicked on a day
+          if( $(e.target).is(".ui-gdatepicker-day") ) {
+            
+            var id = e.target.id;
+            var $target = _self._els.$pickerCache.filter( "#"+id );
+
+            _self.selectDate.apply( _self , [ $target ] );
+            _self._highlightDates.apply( _self );
+            _self._dimDates.apply( _self );
+
+          }
+        }
+
+      })
+
+
+      this._els.$pickerInput.on({
+
+        // run the "show" function on focus
+        "focus": function(e) {
+          _self.show.apply( _self );
+        },
+        // run the "hide" function on tab 
+        // (not blur, as that intercepts clicking on the calender)
+        "keydown": function(e) {
+          if( e.keyCode === 9 ) {
+            _self.hide.apply( _self );
+          }
+        }
+
+      });
+
+
+      this._els.$pickerUpArrow.on({
+
+        "click": function(e) {
+          _self._goBackAMonth.apply( _self );
+        }
+
+      });
+
+      this._els.$pickerDownArrow.on({
+
+        "click": function(e) {
+          _self._goForwardAMonth.apply( _self );
+        }
+
+      });
+
+      this._els.$pickerUpArrowYear.on({
+
+        "click": function(e) {
+          _self._goBackAYear.apply( _self );
+        }
+
+      });
+
+      this._els.$pickerDownArrowYear.on({
+
+        "click": function(e) {
+          _self._goForwardAYear.apply( _self );
+        }
+
+      });
+
+    },
+
+
+
+
+
+
+
+
+
+/***
+ *                                                          s       .                                 .x+=:.   
+ *       oec :                                             :8      @88>                              z`    ^%  
+ *      @88888     x.    .        u.    u.                .88      %8P          u.      u.    u.        .   <k 
+ *      8"*88%   .@88k  z88u    x@88k u@88c.       .     :888ooo    .     ...ue888b   x@88k u@88c.    .@8Ned8" 
+ *      8b.     ~"8888 ^8888   ^"8888""8888"  .udR88N  -*8888888  .@88u   888R Y888r ^"8888""8888"  .@^%8888"  
+ *     u888888>   8888  888R     8888  888R  <888'888k   8888    ''888E`  888R I888>   8888  888R  x88:  `)8b. 
+ *      8888R     8888  888R     8888  888R  9888 'Y"    8888      888E   888R I888>   8888  888R  8888N=*8888 
+ *      8888P     8888  888R     8888  888R  9888        8888      888E   888R I888>   8888  888R   %8"    R88 
+ *      *888>     8888 ,888B .   8888  888R  9888       .8888Lu=   888E  u8888cJ888    8888  888R    @8Wou 9%  
+ *      4888     "8888Y 8888"   "*88*" 8888" ?8888u../  ^%888*     888&   "*888*P"    "*88*" 8888" .888888P`   
+ *      '888      `Y"   'YP       ""   'Y"    "8888P'     'Y"      R888"    'Y"         ""   'Y"   `   ^"F     
+ *       88R                                    "P'                 ""                                         
+ *       88>                                                                                                   
+ *       48                                                                                                    
+ *       '8                                                                                                    
+ */
+
+    // function for showing the calendar
+    show: function() {
+
+      console.log( this );
+
+      if( this.selected.first !== null ) {
+        this._active = { 
+          month: this.selected.first[1], 
+          year: this.selected.first[0] 
+        };
+      }
+
+      this._els.$picker.addClass("ui-gdatepicker-show");
+      
+      this._populatePicker();
+      this.position();
+
+    },
+
+    // function for hiding the calendar
+    hide: function() {
+
+      this._els.$picker.removeClass("ui-gdatepicker-show");
+
+    },
+
+
+
+    selectDate: function( what ) {
+
+      // selectDate function takes parameter of either:
+      // [yyyy,mm,dd] or $();
+      
+      // if what is supplied then we proceed
+      // otherwise we just set to previously stored date.
+      
+          
+      // selected will be a temp array;
+      var selected = this._selectedDateArray( what );
+      var range = this.settings.selectRange;
+
+      // if we've chosen a ranged date picker,
+      // we need to decide whether we are storing the first
+      // date or the last date in the range.
+
+      // also we need to avoid picking a reverse range
+      // ie: second date must be after first date.
+
+      if( range ) {
+
+        // if we're picking the first date in range
+        // then we want to clear the last date!
+        
+        if( this._selectFirstToggle ) {
+          
+          this.selected.first = selected;
+          this.selected.last = null;
+          this._selectFirstToggle = false;
+          
+        } else {
+                    
+          this.selected.last = selected;
+          this._selectFirstToggle = true;
+
+          // if the last date is earlier than the first date.
+          var earlier = 
+            moment(this.selected.last)
+              .isBefore(this.selected.first);
+
+          if( earlier ) {
+
+            this.selected.first = selected;
+            this.selected.last = null;
+            this._selectFirstToggle = false;
+
+          }
+
+        }
+
+        // if we tried to select a range larger than the one
+        // set in teh options, then we max it out and carry on.
+        var diff = 
+          this._getDifferenceInDays( this.selected.first , this.selected.last );
+        
+        if( diff > range ) {
+          
+          var end = 
+            moment( this.selected.first ).add( range, "days")
+              .toArray(3);
+
+          this.selected.last = [ end[0] , end[1] , end[2] ];
+          this._selectFirstToggle = true;
+
+        }
+
+      } else {
+
+        this.selected.first = selected;
+        this.selected.last = null;
+
+      }
+
+
+    },
+
+
+    _highlightDates: function() {
+
+
+      var d = this.selected;
+      //      { first: [year, month, day], last: [year, month, day] };
+
+      if( d.first === null ) { return false; }
+
+      // remove previously highlighted dates
+      this._els.$pickerCache.removeClass("ui-gdatepicker-selected");
+
+      if( !this.settings.selectRange || d.last === null ) {
+
+        this._els.$pickerCache
+          .filter( "#gdp-"+this.uid+"-"+d.first[2]+"-"+d.first[1]+"-"+d.first[0] )
+          .addClass("ui-gdatepicker-selected");
+
+      } else {
+
+        var diff = this._getDifferenceInDays( d.first , d.last );
+
+        if( diff ) {
+
+          // need to store the loop dates so we
+          // can manipulate them
+          var loopDay = d.last[2],
+              loopMonth = d.last[1],
+              loopYear = d.last[0];
+          
+          // this will hold all the dates we get
+          var $collection = $();
+          
+          // THIS LOOP GETS HEAVY WHEN DIFF > 14.
+          // TRY TO FIGURE LIGHT WAY TO DO THIS.
+          
+          // basically:
+          // for all the dates between first and last
+          // hilight them.
+          for( var i = diff+1; i > 0; i-- ) {
+             
+            var $current = 
+              this._els.$pickerCache.filter( 
+                "#gdp-"+this.uid+"-"+loopDay+"-"+loopMonth+"-"+loopYear 
+              );
+            
+            $collection = $collection.add( $current );
+            
+            loopDay--;
+            if( loopDay === 0 ) {
+              loopMonth--;
+              if( loopMonth < 0 ) {
+                loopYear--;
+                loopMonth = 11;
+              }
+              loopDay = this._getDaysInMonth( loopMonth , loopYear );
+            }
+            
+          }
+          
+          $collection.addClass('ui-gdatepicker-selected');
+
+        }
+
+      }
+
+    },
+
+
+    _dimDates: function() {
+
+
+      // remove all dimming.
+      this._els.$pickerCache.removeClass("ui-gdatepicker-dim");
+
+
+      // if we are in a range picker, and we have already
+      // selected the first date
+
+      if( this.settings.selectRange && !this._selectFirstToggle ) {
+
+        var d = this.selected;
+        var range = this.settings.selectRange;
+
+        // need to store the loop dates so we
+        // can manipulate them
+        var loopDay = d.first[2],
+            loopMonth = d.first[1],
+            loopYear = d.first[0];
+        
+        // this will hold all the dates we get
+        var $collection = $();
+        
+        // THIS LOOP GETS HEAVY WHEN DIFF > 14.
+        // TRY TO FIGURE LIGHT WAY TO DO THIS.
+        
+        // basically:
+        // for all the dates between first and first+range
+        // dim them.
+        for( var i = 0; i <= range; i++ ) {
+          
+          var lastDay = this._getDaysInMonth( loopMonth, loopYear );
+
+          var $current = 
+            this._els.$pickerCache.filter( 
+              "#gdp-"+this.uid+"-"+loopDay+"-"+loopMonth+"-"+loopYear 
+            );
+
+          loopDay++;
+          if( loopDay > lastDay ) {
+            loopMonth++;
+            if( loopMonth > 11 ) {
+              loopYear++;
+              loopMonth = 0;
+            }
+            loopDay = 1;
+          }
+
+          
+          
+          $collection = $collection.add( $current );
+          
+        }
+        
+        this._els.$pickerCache
+          .not( $collection )
+          .addClass("ui-gdatepicker-dim");
+
+      }
+
+    },
+
+
+
+
+
+
+
 /***
 *                                                                                  s               
 *                                                                                 :8               
@@ -478,10 +718,10 @@
 *     ^"===*"`                                                                                     
 */
     
-    
+
     // function that allows us to populate the datepicker
     // according to the data supplied.
-    _populatePicker: function( direction ) {
+    _populatePicker: function( direction, fast ) {
 
       var tempBody = 
         this._generateBody();
@@ -492,7 +732,10 @@
       this._appendHead( tempHead );
       this._appendBody( tempBody );
 
-      this._positionCurrentMonth( direction );
+      this._positionCurrentMonth( direction, fast );
+
+      this._dimDates();
+      this._highlightDates();
 
     },
 
@@ -513,10 +756,10 @@
       }
 
 
-    // ----------------------------------------------------------------------
     // Basically we cheat and pad the visible area with a month before,
     // and a couple after. This is to save on generating dom elements.
     // So technically there's only ever 5 months in the calendar.
+    // But this means we always start a month before the current month.
       
       // set month to the month before.
       if ( month === 0 ) { 
@@ -528,8 +771,6 @@
 
       html += this._generateRemainderDays( month, year );
       html += this._generateMonths( month, year );
-
-
 
       return html;
 
@@ -563,7 +804,7 @@
       // offset is the first day of the week (0=sunday, 1=monday, 2=tuesday...)
       // if the offset is 0 we actually want to count down from 7, because
       // we show sunday as the last day in the week, not the first.
-      var offset = new Date( year, month, 1 ).getDay();
+      var offset = moment([year,month,1]).day();
       if (offset === 0) { offset = 7; }
 
       // count down from the offset to populate all days in previous month
@@ -571,7 +812,7 @@
       for( var o = offset-1; o > 0; o-- ) {
 
         oday = daysInPreviousMonth-o+1;
-        html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month gdpd-"+oday+" gdpm-"+previousMonth+" gdpy-"+previousMonthYear+"\" data-day=\""+oday+"\" data-year=\""+previousMonthYear+"\" data-month=\""+previousMonth+"\">";
+        html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month\">";
         html += oday;
         html += "</span>";  
         
@@ -584,7 +825,7 @@
     _generateMonths: function( beginMonth, beginYear ) {
 
       var html = "",
-          currentYear = new Date().getFullYear(),
+          currentYear = moment().year(),
           y = beginYear;
 
       // because of the scroll animation requires a lot of
@@ -600,35 +841,50 @@
         var m = mo;
         if (mo > 11) { var m = mo-12; y = beginYear+1; }
         
-        // get the current month's name to show in the side.
-        var monthname = this.settings.months[m];
-        
-        // get the year number to show in the side. but we dont want
-        // to show this year's number as that's implied.
-        var yearname = ( currentYear != y ) ? y : "";
+        // get the current month's name and year number to show in the side.
+        // but we dont want to show this year's number as it's implied.
+        var monthname = moment([y,m,1]).format( this.settings.sidebarMonthFormat );
+        var yearname = "";
+        if( y !== currentYear ) { 
+          yearname = moment([y,m,1]).format( this.settings.sidebarYearFormat );
+        }
         
         // get the number of days in the currently looped month
         var daysInMonth = this._getDaysInMonth(m,y);
         
         // find out the first day of month(m) and call it offset
-        var offset = new Date(y,m,1).getDay();
+        var offset = moment([y,m,1]).day();
         if (offset === 0) { offset=7; }
         
         for( var d = 1; d <= daysInMonth; d++ ) {
           
           // set some variables for styling the calendar
-          var filler = ( d == 1 && offset > 1 ) ? "ui-gdatepicker-divider-left" : "";
-          var divider = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
-          var previous = ( mo == beginMonth ) ? "ui-gdatepicker-previous-month" : "";
-            
-          html += "<span class=\"ui-gdatepicker-day " +filler+" "+divider+" "+previous+" gdpd-"+d+" gdpm-"+m+" gdpy-"+y+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
-          html += d;
-          html += "</span>";
+          // previous defines if the day being shown is in the first month
+          // vertical defines the first day of a month
+          // horizontal defines first week of the month
+
+          var previous = ( mo === beginMonth ) ? "ui-gdatepicker-previous-month" : "";
+          var vertical = ( d === 1 && offset > 1 ) ? "ui-gdatepicker-divider-left" : "";
+          var horizontal = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
+
+          // build a html-string for this day.
+
+          html += 
+            "<span " +
+              "id=\"gdp-"+this.uid+"-"+d+"-"+m+"-"+y+"\" " +
+              "class=\"ui-gdatepicker-day " +vertical+" "+horizontal+" "+previous+"\"" +
+              "data-day=\""+d+"\"" +
+              "data-month=\""+m+"\"" +
+              "data-year=\""+y+"\"" +
+              ">" + 
+              d + 
+            "</span>";
           
-          // at the end of each week, either show the month and year, or just start a new row.
+          // At the end of the first week, show the Month/Year,
+          // at the end of other weeks show nothing.
           if( (offset+(d-1))%7 == 0 ) {
             if( (offset+(d-1)) < 8 ) {
-              html += "<span class=\"ui-gdatepicker-monthname ui-gdatepicker-divider-top ui-gdatepicker-newline\" data-year=\""+y+"\" data-month=\""+m+"\">"+monthname+" "+yearname+"</span><br>";
+              html += "<span class=\"ui-gdatepicker-monthname ui-gdatepicker-divider-top ui-gdatepicker-newline\">"+monthname+" "+yearname+"</span><br>";
             } else {
               html += "<span class=\"ui-gdatepicker-newline\"></span><br>";
             }
@@ -647,8 +903,8 @@
       var html = "";
 
       for( var i=0; i<7; i++ ) {
-        html += "<span class='ui-gdatepicker-day' data-day='"+this.settings.days[i]+"'>";
-        html += this.settings.days[i];
+        html += "<span class='ui-gdatepicker-day ui-gdatepicker-header-day'>";
+        html += moment().day(i).format( this.settings.headerDayFormat );
         html += "</span>";
       };
 
@@ -658,11 +914,9 @@
 
     _appendBody: function( html ) {
 
-        this._els.$pickerBody.html( html );
-
         // store a cache of the appended days for highlighting against.
-        this._els.$pickerCache = $();
         this._els.$pickerCache = $( html );
+        this._els.$pickerBody.html( this._els.$pickerCache );
 
     },
 
@@ -701,6 +955,15 @@
       return /8|3|5|10/.test(m)?30:m==1?(!(y%4)&&y%100)||!(y%400)?29:28:31;
     },
 
+    // return the amount of days difference
+    // takes two date arrays: [year,month,day]
+    _getDifferenceInDays: function(first,second) {
+      return ( second !== null ) ? (
+        Date.UTC( second[0] , second[1] , second[2] , 0 , 0 , 0 ) - 
+        Date.UTC( first[0] , first[1] , first[2] , 0 , 0 , 0 )
+        ) / 86400000 : null;
+    },
+
     // little helper to return the theme.
     // used like: $el.addClass( this._getTheme() );
     _getTheme: function() {
@@ -725,7 +988,7 @@
         this._active.month -=1;
       }
 
-      this._populatePicker( "up" );      
+      this._populatePicker( "up" );
 
     },
 
@@ -740,7 +1003,7 @@
         this._active.month +=1;
       }
       
-      this._populatePicker( "down" );      
+      this._populatePicker( "down" );
 
     },    
 
@@ -748,7 +1011,7 @@
 
       // figure out what the new year will be
       this._active.year -= 1;
-      this._populatePicker( "up" );      
+      this._populatePicker( "up", true );   
 
     },
 
@@ -756,16 +1019,43 @@
 
       // figure out what the new year will be
       this._active.year += 1;
-      this._populatePicker( "down" );      
+      this._populatePicker( "down", true );
 
     },
 
-    _positionCurrentMonth: function( direction ) {
+    // function for positioning the calendar
+    position: function( offsetTop , offsetLeft ) {
 
-      // determine direction (up/down);
+      var $input = this._els.$pickerInput;
+
+      var offset = {
+        top: offsetTop || this.settings.position.top,
+        left: offsetLeft || this.settings.position.left
+      };
+
+      var origin = {
+        top: $input.offset().top + $input.outerHeight() ,
+        left: $input.offset().left
+      };
+
+      this._els.$picker.css({
+        "top": offset.top + origin.top , "left": offset.left + origin.left
+      });
+
+    },
+
+    // this function sets the calendar inner's position so that the
+    // current month is the one being shown.
+    // if can so this staticly or animated.
+    _positionCurrentMonth: function( direction, fast ) {
+
+      // determine direction (up/down); and speed;
       var dir = direction || false;
+      var f = fast || false;
+      var pos = [ this._active.year , this._active.month , 1 ];
+
       var $body = this._els.$pickerBody;
-      var $firstday = $body.find(".gdpm-"+this._active.month+".gdpy-" +this._active.year ).first();
+      var $firstday = $body.find("#gdp-"+this.uid+"-"+pos[2]+"-"+pos[1]+"-"+pos[0]);
 
       // we use a 'trick' to position the body if the datepicker
       // is hidden; this is because we cannot get positions of hidden elements
@@ -782,8 +1072,9 @@
       var current = $body.scrollTop();
       // set the final scroll destination
       var destination = current + offset - height;
-
-
+      // set the speed and half it if we've set fast.
+      var speed = this.settings.scrollSpeed;
+      if( f ) {  speed *= 0.5; }
 
       if( dir === "up" ) {
 
@@ -798,9 +1089,7 @@
         // we then quickly scroll down to the nth row
         // and then animate back up to the current date.
         $body.scrollTop( (rows) * height );
-        $body.stop().animate({ "scrollTop": destination }, this.settings.scrollSpeed );
-
-
+        $body.stop().animate({ "scrollTop": destination }, speed );
 
       } else if( dir === "down" ) {
 
@@ -808,8 +1097,7 @@
         // before the current month, we can just set the scroll
         // to the top, and scroll down to current date.
         $body.scrollTop( 0 );
-        $body.stop().animate({ "scrollTop": destination }, this.settings.scrollSpeed );
-
+        $body.stop().animate({ "scrollTop": destination }, speed );
 
       } else {
 
@@ -821,6 +1109,43 @@
 
       // put things back how we found them. good boy.
       if( trick ) { this._els.$picker.css({ display: '' , opacity: '' }); }
+
+    },
+
+
+    _selectedDateArray: function( what ) {
+
+      var selectWhat;
+
+      if( what ) {
+        
+        if( $.type( what ) === "array" ) {
+          
+          // store the date from the array
+          selectWhat = [ 
+            what[0] , 
+            what[1] , 
+            what[2] 
+          ];
+        
+        } else if ( $.type( what ) === "object" ) {
+          
+          // store the date from the element
+          selectWhat = [
+            parseInt( $( what ).data('year') , 10 ) , 
+            parseInt( $( what ).data('month') , 10 ) , 
+            parseInt( $( what ).data('day') , 10 ) 
+          ];   
+
+        } else {
+          
+          throw new Error("Incorrect parameter: 'what' in function: _selectedDateArray();");
+          
+        }
+        
+      }
+
+      return selectWhat;
 
     }
 
@@ -859,47 +1184,61 @@
     // string:  
     // eg: "Pick me!"
     // generated input's placeholder if original input doesn't have.
-              
-    selectedFirst: "",
-    // string, array
-    // eg: "", [ 31, 12, 2012 ]
-    // default date that is selected/highlighted. 
-    // leave as blank string for none
-    // overridden if input has "value=" with same format as "format" option
-              
-    selectedLast: "",
-    // string, array
-    // eg: "", [ 31, 12, 2012 ]
-    // default date that is selected/highlighted. 
-    // leave as blank string for none
-    // overridden if input has "value=" with same format as "format" option
-              
-    selectRange: 14,
+                            
+    selectRange: false,
     // number, boolean
     // eg: 14,
     // maximum length of the range of dates allowed to pick.
     // a large number will result in slow performance
-              
-    format: "dd-MM-yyyy",
+    
+    language: "en",
+    // string
+    // eg: "cn",
+    // language to use for date formatting,
+    // make sure you've downloaded your language from momentjs.com
+
+    sidebarMonthFormat: "MMMM",
+    // string
+    // eg: "MMM"
+    // the format for the months in the sidebar
+    // http://momentjs.com/docs/#/displaying/format/
+        
+    sidebarYearFormat: "YYYY",
+    // string
+    // eg: "YY"
+    // the format for the years in the sidebar
+    // http://momentjs.com/docs/#/displaying/format/
+    
+    overlayMonthFormat: "MMM",
+    // string
+    // eg: "MMM"
+    // the format for the months in the overlay
+    // http://momentjs.com/docs/#/displaying/format/
+   
+    overlayYearFormat: "YY",
+    // string
+    // eg: "YYYY"
+    // the format for the years in the overlay
+    // http://momentjs.com/docs/#/displaying/format/
+
+    headerDayFormat: "dd",
+    // string
+    // eg: "ddd"
+    // the format of the days in the column headers
+    // http://momentjs.com/docs/#/displaying/format/
+
+    format: "L",
     // string 
-    // eg: "dd-MM-yyyy"
+    // eg: "DD.MM.YY"
     // format of original input
+    // http://momentjs.com/docs/#/displaying/format/
               
-    formatOutput: "MMM dSX, yyyy",
+    formatOutput: "MMM Do, yyyy",
     // string
     // eg: "dd of MMMM, yyyy" 
     // format of generated output
-              
-    days: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
-    // array
-    // eg: ['Monday','Tuesday','Wednesday','...']
-    // days of week
-              
-    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-    // array
-    // eg: ['January','February','March','...']
-    // month names
-              
+    // http://momentjs.com/docs/#/displaying/format/
+                            
     position: { top: 3, left: 0 },                  
     // array
     // eg: [0,0] 
