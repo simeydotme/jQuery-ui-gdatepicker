@@ -12,12 +12,25 @@
 								// eg: "Pick me!"
 								// generated input's placeholder if original input doesn't have.
 								
-			selected:			"",										
+			selectedFirst:		"",										
 								// string, array
 								// eg: "", [ 31, 12, 2012 ]
 								// default date that is selected/highlighted. 
 								// leave as blank string for none
 								// overridden if input has "value=" with same format as "format" option
+								
+			selectedLast:		"",										
+								// string, array
+								// eg: "", [ 31, 12, 2012 ]
+								// default date that is selected/highlighted. 
+								// leave as blank string for none
+								// overridden if input has "value=" with same format as "format" option
+								
+			selectRange:		14,
+								// number, boolean
+								// eg: 14,
+								// maximum length of the range of dates allowed to pick.
+								// a large number will result in slow performance
 								
 			format:				"dd-MM-yyyy",							
 								// string 
@@ -29,20 +42,20 @@
 								// eg: "dd of MMMM, yyyy" 
 								// format of generated output
 								
-			days: 				['M','T','W','T','F','S','S'],			
+			days: 				['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],			
 								// array
-								// eg: ['L','M','M','J','V','S','D']
-								// days of week in header
+								// eg: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+								// days of week
 								
 			months: 			['January','February','March','April','May','June','July','August','September','October','November','December'],			
 								// array
-								// eg: ['Jan','Feb','Mar','...']
-								// month names in sidebar
+								// eg: ['January','February','March','...']
+								// month names
 								
 			position: 			[3,0],									
 								// array
 								// eg: [0,0] 
-								// position of calendar
+								// offset position of calendar
 								
 			scrollSpeed:		300,									
 								// integer
@@ -59,7 +72,7 @@
 								// eg: "drop", "fade"
 								// how the overlay is animated in and out
 								
-			theme:				false									
+			theme:				false,									
 								// string, bool
 								// eg: false, "dark", "mint", "..."
 								// sets the css theme style, supply your own string for custom
@@ -120,6 +133,7 @@
 			this._$pickerInner = 			$('<div class="ui-gdatepicker-wrapper"/>').appendTo( this._$picker );
 			this._$pickerHead = 			$('<div class="ui-gdatepicker-head"/>').appendTo( this._$pickerInner );
 			this._$pickerBody = 			$('<div class="ui-gdatepicker-body"/>').appendTo( this._$pickerInner );
+			this._$pickerCache =			$();
 			
 			this._$pickerUpArrow = 			$('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-up"><span>previous month</span></div>').appendTo( this._$pickerInner );
 			this._$pickerDownArrow = 		$('<div class="ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-down"><span>next month</span></div>').appendTo( this._$pickerInner );
@@ -159,20 +173,26 @@
 		// if the original element had a value, 
 		// we apply it to the new element.
 			
-			this._slctd = {};
-			this._slctd.value = this._$pickerElement.val();
-			this._slctd.format = this.options.format;
-				
-			if( this._slctd.value !== "" && ( Date.parseExact( this._slctd.value , this._slctd.format ) !== null ) ) { 
-					
-				this._slctd.day = 	Date.parseExact( this._slctd.value, this._slctd.format ).getDate();
-				this._slctd.month = Date.parseExact( this._slctd.value, this._slctd.format ).getMonth();
-				this._slctd.year = 	Date.parseExact( this._slctd.value, this._slctd.format ).getFullYear();
-					
-				this._setOption( "selected" , [ this._slctd.day , this._slctd.month , this._slctd.year ] );
-				this.selectDate();
-
-			}
+//			this._slctd = {};
+//			this._slctd.value = this._$pickerElement.val();
+//			this._slctd.format = this.options.format;
+//				
+//			if( this._slctd.value !== "" && ( Date.parseExact( this._slctd.value , this._slctd.format ) !== null ) ) { 
+//					
+//				this._slctd.day = 	Date.parseExact( this._slctd.value, this._slctd.format ).getDate();
+//				this._slctd.month = Date.parseExact( this._slctd.value, this._slctd.format ).getMonth();
+//				this._slctd.year = 	Date.parseExact( this._slctd.value, this._slctd.format ).getFullYear();
+//					
+//				this._setOption( "selectedFirst" , [ this._slctd.day , this._slctd.month , this._slctd.year ] );
+//				this.selectDate();
+//
+//			}
+			
+			
+		// --------------------------------------------------------------------------------------------------
+		// set ranges to null
+		
+			this._tempFirst = this._tempLast = null;
 			
 			
 			
@@ -224,7 +244,7 @@
 				'change': function(e) {
 
 					mommy._trigger( "changeValue", e, { 
-						selected: mommy.options.selected 
+						selected: mommy.options.selectedFirst 
 					});
 					
 				},
@@ -291,7 +311,7 @@
 						if( mommy._$pickerInput.val() === "" ) {
 							
 							mommy._$pickerElement.val("");
-							mommy._setOption( "selected" , "" );
+							mommy._setOption( "selectedFirst" , "" );
 								
 						}	
 						
@@ -311,7 +331,7 @@
 				mommy._$pickerElement.val("");
 				mommy._$pickerInput.val("");
 				
-				mommy._setOption( "selected" , "" );
+				mommy._setOption( "selectedFirst" , "" );
 				mommy._highlightDate();
 				
 				mommy._trigger("clearInput", "click", { 
@@ -506,8 +526,8 @@
 		this.scrollToCurrentDate();
 		this.reposition();
 		
-		if( $.type( this.options.selected ) === "array" ) {
-			this.goToNewMonth( this.options.selected[1] , this.options.selected[2] , false );
+		if( $.type( this.options.selectedFirst ) === "array" ) {
+			this.goToNewMonth( this.options.selectedFirst[1] , this.options.selectedFirst[2] , false );
 		} else {
 			this.goToNewMonth( Date.today().getMonth() , Date.today().getFullYear() , false );
 		}
@@ -636,46 +656,103 @@
 		// if date is supplied then we proceed to figure out the target,
 		// otherwise we just set to previously stored date.
 		
+				
+		// this will be a temp array;
+		var tDate = [];
+		
 		if( date ) {
 			
 			if( $.type(date) === "array" ) {
 				
-				// update the selected option
-				this._setOption( "selected" , [ 
-					date[0] , 
-					date[1] , 
-					date[2] 
-				] );
-				
+				// store the date from the array
+				tDate = [ date[0] , date[1] , date[2] ];
+			
 			} else if ( $.type(date) === "object" ) {
 				
-				// update the selected option
-				this._setOption( "selected" , [ 
-					parseInt($(date).data('day')) , 
-					parseInt($(date).data('month')) , 
-					parseInt($(date).data('year')) 
-				] );
-				
+				tDate = [ parseInt($(date).data('day')) , parseInt($(date).data('month')) , parseInt($(date).data('year')) ];		
+
 			} else {
 				
-				throw new Error("Incorrect paramter: 'date' in function: selectDate();");
+				throw new Error("Incorrect parameter: 'date' in function: selectDate();");
 				
 			}
 			
 		}
 		
 		
-			// update the inputs to show the date.
-			this.updateInputs();
+		// figure out if we're storing the first date in range
+		// or the second date in range!
+		
+		if( this.options.range ) {
 			
-			// highlight the selected date.
-			this._highlightDate();
+			// if we're picking the first date in range
+			// then we want to clear the last date!
 			
-			// exposed event callback for users to hook.
-			this._trigger( "selectDay", 'click', { 
-				date: new Date( this.options.selected[2], this.options.selected[1], this.options.selected[0] ) ,
-				formatted: this._$pickerInput.val() 
-			});
+			if( this._tempFirst === null ) {
+				
+				this._tempFirst = date;
+				this._tempLast = null;
+				
+				this._setOption( "selectedFirst" , tDate );
+				this._setOption( "selectedLast" , "" );
+				
+			} else {
+				
+				this._tempFirst = null;
+				this._tempLast = date;
+				
+				this._setOption( "selectedLast" , tDate );
+				
+			}
+			
+			
+			
+			var d = { 
+				first: { d: this.options.selectedFirst[0] , m: this.options.selectedFirst[1] , y: this.options.selectedFirst[2] },
+				last: { d: this.options.selectedLast[0] , m: this.options.selectedLast[1] , y: this.options.selectedLast[2] }
+			};
+			
+			// if we selected a last date that is earlier than
+			// the first date, we discard the last date and
+			// set it to the first date (ie: no backward date range);	
+			
+			var earlier = false;
+			if( d.last.y < d.first.y ) { earlier = "y"; }
+			if( d.last.m < d.first.m && d.last.y === d.first.y ) { earlier = "m";  }
+			if( d.last.d < d.first.d && d.last.m === d.first.m && d.last.y === d.first.y ) { earlier = "d"; }
+			
+			if( earlier ) {
+				
+				this._setOption( "selectedFirst" , tDate );
+				this._setOption( "selectedLast" , "" );
+				this._tempFirst = date;
+				this._tempLast = null;
+				
+			}
+			
+			
+		} else {
+			
+			this._setOption( "selectedFirst" , tDate );
+			
+		}	
+		
+		
+		
+		
+		
+		// update the inputs to show the date.
+		this.updateInputs();
+		
+		// highlight the selected date.
+		this._highlightDate();
+		
+		// exposed event callback for users to hook.
+		// TODO
+		this._trigger( "selectDay", 'click', { 
+			date: new Date( tDate[2], tDate[1], tDate[0] ) ,
+			formatted: this._$pickerInput.val() 
+		});
 			
 	},
 	
@@ -685,13 +762,98 @@
 	
 	_highlightDate: function() {
 			
-			// remove all the currently selected days.
-			this._$pickerBody.find('.ui-gdatepicker-day').removeClass('ui-gdatepicker-selected');
-			this._$pickerBody.find(
-				'[data-day='+this.options.selected[0]+']'+
-				'[data-month='+this.options.selected[1]+']'+
-				'[data-year='+this.options.selected[2]+']'
-			).addClass('ui-gdatepicker-selected');	
+		// clear all the highlighted dates
+		//this._$pickerBody.find('.ui-gdatepicker-day').removeClass('ui-gdatepicker-selected');
+				
+		var d = {
+			first: { 
+				d: this.options.selectedFirst[0] , 
+				m: this.options.selectedFirst[1] , 
+				y: this.options.selectedFirst[2] 
+			},
+			last: { 
+				d: this.options.selectedLast[0] , 
+				m: this.options.selectedLast[1] , 
+				y: this.options.selectedLast[2] 
+			}
+		}
+
+		// remove all the existing highlighted dates.
+		
+		this._$pickerCache.removeClass('ui-gdatepicker-selected');
+
+
+		// if it's not a range picker, we just
+		// highlight the first selected day.
+		
+		if( !this.options.range ) {
+			
+			this._$pickerCache
+				.filter( '.gdpd-'+d.first.d+'.gdpm-'+d.first.m+'.gdpy-'+d.first.y )
+				.addClass('ui-gdatepicker-selected');
+		
+		// otherwise, we gotta do all the days in
+		// between first and last, including themselves -_-;
+		
+		} else {
+			
+			// if we're currently selecting the first date
+			// in the range, then hilight that.
+			
+			if( this._tempFirst ) {
+				
+				this._$pickerCache
+					.filter( '.gdpd-'+d.first.d+'.gdpm-'+d.first.m+'.gdpy-'+d.first.y )
+					.addClass('ui-gdatepicker-selected');
+			
+			// otherwise we hilight everything in the range
+				
+			} else {
+				
+				// this compares the two dates in days.
+				var diff = ( Date.UTC( d.last.y , d.last.m , d.last.d , 0 , 0 , 0 ) - Date.UTC( d.first.y , d.first.m , d.first.d , 0 , 0 , 0 )) / 86400000;
+				
+				// need to store the loop dates so we
+				// can manipulate them
+				var loopDay = d.last.d,
+					loopMonth = d.last.m,
+					loopYear = d.last.y;
+				
+				// this will hold all the dates we get
+				var $collection = $();
+				
+				// THIS LOOP IS VERY HEAVY.
+				// TRY TO FIGURE LIGHT WAY TO DO THIS.
+				
+				// basically:
+				// for all the dates between first and last
+				// hilight them.
+				for( i = diff+1; i > 0; i-- ) {
+					 
+					var $current =  this._$pickerCache.filter( '.gdpd-'+loopDay+'.gdpm-'+loopMonth+'.gdpy-'+loopYear );
+					$collection = $collection.add( $current );
+					
+					loopDay--;
+					if( loopDay === 0 ) {
+						loopMonth--;
+						if( loopMonth < 0 ) {
+							loopYear--;
+							loopMonth = 11;
+						}
+						loopDay = new Date( loopYear , loopMonth+1 , 0 ).getDate();	
+					}
+					
+				}
+				
+				$collection.addClass('ui-gdatepicker-selected');
+			
+				
+			}
+			
+			
+			
+		}
+			
 				
 	},
 	
@@ -701,10 +863,12 @@
 	
 	updateInputs: function() {
 		
-		if( $.type( this.options.selected ) === "array" ) {
+		console.log( this.options );
+		
+		if( $.type( this.options.selectedFirst ) === "array" ) {
 				
 			var vals 			= {};
-				vals.date 		= new Date( this.options.selected[2], this.options.selected[1], this.options.selected[0] );
+				vals.date 		= new Date( this.options.selectedFirst[2], this.options.selectedFirst[1], this.options.selectedFirst[0] );
 				vals.input 		= vals.date.toString( this.options.format );
 				vals.output 	= vals.date.toString( this.options.formatOutput ).replace("SX", vals.date.getOrdinal());
 		
@@ -928,8 +1092,8 @@
 				for( o = offset-1; o > 0; o-- ) {
 					
 					var oday = daysInPreviousMonth-o+1;
-					
-					html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month\" data-day=\""+oday+"\" data-year=\""+previousMonthYear+"\" data-month=\""+previousMonth+"\">";
+					//
+					html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month gdpd-"+oday+" gdpm-"+previousMonth+" gdpy-"+previousMonthYear+"\" data-day=\""+oday+"\" data-year=\""+previousMonthYear+"\" data-month=\""+previousMonth+"\">";
 					html += oday;
 					html += "</span>";	
 					
@@ -978,7 +1142,7 @@
 						var divider = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
 						var previous = ( mo == month ) ? "ui-gdatepicker-previous-month" : "";
 							
-						html += "<span class=\"ui-gdatepicker-day " +filler+" "+divider+" "+previous+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
+						html += "<span class=\"ui-gdatepicker-day " +filler+" "+divider+" "+previous+" gdpd-"+d+" gdpm-"+m+" gdpy-"+y+"\" data-day=\""+d+"\" data-year=\""+y+"\" data-month=\""+m+"\">";
 						html += d;
 						html += "</span>";
 						
@@ -1007,6 +1171,10 @@
 			html += addMonths( month, year, 5 );
 			
 			this._$pickerBody.empty().html( html );
+			
+			// store a cache for highlighting against.
+			this._$pickerCache = $();
+			this._$pickerCache = this._$pickerCache.add( this._$pickerBody.find('.ui-gdatepicker-day') );
 			
 		},
 		

@@ -1,8 +1,6 @@
 #jQuery UI gDatepicker
 ###Work In Progress
-__*I would advise you against using this code in any kind of project that
-requires stability and maintainability as the gdatepicker is not at version 1.0.0 yet.
-Please check back regularly or * (watch) the repo for news on 1.0.0.*__
+__* Completely overhauled, moved to moment.js, re-writing docu *__
 
 =========================================
 
@@ -47,8 +45,7 @@ Temporary demo at: http://sites.simey.me/jquery-gdatepicker/demo/
   
 ###Requirements:
   - jQuery (1.9.1+)
-  - jQuery UI (1.10.2+)
-  - Date.js (http://www.datejs.com/)
+  - moment.js (http://www.momentjs.com/)
   
 ####Optional
   - jQuery Mousewheel (for mouse scrolling) (https://github.com/brandonaaron/jquery-mousewheel)
