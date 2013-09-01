@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>gDatepicker</title>
+
+<link rel="stylesheet" type="text/css" href="css/normalize.css">
+<link rel="stylesheet" type="text/css" href="css/demo.css">
+<!--
+<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">-->
+<link rel="stylesheet" type="text/css" href="../src/css/jquery.ui.gdatepicker.css">
+<link rel="stylesheet" type="text/css" href="../src/css/jquery.ui.gdatepicker.dark.css">
+<link rel="stylesheet" type="text/css" href="../src/css/jquery.ui.gdatepicker.mint.css">
+
+<style>hr { margin: 20px 0; border: none; height: 1px; background: #ccc; }</style>
+
+</head>
+
+<body>
+
+
+	<div class="container" style="width: 600px; margin: auto;">
+	<p>Date Picker example</p>
+	
+	<input type="text" id="cal2">
+	<hr>
+	
+	<input type="text" id="cal" placeholder="Pikk sum datez!" value="2055/05/05">
+	<hr>
+	
+	<input type="text" id="cal1" placeholder="DD/MM/YYYY">
+	<hr>
+
+	<p>Try typing "today" for example"</p>
+	
+	<select><option>sadsa</option></select>
+	</div>
+
+
+<script src="js/jquery-1.10.1.min.js"></script>
+<script src="js/moment.min.js"></script>
+
+<script src="js/lang/en-gb.moment.js"></script>
+<script src="js/lang/fr.moment.js"></script>
+<script src="js/lang/zh-cn.moment.js"></script>
+<!-- <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<script src="js/jquery.mousewheel.js"></script>
+<script src="js/date.js"></script>
+ --><!-- <script src="../src/js/jquery.ui.gdatepicker.js"></script> -->
+<script src="../src/js/jquery.gdatepicker.js"></script>
+
+<script>
+	$(function() {
+
+		moment.lang("en-gb");
+
+		$('#cal2').gdatepicker({ theme: "dark" });
+		
+		$('#cal1').gdatepicker({ 
+			theme: "", language: "zh-cn", 
+			headerDayFormat: "ddd", 
+			scrollSpeed: 0, selectRange: 30,
+			dualOutputs: true
+		});
+
+		$('#cal').gdatepicker({ 
+			theme: "" , selectRange: 14,
+			language: "fr",
+			formatOutput: "l"
+		});
+			
+	});
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+

@@ -38,7 +38,7 @@
 			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bdffd7', endColorstr='#48b6b6',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 		}
 		
-		
+		.ui-gdatepicker-theme-mint.ui-gdatepicker-show { z-index: 999; display: block; }
 		
 		
 		.ui-gdatepicker-theme-mint.ui-gdatepicker .ui-gdatepicker-wrapper { margin: auto; position: relative; }
