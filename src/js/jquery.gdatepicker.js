@@ -462,24 +462,35 @@
       this._els.$pickerEmpty.on({
         "click": function(e) {
           _self._clearOutputs.apply( _self , [ "first" ]);
-          //_self.hide.apply( _self );
         }
       });
 
       this._els.$pickerSecondEmpty.on({
         "click": function(e) {
           _self._clearOutputs.apply( _self , [ "last" ]);
-          //_self.hide.apply( _self );
         }
       });
 
 
 
 
+      // if mousewheel scroll plugin is present...
+      if( $.event.special.mousewheel !== undefined ) {
+        this._els.$picker.on({
+
+          "mousewheel": function(e,delta) {
+            _self._handleMouseWheel.apply( _self , [ e, delta ]);
+          }
+
+        });
+      }
+
+
       this._els.$pickerUpArrow.on({
 
         "click": function(e) {
           _self._goBackAMonth.apply( _self );
+          _self._showOverlay.apply( _self , [ "click" , "month" ] );
         }
 
       });
@@ -488,6 +499,7 @@
 
         "click": function(e) {
           _self._goForwardAMonth.apply( _self );
+          _self._showOverlay.apply( _self , [ "click" , "month" ] );
         }
 
       });
@@ -496,6 +508,7 @@
 
         "click": function(e) {
           _self._goBackAYear.apply( _self );
+          _self._showOverlay.apply( _self , [ "click" , "year" ] );
         }
 
       });
@@ -504,6 +517,7 @@
 
         "click": function(e) {
           _self._goForwardAYear.apply( _self );
+          _self._showOverlay.apply( _self , [ "click" , "year" ] );
         }
 
       });
@@ -544,6 +558,11 @@
           month: this.selected.first[1], 
           year: this.selected.first[0] 
         };
+      } else {
+        this._active = { 
+          month: moment().month(), 
+          year: moment().year()
+        };      
       }
 
       this._els.$picker.addClass("ui-gdatepicker-show");
@@ -662,7 +681,7 @@
 
         var diff = this._getDifferenceInDays( d.first , d.last );
 
-        if( diff ) {
+        if( diff !== undefined ) {
 
           // need to store the loop dates so we
           // can manipulate them
@@ -835,6 +854,69 @@
 
       this._highlightDates();
       this._dimDates();
+
+    },
+
+
+    _showOverlay: function( event , type ) {
+
+      event = event || "click";
+      type = type || "month";
+
+      var click = this.settings.overlayClick;
+      var wheel = this.settings.overlayWheel;
+
+      var format;
+
+      var show = false;
+
+      var m = this._active.month , 
+          y = this._active.year;
+
+      var current = moment([y,m,1]).lang( this.lang );
+
+
+
+      if( event === "wheel" ) {
+        if( wheel ) { 
+          if( wheel === type || wheel === true ) { show = true; }
+        }
+      }
+
+      if( event === "click" ) {
+        if( click ) { 
+          if( click === type || click === true ) { show = true; }
+        }
+      }
+
+
+      if( type === "month" ) {
+        format = 
+          this.settings.overlayMonthFormat + 
+          " " + 
+          this.settings.overlayYearFormat;
+      }
+
+      if( type === "year" ) {
+        format = 
+          this.settings.overlayYearFormat;
+      }
+      
+
+      if( show ) { 
+
+        var $overlay = this._els.$pickerDateOverlay
+        var str = current.format( format );
+
+        $overlay.text( str );
+
+        clearTimeout( this.overlayTimer );
+        $overlay.addClass("ui-gdatepicker-overlay-visible");
+        this.overlayTimer = setTimeout( function() {
+          $overlay.removeClass("ui-gdatepicker-overlay-visible");
+        }, this.settings.overlayDuration);
+
+      }
 
     },
 
@@ -1149,6 +1231,37 @@
 
     },
 
+
+    _handleMouseWheel: function( e, delta ) {
+
+
+      var directionIsUp = true;
+      if( delta < 0 ) { directionIsUp = false }
+
+      // trigger the up/down arrow clicks
+      if( directionIsUp ) { 
+        if( e.shiftKey ) {
+          this._goBackAYear();
+          this._showOverlay("wheel","year");
+        } else {
+          this._goBackAMonth();
+          this._showOverlay("wheel","month");
+        }        
+      } else { 
+        if( e.shiftKey ) {
+          this._goForwardAYear();
+          this._showOverlay("wheel","year");
+        } else {
+          this._goForwardAMonth();
+          this._showOverlay("wheel","month");
+        }      
+      }
+      
+      // we stop the main window scrolling, or it'll be annoying
+      e.preventDefault();
+
+    },
+
     _goBackAMonth: function() {
 
       // figure out what the new months will be
@@ -1219,7 +1332,8 @@
 
     // this function sets the calendar inner's position so that the
     // current month is the one being shown.
-    // if can so this staticly or animated.
+    // it can do this staticly or animated.
+
     _positionCurrentMonth: function( direction, fast ) {
 
       // determine direction (up/down); and speed;
@@ -1399,7 +1513,7 @@
     // the format for the months in the overlay
     // http://momentjs.com/docs/#/displaying/format/
    
-    overlayYearFormat: "YY",
+    overlayYearFormat: "YYYY",
     // string
     // eg: "YYYY"
     // the format for the years in the overlay
@@ -1433,15 +1547,20 @@
     // eg: 300
     // how fast the calendar scrolls up and down
               
-    overlayType: "both",                 
+    overlayWheel: true,                 
     // string, bool
-    // eg: false, "both", "month", "year"
-    // do we show the overlay for scrolling months/years
+    // eg: true, false, "month", "year"
+    // do we show the overlay for scrolling months/years on mousewheel
               
-    overlayAnimation: "drop",                 
-    // string
-    // eg: "drop", "fade"
-    // how the overlay is animated in and out
+    overlayClick: "year",                 
+    // string, bool
+    // eg: true, false, "month", "year"
+    // do we show the overlay for scrolling months/years on click
+    
+    overlayDuration: 1000,                 
+    // number
+    // eg: 500
+    // how long to show the overlay
               
     theme: false,                  
     // string, bool
