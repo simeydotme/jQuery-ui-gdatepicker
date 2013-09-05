@@ -8,7 +8,8 @@
 
 .ui-gdatepicker-input-wrapper {
   position: relative;
-  display: inline-block; }
+  display: inline-block;
+  margin-right: 1em; }
 
 .ui-gdatepicker-input {
   display: inline-block;
@@ -27,6 +28,8 @@
   -o-transition: .5s;
   -ms-transition: .5s;
   transition: .5s; }
+  .ui-gdatepicker-input.ui-gdatepicker-input-double {
+    width: 240px; }
   .ui-gdatepicker-input:focus {
     outline: none;
     color: black; }

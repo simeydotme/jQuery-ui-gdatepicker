@@ -29,7 +29,10 @@
   }
 
 
-  .ui-gdatepicker-input-wrapper { position: relative; display: inline-block; }
+  .ui-gdatepicker-input-wrapper { 
+    position: relative; display: inline-block; 
+    margin-right: 1em;
+  }
 
   .ui-gdatepicker-input {
 
@@ -46,6 +49,8 @@
     cursor: text; box-shadow: 1px 1px 1px rgba(0,0,0,0.1) inset;
 
     @include prefix("transition", ".5s");
+
+    &.ui-gdatepicker-input-double { width: $iWidth*1.5; }
 
     &:focus {
       outline: none; color: black;
