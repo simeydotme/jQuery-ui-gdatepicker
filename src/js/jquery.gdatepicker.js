@@ -313,6 +313,9 @@
         .prop("placeholder", this.settings.placeholder );
 
 
+      if( !this.settings.dualOutputs && this.settings.selectRange ) {
+        els.$pickerInput.addClass("ui-gdatepicker-input-double");
+      }
 
 
       // give access to the els globally
@@ -1357,8 +1360,10 @@
       var offset = $firstday.position().top;
       // get current scrollTop of body
       var current = $body.scrollTop();
+      // see if the body has padding at the top
+      var padding = parseInt($body.css("padding-top"),10);
       // set the final scroll destination
-      var destination = current + offset - height;
+      var destination = current + offset - height - padding;
       // set the speed and half it if we've set fast.
       var speed = this.settings.scrollSpeed;
       if( f ) {  speed *= 0.5; }

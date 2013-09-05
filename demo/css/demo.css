@@ -8,5 +8,8 @@
 		}
 
 
-
+    .ui-gdatepicker-zh-cn .ui-gdatepicker-body { 
+      padding-top: 24px; }
+    .ui-gdatepicker-zh-cn .ui-gdatepicker-header-day { 
+      font-size: 18px; height: 44px; }
 

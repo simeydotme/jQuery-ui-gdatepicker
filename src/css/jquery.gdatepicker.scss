@@ -1,0 +1,323 @@
+
+@import "jquery.gdatepicker.mixins.scss";
+
+
+  $highlight: #e3585e;
+
+
+// ====================================================================
+// =======[ Input Variables ]==========================================
+// ====================================================================
+
+  $ifontSize: 14px;
+
+  $iTextColor: #666;
+  $iBackColor: #fefefe;
+  $iBordColor: #ccc;
+
+  $iActiveColor: #000;
+  $iFocusBordColor: #999;
+
+  $iWidth: 160px; $iHeight: 22px;
+
+// ====================================================================
+// =======[ Inputs ]===================================================
+// ====================================================================
+
+  .has-gdatepicker { 
+    position: absolute; width: 1; height:1; opacity: 0; overflow:hidden; top: -9999em;
+  }
+
+
+  .ui-gdatepicker-input-wrapper { position: relative; display: inline-block; }
+
+  .ui-gdatepicker-input {
+
+    display: inline-block; 
+    font-size: $ifontSize; color: $iTextColor; background: $iBackColor;
+
+    width: $iWidth; 
+    height: $iHeight; 
+    line-height: $iHeight;
+
+    padding: floor($iHeight*0.2) floor($iHeight*0.4);
+
+    border: 1px solid $iBordColor;
+    cursor: text; box-shadow: 1px 1px 1px rgba(0,0,0,0.1) inset;
+
+    @include prefix("transition", ".5s");
+
+    &:focus {
+      outline: none; color: black;
+    }
+
+    &:hover, &:focus {
+      border-color: $iFocusBordColor;
+    }
+
+    &.ui-gdatepicker-active { border-color: $highlight; }
+
+  }
+
+  .ui-gdatepicker-empty { 
+
+      position: absolute; 
+      right: 1px; top: 1px;
+
+      width: $iHeight + floor($iHeight*0.4); 
+      height: $iHeight + floor($iHeight*0.4); 
+      opacity: 0.05; cursor: pointer;
+
+      background: url(../img/cross.png) no-repeat center center; 
+      text-indent: -999em;
+      
+      @include prefix("transition", "opacity 0.2s");
+
+      &.ui-gdatepicker-empty-hover,
+      &:hover { opacity: 0.6; }
+
+    }
+
+
+
+// ====================================================================
+// =======[ Picker Variables ]=========================================
+// ====================================================================
+
+  $pfontSize: 11px;
+  $pFontFam:  "Verdana";
+
+  $pTextColor: $iTextColor;
+  $pBackColor: $iBackColor;
+  $pBordColor: $iBordColor;
+
+  $pWidth: 290px; $pHeight: 265px;
+
+  $arrowHeight: 24px; $arrowWidth: 55px;
+
+// ====================================================================
+// =======[ Picker ]===================================================
+// ====================================================================
+
+
+  .ui-gdatepicker {
+
+    font-size: $pfontSize; font-family: $pFontFam;
+
+    position: absolute; //display: none;
+    padding: floor($pWidth*0.07);
+
+    color: $pTextColor; background: $pBackColor;
+    border: 1px solid $pBordColor;
+
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+
+    visibility: hidden; opacity: 0;
+
+    @include prefix("transition-duration", "350ms, 0");
+    @include prefix("transition-property", "opacity, visibility");
+    @include prefix("transition-delay", "0, 350ms");
+
+    &.ui-gdatepicker-show { 
+
+      z-index: 10; visibility: visible; opacity: 1;
+      @include prefix("transition-delay", "0, 0");
+
+    }
+
+  }
+
+  .ui-gdatepicker-wrapper { margin: auto; position: relative; }
+  .ui-gdatepicker-body { width: auto; max-height: $pHeight; overflow: hidden; }
+
+
+  .ui-gdatepicker .ui-gdatepicker-close { 
+
+      position: absolute; 
+      right: - floor(($pWidth*0.07)/2); top: - floor(($pWidth*0.07)/2);
+
+      width: 12px; height: 12px; 
+      opacity: 0.1; cursor: pointer;
+      background: url(../img/cross.png) no-repeat center center; 
+      text-indent: -999em;
+      
+      @include prefix("transition", "opacity 0.2s");
+
+      &:hover { opacity: 0.6; }
+  }
+
+
+
+
+    .ui-gdatepicker-scroll-arrow,
+    .ui-gdatepicker-scroll-arrow-year {
+
+      position: absolute; 
+      line-height: $arrowHeight; height: $arrowHeight;  
+      opacity: 0.2; 
+      
+      background: transparentize($pBackColor, 0.5); 
+     
+      text-align: center; cursor: pointer; 
+      @include prefix("transition", "opacity 0.2s");
+
+
+      &:hover { opacity: 1; }
+
+    }
+
+    .ui-gdatepicker-scroll-arrow {
+      width: $arrowWidth;
+      right: floor(($pWidth*0.08)) + floor($arrowWidth*0.7);
+    }
+
+    .ui-gdatepicker-scroll-arrow-year { 
+      width: floor($arrowWidth*0.7); 
+      right: floor(($pWidth*0.08));
+    }
+
+    .ui-gdatepicker-scroll-arrow-up,
+    .ui-gdatepicker-scroll-arrow-up-year { top: 0; }
+
+    .ui-gdatepicker-scroll-arrow-down,
+    .ui-gdatepicker-scroll-arrow-down-year { bottom: -1px; }
+
+    .ui-gdatepicker-scroll-arrow > span,
+    .ui-gdatepicker-scroll-arrow-year > span { 
+      display: block; width: 100%; height: 100%; 
+    }
+
+    .ui-gdatepicker-scroll-arrow-up > span { 
+      background: url(../img/up.gif) no-repeat center center; text-indent: -999em; }
+    .ui-gdatepicker-scroll-arrow-down > span { 
+      background: url(../img/down.gif) no-repeat center center; text-indent: -999em; }
+    .ui-gdatepicker-scroll-arrow-up-year > span { 
+      background: url(../img/double-up.gif) no-repeat center center; text-indent: -999em; }
+    .ui-gdatepicker-scroll-arrow-down-year > span { 
+      background: url(../img/double-down.gif) no-repeat center center; text-indent: -999em; }
+
+
+
+// ====================================================================
+// =======[ Days Variables ]===========================================
+// ====================================================================
+
+  $dfontSize: 11px;
+  $dFontFam:  "Verdana";
+
+  $dTextColor: #444;
+  $dBackColor: $iBackColor;
+
+  $dHoverTextColor: #000;
+  $dHoverBackColor: transparentize( adjust-hue($highlight, 180), 0.8);
+
+  $dDimColor: lighten($dTextColor, 55);
+  $dSelectColor: #fff;
+  $dSelectBackColor: $highlight;
+
+  $dPrevColor: lighten($dTextColor, 55);
+
+  $dWidth: 22px; $dHeight: 22px;
+
+  $borderWidth: 1px;
+  $borderStyle: dotted;
+  $borderColor: $highlight;
+
+
+// ====================================================================
+// =======[ Days ]=====================================================
+// ====================================================================
+
+
+  .ui-gdatepicker-day,
+  .ui-gdatepicker-monthname,
+  .ui-gdatepicker-newline { 
+  
+    height: $dHeight; width: $dWidth+($borderWidth); line-height: $dHeight;
+    display: inline-block; vertical-align: middle;
+    border: $borderWidth $borderStyle transparent;
+    background: $dBackColor; color: lighten($dTextColor, 20);
+
+  }
+
+  .ui-gdatepicker-newline { 
+    width: floor($dWidth*5.8); 
+    text-indent: 15px; }
+
+
+  .ui-gdatepicker-day {
+
+    text-align: center; 
+    cursor: pointer;
+    margin-left: 0;
+
+    &.ui-gdatepicker-dim { 
+      color: $dDimColor; }
+
+    &.ui-gdatepicker-selected { 
+      color: $dSelectColor;
+      background: $dSelectBackColor;  }
+
+    &:hover { 
+      color: $dHoverTextColor; 
+      background: $dHoverBackColor; }
+
+  }
+
+  .ui-gdatepicker-previous-month { color: $dPrevColor; }
+
+  .ui-gdatepicker-monthname,
+  .ui-gdatepicker-head .ui-gdatepicker-day { color: $dTextColor; }
+
+
+  .ui-gdatepicker-divider-top { 
+    border-top-color: $highlight; }
+
+  .ui-gdatepicker-divider-left { 
+    border-left-color: $highlight; }
+
+
+
+
+  .ui-gdatepicker ,
+  .ui-gdatepicker * { 
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+
+
+
+
+  .ui-gdatepicker-overlay {
+
+    position: absolute; display: block; 
+    top: 49%; left: 50%; 
+    margin-top: -25px; margin-left: -110px;
+    width: 220px; height: 50px; 
+
+    text-align: center; font-size: 2em; line-height: 2.2;
+    border-radius: 2px;
+
+    background: transparentize($highlight, 0.2); 
+    color: white;
+
+    visibility: hidden; opacity: 0;
+
+    @include prefix("transition-duration", "250ms, 200ms, 0");
+    @include prefix("transition-property", "opacity, top, visibility");
+    @include prefix("transition-delay", "0, 0, 350ms");
+
+    &.ui-gdatepicker-overlay-visible {
+
+      z-index: 10; visibility: visible; opacity: 1; top: 50%;
+
+      @include prefix("transition-delay", "0, 0, 0");
+
+    }
+
+  }
