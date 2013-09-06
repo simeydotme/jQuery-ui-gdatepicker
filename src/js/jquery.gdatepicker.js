@@ -451,13 +451,30 @@
         // run the "show" function on focus
         "focus": function(e) {
           _self.show.apply( _self );
+          $(this).select();
         },
         // run the "hide" function on tab 
         // (not blur, as that intercepts clicking on the calender)
         "keydown": function(e) {
-          if( e.keyCode === 9 ) {
-            _self.hide.apply( _self );
-          }
+          switch( e.which ) {
+            
+            case 9:
+              _self.hide.apply( _self );
+              break;
+
+            case 38:
+              _self._selectNextDay.apply( _self );
+              break;
+
+            case 40:
+              _self._selectPrevDay.apply( _self );
+              break;
+          } 
+        },
+        // interrupt the interrupt for webkit on
+        // select
+        "mouseup": function(e) {
+          e.preventDefault();
         }
 
       });
@@ -1309,6 +1326,17 @@
       // figure out what the new year will be
       this._active.year += 1;
       this._populatePicker( "down", true );
+
+    },
+
+    _selectNextDay: function() {
+
+      console.log( this.selected );
+
+    },
+    _selectPrevDay: function() {
+
+      console.log( this.selected );
 
     },
 
