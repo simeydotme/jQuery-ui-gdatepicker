@@ -82,6 +82,12 @@
     this.selected = { first: null, last: null };
     this.lang = this.settings.language;
 
+    this.formatted = { 
+      first: { edit: null, view: null }, 
+      last: { edit: null, view: null }
+    };
+
+
     return this;
 
   };
@@ -149,9 +155,11 @@
           "found, please make sure it's loaded correctly"
         );
 
-        this.lang = ""
+        this.lang = moment.lang();
 
       }
+
+      this._localLongFormat = moment().lang(this.lang)._lang._longDateFormat.L;
 
       // this is used for toggling if we selecting first or last
       // date in the ranged picker
@@ -293,24 +301,19 @@
         .addClass( theme );
       
 
+      this.placeholder = 
+        ( this.settings.selectRange && this.settings.dualOutputs === false ) 
+          ? this._getPlaceholder() + this.settings.divider + this._getPlaceholder()
+          : this._getPlaceholder();
 
-      // get the original input's placeholder if it had one.
-      if( els.$pickerElement.attr("placeholder") ) {
-        this.settings.placeholder = els.$pickerElement.attr("placeholder");
-      }
-
-
-
-
-      // give the input a unique id
       els.$pickerInput
         .attr("id", "ui_gdatepicker_input_" + this.uid )
-        .prop("placeholder", this.settings.placeholder );
+        .prop("placeholder", this.placeholder );
 
       // give the input a unique id
       els.$pickerSecondInput
         .attr("id", "ui_gdatepicker_second_input_" + this.uid )
-        .prop("placeholder", this.settings.placeholder );
+        .prop("placeholder", this.placeholder );
 
 
       if( !this.settings.dualOutputs && this.settings.selectRange ) {
@@ -438,7 +441,6 @@
             _self.selectDate.apply( _self , [ $target ] );
             _self._highlightDates.apply( _self );
             _self._dimDates.apply( _self );
-            _self._outputDates.apply( _self );
 
           }
         }
@@ -451,7 +453,6 @@
         // run the "show" function on focus
         "focus": function(e) {
           _self.show.apply( _self );
-          $(this).select();
         },
         // run the "hide" function on tab 
         // (not blur, as that intercepts clicking on the calender)
@@ -460,16 +461,25 @@
             
             case 9:
               _self.hide.apply( _self );
+              _self._outputDates();
               break;
 
             case 38:
-              _self._selectNextDay.apply( _self );
+              _self._selectDay.apply( _self , ["next"] );
               break;
 
             case 40:
-              _self._selectPrevDay.apply( _self );
-              break;
+              _self._selectDay.apply( _self , ["previous"] );
+              break;             
+
           } 
+        },
+        "keyup": function(e) {
+          if( !"37,38,39,40".match(e.which) ) {
+
+            // on typing into field...
+
+          }
         },
         // interrupt the interrupt for webkit on
         // select
@@ -599,8 +609,6 @@
 
     },
 
-
-
     selectDate: function( what ) {
 
       // selectDate function takes parameter of either:
@@ -609,7 +617,6 @@
       // if what is supplied then we proceed
       // otherwise we just set to previously stored date.
       
-          
       // selected will be a temp array;
       var selected = this._selectedDateArray( what );
       var range = this.settings.selectRange;
@@ -621,8 +628,6 @@
       // also we need to avoid picking a reverse range
       // ie: second date must be after first date.
 
-      if( range ) {
-
         // if we're picking the first date in range
         // then we want to clear the last date!
         
@@ -630,16 +635,16 @@
           
           this.selected.first = selected;
           this.selected.last = null;
-          this._selectFirstToggle = false;
+
+          if( range ) {
+            this._selectFirstToggle = false;
+          }
           
         } else {
-                    
-          this.selected.last = selected;
-          this._selectFirstToggle = true;
 
           // if the last date is earlier than the first date.
           var earlier = 
-            moment(this.selected.last)
+            moment(selected)
               .isBefore(this.selected.first);
 
           if( earlier ) {
@@ -648,9 +653,16 @@
             this.selected.last = null;
             this._selectFirstToggle = false;
 
+          } else {
+
+            this.selected.last = selected;
+            this._selectFirstToggle = true;
+
           }
 
         }
+
+      if( range ) {
 
         // if we tried to select a range larger than the one
         // set in teh options, then we max it out and carry on.
@@ -668,13 +680,10 @@
 
         }
 
-      } else {
-
-        this.selected.first = selected;
-        this.selected.last = null;
-
       }
 
+      this._makeFormattedDates();
+      console.log( this.formatted );
 
     },
 
@@ -814,45 +823,57 @@
     },
 
 
-    _outputDates: function() {
+    // _outputDates: function( onlyOriginal ) {
 
-      var d = this.selected,
-          l = this.lang,
-          div = this.settings.divider;
+    //   var d = this.selected,
+    //       l = this.lang,
+    //       div = this.settings.divider;
 
-      var $inputx = this._els.$pickerElement,
-          $input1 = this._els.$pickerInput,
-          $input2 = this._els.$pickerSecondInput;
+    //   var $inputx = this._els.$pickerElement,
+    //       $input1 = this._els.$pickerInput,
+    //       $input2 = this._els.$pickerSecondInput;
 
-      // outputx is the original input which should be hidden now.
+    //   if( this.selected.first === null ) { this.selected.first = moment().toArray(); }
+    //   if( this.selected.last === null ) { this.selected.last = moment().toArray(); }
+
+    //   // outputx is the original input which should be hidden now.
       
-      var outputx = this._getFormattedDateArray( this.settings.format );
-      var outputn = this._getFormattedDateArray( this.settings.formatOutput );
+    //   var outputx = this._getFormattedDateArray( this.settings.format );
+    //   var outputn = this._getFormattedDateArray( this.settings.formatOutput );
 
-      outputx.whole = outputx.first + div + outputx.last;
-      outputn.whole = outputn.first + div + outputn.last;
+    //   outputx.whole = outputx.first + div + outputx.last;
+    //   outputn.whole = outputn.first + div + outputn.last;
 
-      // handle single-dates first.
-      if( !this.settings.selectRange || !outputx.last ) {
+    //   // handle single-dates first.
+    //   if( !this.settings.selectRange || !outputx.last ) {
 
-        $inputx.val( outputx.first );
-        $input1.val( outputn.first );
-        $input2.val( "" );
+    //     $inputx.val( outputx.first );
+        
+    //     if( !onlyOriginal ) {
+    //       $input1.val( outputn.first );
+    //       $input2.val( "" );
+    //     }
 
-      } else if( this.settings.dualOutputs ) {
+    //   } else if( this.settings.dualOutputs ) {
 
-        $inputx.val( outputx.whole );
-        $input1.val( outputn.first );
-        $input2.val( outputn.last );
+    //     $inputx.val( outputx.whole );
 
-      } else {
+    //     if( !onlyOriginal ) {
+    //       $input1.val( outputn.first );
+    //       $input2.val( outputn.last );
+    //     }
 
-        $inputx.val( outputx.whole );
-        $input1.val( outputn.whole );
+    //   } else {
 
-      }
+    //     $inputx.val( outputx.whole );
 
-    },
+    //     if( !onlyOriginal ) {
+    //       $input1.val( outputn.whole );
+    //     }
+
+    //   }
+
+    // },
 
 
     _clearOutputs: function( which ) {
@@ -1102,7 +1123,12 @@
               .lang( this.lang )
               .format( this.settings.sidebarYearFormat );
           }
-        
+
+        var realdate = moment().date();
+        var realmonth = moment().month();
+        var realyear = moment().year();
+
+
         // get the number of days in the currently looped month
         var daysInMonth = this._getDaysInMonth(m,y);
         
@@ -1111,7 +1137,7 @@
         if (offset === 0) { offset=7; }
         
         for( var d = 1; d <= daysInMonth; d++ ) {
-          
+
           // set some variables for styling the calendar
           // previous defines if the day being shown is in the first month
           // vertical defines the first day of a month
@@ -1120,13 +1146,16 @@
           var previous = ( mo === beginMonth ) ? "ui-gdatepicker-previous-month" : "";
           var vertical = ( d === 1 && offset > 1 ) ? "ui-gdatepicker-divider-left" : "";
           var horizontal = ( d <= 7 ) ? "ui-gdatepicker-divider-top" : "";
+          var real = ( y === realyear && m === realmonth ) ? "ui-gdatepicker-current-month" : "";
+          var today = ( y === realyear && m === realmonth && d === realdate ) ? "ui-gdatepicker-today" : "";
+          var even = ( (m+1)%2===0 ) ? "ui-gdatepicker-even-month" : "";
 
           // build a html-string for this day.
 
           html += 
             "<span " +
               "id=\"gdp-"+this.uid+"-"+d+"-"+m+"-"+y+"\" " +
-              "class=\"ui-gdatepicker-day " +vertical+" "+horizontal+" "+previous+"\"" +
+              "class=\"ui-gdatepicker-day "+even+" "+vertical+" "+horizontal+" "+previous+" "+real+" "+today+"\"" +
               "data-day=\""+d+"\"" +
               "data-month=\""+m+"\"" +
               "data-year=\""+y+"\"" +
@@ -1136,11 +1165,11 @@
           
           // At the end of the first week, show the Month/Year,
           // at the end of other weeks show nothing.
-          if( (offset+(d-1))%7 == 0 ) {
+          if( (offset+(d-1))%7 === 0 ) {
             if( (offset+(d-1)) < 8 ) {
-              html += "<span class=\"ui-gdatepicker-monthname ui-gdatepicker-divider-top ui-gdatepicker-newline\">"+monthname+" "+yearname+"</span><br>";
+              html += "<span class=\"ui-gdatepicker-monthname ui-gdatepicker-divider-top ui-gdatepicker-newline "+real+"\">"+monthname+" "+yearname+"</span><br>";
             } else {
-              html += "<span class=\"ui-gdatepicker-newline\"></span><br>";
+              html += "<span class=\"ui-gdatepicker-newline "+even+" "+real+"\"></span><br>";
             }
           }
           
@@ -1218,6 +1247,66 @@
         ) / 86400000 : null;
     },
 
+    _getPlaceholder: function() {
+      var ret;
+      if( this.settings.placeholder === true ) {
+        ret = els.$pickerElement.attr("placeholder");
+      } else if ( this.settings.placeholder !== false ) {
+        ret = this.settings.placeholder;
+      } else {
+        ret = this._localLongFormat;
+      }
+      return ret;
+    },
+
+    _getNextDay: function( dateArray ) {
+
+      // dateArray should be: [yyyy,mm,dd];
+      dateArray = dateArray || this.selected.first;
+
+      var output
+      var refreshView = false;
+      
+      var days = this._getDaysInMonth( dateArray[1], dateArray[0] );
+      dateArray[2] += 1;
+      if ( dateArray[2] > days ) {
+        dateArray[2] = 1;
+        dateArray[1] += 1;
+        refreshView = true;
+        if( dateArray[1] > 11 ) {
+          dateArray[1] = 0;
+          dateArray[0] += 1;
+        }
+      }
+
+      return { date: dateArray , refresh: refreshView };
+
+    },
+
+    _getPrevDay: function( dateArray ) {
+
+      // dateArray should be: [yyyy,mm,dd];
+      dateArray = dateArray || this.selected.first;
+
+      var output
+      var refreshView = false;
+      var days = this._getDaysInMonth( dateArray[1], dateArray[0] );
+
+      dateArray[2] -= 1;
+      if ( dateArray[2] < 1 ) {
+        dateArray[1] -= 1;
+        refreshView = true;
+        if( dateArray[1] < 0 ) {
+          dateArray[1] = 11;
+          dateArray[0] -= 1;
+        }
+        var days = this._getDaysInMonth( dateArray[1], dateArray[0] );
+        dateArray[2] = days;
+      }
+      return { date: dateArray , refresh: refreshView };
+
+    },
+
     // little helper to return the theme.
     // used like: $el.addClass( this._getTheme() );
     _getTheme: function() {
@@ -1232,24 +1321,24 @@
 
     // a function to return object of formatted dates
     // using the "this.selected" object as a refrence
-    _getFormattedDateArray: function( format ) {
+    // _getFormattedDateArray: function( format ) {
 
-      var ret = {};
-      format = format || "L";
+    //   var ret = {};
+    //   format = format || "L";
 
-      ret.first = 
-        moment( this.selected.first )
-          .lang( this.lang )
-          .format( format );
+    //   ret.first = 
+    //     moment( this.selected.first )
+    //       .lang( this.lang )
+    //       .format( format );
 
-      ret.last = ( this.selected.last !== null ) ?
-        moment( this.selected.last )
-          .lang( this.lang )
-          .format( format ) : null;
+    //   ret.last = ( this.selected.last !== null ) ?
+    //     moment( this.selected.last )
+    //       .lang( this.lang )
+    //       .format( format ) : null;
 
-      return ret;
+    //   return ret;
 
-    },
+    // },
 
 
     _handleMouseWheel: function( e, delta ) {
@@ -1329,14 +1418,89 @@
 
     },
 
-    _selectNextDay: function() {
+    _selectDay: function( direction ) {
 
-      console.log( this.selected );
+      // direction should be next/previous;
+      direction = direction || "next";
+
+      // set the first and last days, if they are not set.
+      if( this.selected.first === null ) {
+        this.selected.first = [ moment().year(), moment().month(), moment().date() ];
+      }
+
+      if( this.selected.last === null ) {
+        this.selected.last = [ this.selected.first[0], this.selected.first[1], this.selected.first[2], ];
+        this._selectFirstToggle = true;
+      }
+
+      // should we refresh the calendar?
+      var refreshView = false;
+      if( direction === "next" ) {
+
+        // figure out the next day, and if we need to refresh the
+        // months displayed in calendar
+        var firstNext = this._getNextDay( this.selected.first );
+        var lastNext = this._getNextDay( this.selected.last );
+        this.selected.first = firstNext.date;
+        this.selected.last = lastNext.date;
+        refreshView = firstNext.refresh;
+
+      } else if( direction === "previous" ) {
+        
+        // figure out the next day, and if we need to refresh the
+        // months displayed in calendar
+        var firstPrev = this._getPrevDay( this.selected.first );
+        var lastPrev = this._getPrevDay( this.selected.last );
+        this.selected.first = firstPrev.date;
+        this.selected.last = lastPrev.date;
+        refreshView = firstPrev.refresh;
+
+      }
+
+      // set the active month and year.
+      this._active.month = this.selected.first[1];
+      this._active.year = this.selected.first[0];
+      
+      // now refresh the month if we set it.
+      if( refreshView ) {
+        var scroll = ( direction === "next" ) ? "down" : "up";
+        this._populatePicker( scroll , true );
+      }
+
+      // update the UI;
+      this._highlightDates();
+      this._dimDates();
+      this._outputDates();
 
     },
-    _selectPrevDay: function() {
 
-      console.log( this.selected );
+    // tiny helper to create formatted dates for the inputs
+    _makeFormattedDates: function() {
+
+      this.formatted.first.edit = 
+        moment( this.selected.first )
+          .lang(this.lang)
+          .format( this._localLongFormat );
+
+      this.formatted.first.view = 
+        moment( this.selected.first )
+          .lang(this.lang)
+          .format( this.settings.formatOutput );
+
+
+      if( this.selected.last !== null ) {
+
+        this.formatted.last.edit = 
+          moment( this.selected.last )
+            .lang(this.lang)
+            .format( this._localLongFormat );
+
+        this.formatted.last.view = 
+          moment( this.selected.last )
+            .lang(this.lang)
+            .format( this.settings.formatOutput );
+
+      }
 
     },
 
@@ -1426,13 +1590,15 @@
 
       }
 
-
       // put things back how we found them. good boy.
       if( trick ) { this._els.$picker.css({ display: '' , opacity: '' }); }
 
     },
 
 
+
+    // returns an array from either a previous array
+    // or from a element using the elements data-tags.
     _selectedDateArray: function( what ) {
 
       var selectWhat;
@@ -1500,10 +1666,13 @@
 
   $.fn.gdatepicker.defaults = {
 
-    placeholder: "Pick a date...",
-    // string:  
-    // eg: "Pick me!"
-    // generated input's placeholder if original input doesn't have.
+    placeholder: false,
+    // boolean, string:  
+    // eg: "Pick me!" / false / true
+    // generated input's placeholder.
+    // false (default) = match the desired input string (MM/DD/YYYY for US).
+    // true = get placeholder from original input
+    // string = use the supplied string
                             
     selectRange: false,
     // number, boolean
@@ -1517,7 +1686,7 @@
     // if set to true generates an output for beginning
     // of range and for end of range. only if selectRange != false.
 
-    divider: " ~ ",
+    divider: " - ",
     // string
     // eg: -
     // a string divider to put between ranged dates.

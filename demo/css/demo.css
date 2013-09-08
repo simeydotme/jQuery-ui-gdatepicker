@@ -12,4 +12,7 @@
       padding-top: 24px; }
     .ui-gdatepicker-zh-cn .ui-gdatepicker-header-day { 
       font-size: 18px; height: 44px; }
+    .ui-gdatepicker-zh-cn .ui-gdatepicker-monthname, 
+    .ui-gdatepicker-zh-cn .ui-gdatepicker-newline { 
+      font-size: 18px; width: 150px; }
 

@@ -20,15 +20,18 @@
 
 	<div class="container" style="width: 600px; margin: auto;">
 	
-	<h3>Date Picker example</h3>
+	<h2>Date Picker example</h2>
 	
-	<input type="text" id="cal2">
+	<h3>EN-US (us-english - default) <br>single input, single date.</h3>
+	<input type="text" id="cal">
 	<hr>
 	
-	<input type="text" id="cal" placeholder="Pikk sum datez!" value="2055/05/05">
+	<h3>ZH-CN (chinese) <br>single input, ranged dates</h3>
+	<input type="text" id="cal1" placeholder="Pikk sum datez!" value="2150年5月21日">
 	<hr>
-	
-	<input type="text" id="cal1" placeholder="DD/MM/YYYY">
+
+	<h3>EN-GB (gb-english) <br>dual inputs, ranged dates</h3>
+	<input type="text" id="cal2" placeholder="DD/MM/YYYY" value="21/05/1985">
 	<hr>
 
 	</div>
@@ -47,24 +50,30 @@
 <script>
 	$(function() {
 
-		moment.lang("en-gb");
+		//moment.lang("en-gb");
 
-		$('#cal2').gdatepicker({ theme: "dark" });
-		
+		$('#cal').gdatepicker({
+			language: "en"
+		});
+
 		$('#cal1').gdatepicker({ 
 			theme: "", language: "zh-cn", 
 			headerDayFormat: "ddd", 
 			scrollSpeed: 0, selectRange: 30,
-			dualOutputs: true, 
 			sidebarYearFormat: "[,] YYYY",
-			overlayYearFormat: "[,] YYYY"
+			overlayMonthFormat: "MMMM",
+			overlayYearFormat: "[,] YYYY",
+			formatOutput: "D[日、] M[月、] YYYY[年]"
 		});
 
-		$('#cal').gdatepicker({ 
-			theme: "" , selectRange: 14,
-			language: "fr",
-			formatOutput: "l"
+		$('#cal2').gdatepicker({ 
+			theme: "dark" ,
+			language: "en-gb",
+			selectRange: 14,
+			dualOutputs: true,
+			formatOutput: "L"
 		});
+		
 			
 	});
 </script>
