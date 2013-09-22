@@ -24,9 +24,9 @@
 // =======[ Inputs ]===================================================
 // ====================================================================
 
-  // .has-gdatepicker { 
-  //   position: absolute; width: 1; height:1; opacity: 0; overflow:hidden; top: -9999em;
-  // }
+  .has-gdatepicker { 
+    position: absolute; width: 1; height:1; opacity: 0; overflow:hidden; top: -9999em;
+  }
 
 
   .ui-gdatepicker-input-wrapper { 
@@ -264,14 +264,15 @@
 
     &.ui-gdatepicker-today {
       background: transparentize($highlight, 0.8); }
+    
+    &:hover { 
+      color: $dHoverTextColor; 
+      background: $dHoverBackColor; }
 
     &.ui-gdatepicker-selected { 
       color: $dSelectColor;
       background: $dSelectBackColor;  }
 
-    &:hover { 
-      color: $dHoverTextColor; 
-      background: $dHoverBackColor; }
 
   }
 

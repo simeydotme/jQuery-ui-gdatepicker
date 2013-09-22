@@ -16,3 +16,8 @@
     .ui-gdatepicker-zh-cn .ui-gdatepicker-newline { 
       font-size: 18px; width: 150px; }
 
+
+  .has-gdatepicker { 
+    position: static; width: 300px; height:22px; opacity: 1; overflow:auto; top: 0;
+    display: block; margin-bottom: 2px;
+  }

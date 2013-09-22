@@ -78,13 +78,17 @@
     this.$el = $el;
     this.uid = uid;
     this.settings = settings;
-
-    this.selected = { first: null, last: null };
     this.lang = this.settings.language;
 
+
+
+    this.selected = { 
+      first: null, last: null 
+    };
+
     this.formatted = { 
-      first: { edit: null, view: null }, 
-      last: { edit: null, view: null }
+      first: { edit: null, view: null, hidden: null }, 
+      last: { edit: null, view: null, hidden: null }
     };
 
 
@@ -161,9 +165,15 @@
 
       this._localLongFormat = moment().lang(this.lang)._lang._longDateFormat.L;
 
+
+
+
       // this is used for toggling if we selecting first or last
       // date in the ranged picker
       this._selectFirstToggle = true;
+
+
+
 
       // set the active month and year.
       this._active = { 
@@ -171,9 +181,15 @@
         year: moment().year() 
       };
 
+
+
+
       // create the picker with the designated theme
       this._createPicker( this._getTheme() );
       this._bindEvents();
+      this._initInputs();
+
+
 
     },
 
@@ -301,10 +317,7 @@
         .addClass( theme );
       
 
-      this.placeholder = 
-        ( this.settings.selectRange && this.settings.dualOutputs === false ) 
-          ? this._getPlaceholder() + this.settings.divider + this._getPlaceholder()
-          : this._getPlaceholder();
+      this.placeholder = this._getPlaceholder();
 
       els.$pickerInput
         .attr("id", "ui_gdatepicker_input_" + this.uid )
@@ -314,11 +327,6 @@
       els.$pickerSecondInput
         .attr("id", "ui_gdatepicker_second_input_" + this.uid )
         .prop("placeholder", this.placeholder );
-
-
-      if( !this.settings.dualOutputs && this.settings.selectRange ) {
-        els.$pickerInput.addClass("ui-gdatepicker-input-double");
-      }
 
 
       // give access to the els globally
@@ -334,7 +342,7 @@
 
 
       // if we've chosen dual outputs, then append second one.
-      if( this.settings.selectRange && this.settings.dualOutputs ) {
+      if( this.settings.selectRange ) {
         this._els.$pickerSecondInputWrapper.insertAfter( this._els.$pickerInputWrapper );
       }
 
@@ -682,8 +690,7 @@
 
       }
 
-      this._makeFormattedDates();
-      console.log( this.formatted );
+      this._outputDates();
 
     },
 
@@ -823,78 +830,53 @@
     },
 
 
-    // _outputDates: function( onlyOriginal ) {
+    _outputDates: function() {
 
-    //   var d = this.selected,
-    //       l = this.lang,
-    //       div = this.settings.divider;
+      this._makeFormattedDates();
 
-    //   var $inputx = this._els.$pickerElement,
-    //       $input1 = this._els.$pickerInput,
-    //       $input2 = this._els.$pickerSecondInput;
+      var dates = this.formatted;
+      var full;
 
-    //   if( this.selected.first === null ) { this.selected.first = moment().toArray(); }
-    //   if( this.selected.last === null ) { this.selected.last = moment().toArray(); }
+      this._els.$pickerInput.val("");
+      this._els.$pickerSecondInput.val("");
 
-    //   // outputx is the original input which should be hidden now.
-      
-    //   var outputx = this._getFormattedDateArray( this.settings.format );
-    //   var outputn = this._getFormattedDateArray( this.settings.formatOutput );
+      this._els.$pickerInput.val( dates.first.view );
 
-    //   outputx.whole = outputx.first + div + outputx.last;
-    //   outputn.whole = outputn.first + div + outputn.last;
+      if( this.settings.selectRange ) {
+        if( this.selected.last !== null ) {
+          this._els.$pickerSecondInput.val( dates.last.view );
+          full = dates.first.hidden + this.settings.divider + dates.last.hidden;
+        }
+      } else {
+        full = dates.first.hidden;
+      }
 
-    //   // handle single-dates first.
-    //   if( !this.settings.selectRange || !outputx.last ) {
+      this._els.$pickerElement.val(full);
 
-    //     $inputx.val( outputx.first );
-        
-    //     if( !onlyOriginal ) {
-    //       $input1.val( outputn.first );
-    //       $input2.val( "" );
-    //     }
-
-    //   } else if( this.settings.dualOutputs ) {
-
-    //     $inputx.val( outputx.whole );
-
-    //     if( !onlyOriginal ) {
-    //       $input1.val( outputn.first );
-    //       $input2.val( outputn.last );
-    //     }
-
-    //   } else {
-
-    //     $inputx.val( outputx.whole );
-
-    //     if( !onlyOriginal ) {
-    //       $input1.val( outputn.whole );
-    //     }
-
-    //   }
-
-    // },
+    },
 
 
     _clearOutputs: function( which ) {
 
       which = which || "first";
 
-      this._els.$pickerSecondInput.val("");
+      //this._els.$pickerSecondInput.val("");
       this.selected.last = null;
       this._selectFirstToggle = false;
 
       if( which === "first" ) {
 
-        this._els.$pickerElement.val("");
-        this._els.$pickerInput.val("");
+        //this._els.$pickerElement.val("");
+        //this._els.$pickerInput.val("");
         this.selected.first = null;
         this._selectFirstToggle = true;
 
       }
 
+
       this._highlightDates();
       this._dimDates();
+      this._outputDates();
 
     },
 
@@ -1254,7 +1236,7 @@
       } else if ( this.settings.placeholder !== false ) {
         ret = this.settings.placeholder;
       } else {
-        ret = this._localLongFormat;
+        ret = moment().lang(this.lang).format( this.settings.formatOutput );
       }
       return ret;
     },
@@ -1266,8 +1248,8 @@
 
       var output
       var refreshView = false;
-      
       var days = this._getDaysInMonth( dateArray[1], dateArray[0] );
+
       dateArray[2] += 1;
       if ( dateArray[2] > days ) {
         dateArray[2] = 1;
@@ -1318,28 +1300,6 @@
       return theme;
 
     },
-
-    // a function to return object of formatted dates
-    // using the "this.selected" object as a refrence
-    // _getFormattedDateArray: function( format ) {
-
-    //   var ret = {};
-    //   format = format || "L";
-
-    //   ret.first = 
-    //     moment( this.selected.first )
-    //       .lang( this.lang )
-    //       .format( format );
-
-    //   ret.last = ( this.selected.last !== null ) ?
-    //     moment( this.selected.last )
-    //       .lang( this.lang )
-    //       .format( format ) : null;
-
-    //   return ret;
-
-    // },
-
 
     _handleMouseWheel: function( e, delta ) {
 
@@ -1418,10 +1378,11 @@
 
     },
 
-    _selectDay: function( direction ) {
+    _selectDay: function( direction, which ) {
 
       // direction should be next/previous;
       direction = direction || "next";
+      which = which || "both";
 
       // set the first and last days, if they are not set.
       if( this.selected.first === null ) {
@@ -1474,19 +1435,33 @@
 
     },
 
-    // tiny helper to create formatted dates for the inputs
+
+    // this helper create formatted dates for the inputs
     _makeFormattedDates: function() {
 
-      this.formatted.first.edit = 
-        moment( this.selected.first )
-          .lang(this.lang)
-          .format( this._localLongFormat );
 
-      this.formatted.first.view = 
-        moment( this.selected.first )
-          .lang(this.lang)
-          .format( this.settings.formatOutput );
+      if( this.selected.first !== null ) {
 
+        this.formatted.first.edit = 
+          moment( this.selected.first )
+            .lang(this.lang)
+            .format( this._localLongFormat );
+
+        this.formatted.first.view = 
+          moment( this.selected.first )
+            .lang(this.lang)
+            .format( this.settings.formatOutput );
+
+        this.formatted.first.hidden = 
+          moment( this.selected.first )
+            .lang(this.lang)
+            .format( this.settings.format );
+
+      } else {
+
+        this.formatted.first = { edit: null, view: null, hidden: null };
+
+      }
 
       if( this.selected.last !== null ) {
 
@@ -1499,6 +1474,15 @@
           moment( this.selected.last )
             .lang(this.lang)
             .format( this.settings.formatOutput );
+
+        this.formatted.last.hidden = 
+          moment( this.selected.last )
+            .lang(this.lang)
+            .format( this.settings.format );
+
+      } else {
+
+        this.formatted.last = { edit: null, view: null, hidden: null };
 
       }
 
@@ -1607,21 +1591,19 @@
         
         if( $.type( what ) === "array" ) {
           
-          // store the date from the array
-          selectWhat = [ 
-            what[0] , 
-            what[1] , 
-            what[2] 
-          ];
+          return what;
         
+
+
         } else if ( $.type( what ) === "object" ) {
           
-          // store the date from the element
-          selectWhat = [
+          return [
             parseInt( $( what ).data('year') , 10 ) , 
             parseInt( $( what ).data('month') , 10 ) , 
             parseInt( $( what ).data('day') , 10 ) 
           ];   
+
+
 
         } else {
           
@@ -1631,10 +1613,69 @@
         
       }
 
-      return selectWhat;
+    },
+
+
+
+    _initInputs: function() {
+
+      // split the "hidden" input element's value
+      var inputDate = 
+        this._els.$pickerElement.val().split( this.settings.divider );
+      
+      var momentDate;
+
+      // if we are range-inputting
+      if( this.settings.selectRange ) {
+
+        var pickLast = false;
+
+        // store formatted moment() dates.
+        momentDate = { 
+          first: moment( inputDate[0] , this._localLongFormat ) , 
+          last: moment( inputDate[1] , this._localLongFormat ) 
+        };
+
+        // if we don't supply 2 dates as the value="" in teh HTML,
+        // then we want the "first pickable date" to be the "last date"
+        if( !inputDate[1] ) { 
+          momentDate.last = momentDate.first; 
+          pickLast = true;
+        }
+
+        this._els.$pickerElement.val("");
+
+        if( momentDate.first.isValid() ) {
+          
+          if( !momentDate.last.isValid() ) {
+            momentDate.last = momentDate.first;
+          }
+
+          this.selectDate( momentDate.first.toArray() );
+          this.selectDate( momentDate.last.toArray() );
+        }
+
+        if( pickLast ) {
+          this._selectFirstToggle = false;
+        }
+
+      } else {
+        
+        // store formatted moment() date.
+        momentDate = moment( inputDate[0] , this._localLongFormat );
+
+        // if the input date is not falsey
+        if( inputDate[0] ) {
+          
+          this._els.$pickerElement.val("");
+          if( momentDate.isValid() ) {
+            this.selectDate( momentDate.toArray() );
+          }
+        }
+      }
+
 
     }
-
 
 
 
@@ -1679,12 +1720,6 @@
     // eg: 14,
     // maximum length of the range of dates allowed to pick.
     // a large number will result in slow performance
-    
-    dualOutputs: false,
-    // boolean
-    // eg: true,
-    // if set to true generates an output for beginning
-    // of range and for end of range. only if selectRange != false.
 
     divider: " - ",
     // string

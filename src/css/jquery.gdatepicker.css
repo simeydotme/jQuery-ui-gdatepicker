@@ -1,3 +1,11 @@
+.has-gdatepicker {
+  position: absolute;
+  width: 1;
+  height: 1;
+  opacity: 0;
+  overflow: hidden;
+  top: -9999em; }
+
 .ui-gdatepicker-input-wrapper {
   position: relative;
   display: inline-block;
@@ -195,12 +203,12 @@
     color: #d0d0d0; }
   .ui-gdatepicker-day.ui-gdatepicker-today {
     background: rgba(227, 88, 94, 0.2); }
-  .ui-gdatepicker-day.ui-gdatepicker-selected {
-    color: white;
-    background: #e3585e; }
   .ui-gdatepicker-day:hover {
     color: black;
     background: rgba(88, 227, 221, 0.2); }
+  .ui-gdatepicker-day.ui-gdatepicker-selected {
+    color: white;
+    background: #e3585e; }
 
 .ui-gdatepicker-previous-month {
   color: #d0d0d0; }
