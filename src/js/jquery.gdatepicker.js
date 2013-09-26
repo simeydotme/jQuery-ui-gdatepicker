@@ -46,7 +46,7 @@
 
       // ====================================================================
 
-      $el.data('_gDatepicker', plugin);
+      $el.data('gDatepicker', plugin);
 
     });
 
@@ -150,7 +150,7 @@
       var _self = this;
 
 
-      // if the specified language has no bee loaded correctly,
+      // if the specified language has not been loaded correctly,
       // log an error and set back to default.
       if( moment().lang( this.lang )._lang === undefined ) {
         
@@ -198,18 +198,19 @@
     destroy: function() {
 
       // get the current instance via it's data bind
-      var currentInstance = this.$el.data("_gDatepicker");
+      var currentInstance = this.$el.data("gDatepicker");
 
       // remove the elements stored in the data bind
       // all events should disappear, too.
       currentInstance._els.$picker.remove();
       currentInstance._els.$pickerInputWrapper.remove();
+      currentInstance._els.$pickerSecondInputWrapper.remove();
       currentInstance._els.$pickerElement.removeClass("has-gdatepicker");
 
       currentInstance._els = null;
 
       // finally remove the data bind so it doesn't trip us up.
-      this.$el.removeData("_gDatepicker");
+      this.$el.removeData("gDatepicker");
 
     },
 
@@ -388,7 +389,7 @@
       $(window).on({
         
         // when we press ESC close the picker if it's open!
-        "keyup": function(e) {
+        "keyup.gdatepicker": function(e) {
           if( e.keyCode === 27 ) {
             _self.hide.apply( _self );
           }
@@ -401,7 +402,7 @@
 
         // when we click on page, if it wasn't a click on the
         // datepicker, then we close it.
-        "mouseup": function(e) {
+        "mouseup.gdatepicker": function(e) {
 
           var $target = $(e.target);
           var $parents = $target.parents();
@@ -439,7 +440,7 @@
       
       this._els.$pickerBody.on({
 
-        "click": function(e) {
+        "click.gdatepicker": function(e) {
           // if we clicked on a day
           if( $(e.target).is(".ui-gdatepicker-day") ) {
             
@@ -459,17 +460,16 @@
       this._els.$pickerBothInputs.on({
 
         // run the "show" function on focus
-        "focus": function(e) {
+        "focus.gdatepicker": function(e) {
           _self.show.apply( _self );
         },
         // run the "hide" function on tab 
         // (not blur, as that intercepts clicking on the calender)
-        "keydown": function(e) {
+        "keydown.gdatepicker": function(e) {
           switch( e.which ) {
             
             case 9:
               _self.hide.apply( _self );
-              _self._outputDates();
               break;
 
             case 38:
@@ -482,32 +482,29 @@
 
           } 
         },
-        "keyup": function(e) {
-          if( !"37,38,39,40".match(e.which) ) {
-
-            // on typing into field...
-
-          }
-        },
         // interrupt the interrupt for webkit on
         // select
-        "mouseup": function(e) {
+        "mouseup.gdatepicker": function(e) {
+          e.target.select();
           e.preventDefault();
         }
 
       });
 
+
+
       this._els.$pickerEmpty.on({
-        "click": function(e) {
+        "click.gdatepicker": function(e) {
           _self._clearOutputs.apply( _self , [ "first" ]);
         }
       });
 
       this._els.$pickerSecondEmpty.on({
-        "click": function(e) {
+        "click.gdatepicker": function(e) {
           _self._clearOutputs.apply( _self , [ "last" ]);
         }
       });
+
 
 
 
@@ -516,7 +513,7 @@
       if( $.event.special.mousewheel !== undefined ) {
         this._els.$picker.on({
 
-          "mousewheel": function(e,delta) {
+          "mousewheel.gdatepicker": function(e,delta) {
             _self._handleMouseWheel.apply( _self , [ e, delta ]);
           }
 
@@ -524,9 +521,11 @@
       }
 
 
+
+
       this._els.$pickerUpArrow.on({
 
-        "click": function(e) {
+        "click.gdatepicker": function(e) {
           _self._goBackAMonth.apply( _self );
           _self._showOverlay.apply( _self , [ "click" , "month" ] );
         }
@@ -535,7 +534,7 @@
 
       this._els.$pickerDownArrow.on({
 
-        "click": function(e) {
+        "click.gdatepicker": function(e) {
           _self._goForwardAMonth.apply( _self );
           _self._showOverlay.apply( _self , [ "click" , "month" ] );
         }
@@ -544,7 +543,7 @@
 
       this._els.$pickerUpArrowYear.on({
 
-        "click": function(e) {
+        "click.gdatepicker": function(e) {
           _self._goBackAYear.apply( _self );
           _self._showOverlay.apply( _self , [ "click" , "year" ] );
         }
@@ -553,12 +552,14 @@
 
       this._els.$pickerDownArrowYear.on({
 
-        "click": function(e) {
+        "click.gdatepicker": function(e) {
           _self._goForwardAYear.apply( _self );
           _self._showOverlay.apply( _self , [ "click" , "year" ] );
         }
 
       });
+
+
 
     },
 
@@ -614,6 +615,7 @@
     hide: function() {
 
       this._els.$picker.removeClass("ui-gdatepicker-show");
+      this._outputDates();
 
     },
 
@@ -680,7 +682,8 @@
         if( diff > range ) {
           
           var end = 
-            moment( this.selected.first ).add( range, "days")
+            moment( this.selected.first )
+              .add( range, "days")
               .toArray(3);
 
           this.selected.last = [ end[0] , end[1] , end[2] ];
@@ -860,19 +863,15 @@
 
       which = which || "first";
 
-      //this._els.$pickerSecondInput.val("");
       this.selected.last = null;
       this._selectFirstToggle = false;
 
       if( which === "first" ) {
 
-        //this._els.$pickerElement.val("");
-        //this._els.$pickerInput.val("");
         this.selected.first = null;
         this._selectFirstToggle = true;
 
       }
-
 
       this._highlightDates();
       this._dimDates();
@@ -1653,10 +1652,11 @@
 
           this.selectDate( momentDate.first.toArray() );
           this.selectDate( momentDate.last.toArray() );
-        }
 
-        if( pickLast ) {
-          this._selectFirstToggle = false;
+          if( pickLast ) {
+            this._selectFirstToggle = false;
+          }
+
         }
 
       } else {

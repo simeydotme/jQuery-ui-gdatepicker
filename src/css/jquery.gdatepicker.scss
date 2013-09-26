@@ -11,7 +11,8 @@
 
   $ifontSize: 14px;
 
-  $iTextColor: #666;
+  $iTextColor: #555;
+  $iPlaceholder: #CCC;
   $iBackColor: #fefefe;
   $iBordColor: #ccc;
 
@@ -47,6 +48,12 @@
 
     border: 1px solid $iBordColor;
     cursor: text; box-shadow: 1px 1px 1px rgba(0,0,0,0.1) inset;
+
+    &::-webkit-input-placeholder { color: $iPlaceholder; }
+    &:-moz-placeholder { color: $iPlaceholder; }
+    &::-moz-placeholder { color: $iPlaceholder; }
+    &:-ms-input-placeholder { color: $iPlaceholder; }
+
 
     @include prefix("transition", ".5s");
 

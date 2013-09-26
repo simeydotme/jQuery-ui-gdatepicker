@@ -14,7 +14,7 @@
 .ui-gdatepicker-input {
   display: inline-block;
   font-size: 14px;
-  color: #666666;
+  color: #555555;
   background: #fefefe;
   width: 160px;
   height: 22px;
@@ -28,6 +28,14 @@
   -o-transition: .5s;
   -ms-transition: .5s;
   transition: .5s; }
+  .ui-gdatepicker-input::-webkit-input-placeholder {
+    color: #cccccc; }
+  .ui-gdatepicker-input:-moz-placeholder {
+    color: #cccccc; }
+  .ui-gdatepicker-input::-moz-placeholder {
+    color: #cccccc; }
+  .ui-gdatepicker-input:-ms-input-placeholder {
+    color: #cccccc; }
   .ui-gdatepicker-input.ui-gdatepicker-input-double {
     width: 240px; }
   .ui-gdatepicker-input:focus {
@@ -61,7 +69,7 @@
   font-family: "Verdana";
   position: absolute;
   padding: 20px;
-  color: #666666;
+  color: #555555;
   background: #fefefe;
   border: 1px solid #cccccc;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
