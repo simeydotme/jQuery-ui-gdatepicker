@@ -4,9 +4,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>gDatepicker</title>
 
-<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="css/normalize.css">
 <link rel="stylesheet" type="text/css" href="../src/css/jquery.gdatepicker.css">
+<link rel="stylesheet" type="text/css" href="../src/css/jquery.gdatepicker.purple.css">
 <link rel="stylesheet" type="text/css" href="css/demo.css">
 
 <style>hr { margin: 20px 0; border: none; height: 1px; background: #ccc; }</style>
@@ -20,16 +20,16 @@
 	
 	<h2>Date Picker example</h2>
 	
-	<h3>EN-US (us-english - default) <br>single input, single date.</h3>
-	<input type="text" id="cal" value="05/21/2222">
+	<h3>EN (us-english - default) <br>Single. Deafult.</h3>
+	<input type="text" id="cal1" value="05/21/2222">
 	<hr>
 	
-	<h3>ZH-CN (chinese) <br>single input, ranged dates</h3>
-	<input type="text" id="cal1" placeholder="Pikk sum datez!" value="2150年5月21日 - 2150年5月22日">
+	<h3>ZH-CN (chinese) <br>Single, Header Format Option</h3>
+	<input type="text" id="cal2" placeholder="Pikk sum datez!" value="2150年5月21日 - 2150年5月22日">
 	<hr>
 
-	<h3>EN-GB (gb-english) <br>dual inputs, ranged dates</h3>
-	<input type="text" id="cal2" placeholder="DD/MM/YYYY" value="21/05/1985">
+	<h3>EN-GB (gb-english) <br>Single, Format Output Option.</h3>
+	<input type="text" id="cal3" placeholder="DD/MM/YYYY" value="21/05/1985">
 	<hr>
 
 	</div>
@@ -39,8 +39,8 @@
 <script src="js/moment.min.js"></script>
 
 <script src="js/lang/en-gb.moment.js"></script>
-<script src="js/lang/fr.moment.js"></script>
 <script src="js/lang/zh-cn.moment.js"></script>
+<script src="js/lang/fr.moment.js"></script>
 
 <script src="js/jquery.mousewheel.js"></script>
 <script src="../src/js/jquery.gdatepicker.js"></script>
@@ -48,27 +48,24 @@
 <script>
 	$(function() {
 
-		//moment.lang("en-gb");
+		moment.lang("en");
 
-		$('#cal').gdatepicker({
-			language: "en"
-		});
-
-		$('#cal1').gdatepicker({ 
-			theme: "", language: "zh-cn", 
-			headerDayFormat: "ddd", 
-			scrollSpeed: 0, selectRange: 30,
-			sidebarYearFormat: "[,] YYYY",
-			overlayMonthFormat: "MMMM",
-			overlayYearFormat: "[,] YYYY",
-			formatOutput: "D[日、] M[月、] YYYY[年]"
-		});
+		$('#cal1').gdatepicker();
 
 		$('#cal2').gdatepicker({ 
-			theme: "dark" ,
+
+			language: "zh-cn",
+			headerDayFormat: "ddd",
+			theme: "purple"
+			//sidebarYearFormat: "[,] YYYY",
+			//overlayMonthFormat: "MMMM [,] YYYY[年]",
+			//overlayYearFormat: "YYYY[年]",
+			//formatOutput: "D[日、] M[月、] YYYY[年]"
+
+		});
+
+		$('#cal3').gdatepicker({ 
 			language: "en-gb",
-			selectRange: 14,
-			dualOutputs: true,
 			formatOutput: "L"
 		});
 		

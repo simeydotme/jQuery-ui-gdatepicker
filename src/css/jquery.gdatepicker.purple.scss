@@ -12,7 +12,7 @@
   
   // this is important that it matches the CSS selector.
   // put your theme's name here, like: "purple"
-  $theme: "";
+  $theme: "purple";
 
   // we marry up the theme if it was specified.
   // do not touch this.
@@ -67,7 +67,7 @@
   $dBackColor: $iBackColor;
 
   $dSelectColor: #fff;
-  $dSelectBackColor: #e53b5a;
+  $dSelectBackColor: #8e44ad;
   $dComplement: hsl( hue($dSelectBackColor), saturation($dSelectBackColor) , lightness($dSelectBackColor));
   
   // uncomment this next line for actual complementary colors

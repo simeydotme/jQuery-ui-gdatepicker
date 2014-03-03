@@ -33,7 +33,7 @@
     return this.each( function() {
 
       if( typeof( moment ) !== "function" ) {
-        throw new Error( "Moment.js Library is required: http://momentjs.com/" );
+        throw new Error( "Moment.js (2.5.x) Library is required: http://momentjs.com/" );
       }
 
       var $el = $(this);
@@ -41,12 +41,12 @@
 
       // ====================================================================
 
-      var plugin = new gDatepicker( _settings, $el, uid++ );
-      plugin.init();
+      var PICKER = new gDatepicker( _settings, $el, uid++ );
+      PICKER.init();
 
       // ====================================================================
 
-      $el.data('gDatepicker', plugin);
+      $el.data( 'gDatepicker', PICKER );
 
     });
 
@@ -83,7 +83,12 @@
 
 
     this.selected = { 
-      first: null, last: null 
+      first: null, 
+      last: null, 
+      temp: { 
+        first: [], 
+        last: [] 
+      }
     };
 
     this.formatted = { 
@@ -149,23 +154,13 @@
 
       var _self = this;
 
-
-      // if the specified language has not been loaded correctly,
-      // log an error and set back to default.
-      if( moment().lang( this.lang )._lang === undefined ) {
-        
-        console.error(
-          "The specified language ("+this.lang+") could not be " +
-          "found, please make sure it's loaded correctly"
-        );
-
-        this.lang = moment.lang();
-
-      }
-
+      // sort out language settings.
+      // moment will default to global language if we
+      // provide an invalid language, so we just re-set the
+      // language here, as we can't validate it.
+      this.originalLanguage = moment.lang();
+      this.lang = moment().lang( this.lang )._lang._abbr;
       this._localLongFormat = moment().lang(this.lang)._lang._longDateFormat.L;
-
-
 
 
       // this is used for toggling if we selecting first or last
@@ -180,7 +175,6 @@
         month: moment().month(), 
         year: moment().year() 
       };
-
 
 
 
@@ -318,20 +312,23 @@
         .addClass( theme );
       
 
+      // give access to the els globally
+      this._els = els;
+
+      // figure out the placeholder
       this.placeholder = this._getPlaceholder();
 
-      els.$pickerInput
+      // give the input a unique id and placeholder
+      this._els.$pickerInput
         .attr("id", "ui_gdatepicker_input_" + this.uid )
         .prop("placeholder", this.placeholder );
 
-      // give the input a unique id
-      els.$pickerSecondInput
+      // give the input a unique id and placeholder
+      this._els.$pickerSecondInput
         .attr("id", "ui_gdatepicker_second_input_" + this.uid )
         .prop("placeholder", this.placeholder );
 
 
-      // give access to the els globally
-      this._els = els;
 
       
 
@@ -342,7 +339,7 @@
       
 
 
-      // if we've chosen dual outputs, then append second one.
+      // if we've chosen ranged, then append second input one.
       if( this.settings.selectRange ) {
         this._els.$pickerSecondInputWrapper.insertAfter( this._els.$pickerInputWrapper );
       }
@@ -429,7 +426,7 @@
           }
 
           // if we haven't set hide to false, hide calendar
-          if( hide ) {
+          if( hide && _self._els.$picker.hasClass("ui-gdatepicker-show") ) {
             _self.hide.apply( _self );
           }
 
@@ -463,24 +460,33 @@
         "focus.gdatepicker": function(e) {
           _self.show.apply( _self );
         },
-        // run the "hide" function on tab 
-        // (not blur, as that intercepts clicking on the calender)
+
         "keydown.gdatepicker": function(e) {
           switch( e.which ) {
             
+            // run the "hide" function on tabbing 
+            // (not blur, as that intercepts clicking on the calender)
             case 9:
               _self.hide.apply( _self );
               break;
 
+            case 37:
+              _self._handleKeyboard.apply( _self , [ e, -1 ]);
+              break;
+
             case 38:
-              _self._selectDay.apply( _self , ["next"] );
+              _self._handleKeyboard.apply( _self , [ e, 1 ]);
+              break;
+
+            case 39:
+              _self._handleKeyboard.apply( _self , [ e, 1 ]);
               break;
 
             case 40:
-              _self._selectDay.apply( _self , ["previous"] );
+              _self._handleKeyboard.apply( _self , [ e, -1 ]);
               break;             
 
-          } 
+          }
         },
         // interrupt the interrupt for webkit on
         // select
@@ -495,13 +501,20 @@
 
       this._els.$pickerEmpty.on({
         "click.gdatepicker": function(e) {
+
           _self._clearOutputs.apply( _self , [ "first" ]);
+          
         }
       });
 
       this._els.$pickerSecondEmpty.on({
         "click.gdatepicker": function(e) {
-          _self._clearOutputs.apply( _self , [ "last" ]);
+
+          _self._selectFirstToggle = false;
+          _self.selectDate.apply( _self , [ _self.selected.first ]);
+          _self._highlightDates.apply( _self );
+          _self._selectFirstToggle = false;
+
         }
       });
 
@@ -885,12 +898,7 @@
       event = event || "click";
       type = type || "month";
 
-      var click = this.settings.overlayClick;
-      var wheel = this.settings.overlayWheel;
-
-      var format;
-
-      var show = false;
+      var format, show = false;
 
       var m = this._active.month , 
           y = this._active.year;
@@ -900,23 +908,27 @@
 
 
       if( event === "wheel" ) {
-        if( wheel ) { 
-          if( wheel === type || wheel === true ) { show = true; }
+        if( this.settings.overlayWheel ) { 
+          if( this.settings.overlayWheel === type || this.settings.overlayWheel === true ) { show = true; }
         }
       }
 
       if( event === "click" ) {
-        if( click ) { 
-          if( click === type || click === true ) { show = true; }
+        if( this.settings.overlayClick ) { 
+          if( this.settings.overlayClick === type || this.settings.overlayClick === true ) { show = true; }
+        }
+      }
+
+      if( event === "keyboard" ) {
+        if( this.settings.overlayKeyboard ) { 
+          if( this.settings.overlayKeyboard === type || this.settings.overlayKeyboard === true ) { show = true; }
         }
       }
 
 
       if( type === "month" ) {
         format = 
-          this.settings.overlayMonthFormat + 
-          " " + 
-          this.settings.overlayYearFormat;
+          this.settings.overlayMonthFormat;
       }
 
       if( type === "year" ) {
@@ -1229,15 +1241,19 @@
     },
 
     _getPlaceholder: function() {
-      var ret;
+
+      var ret = moment().lang(this.lang).format( this.settings.formatOutput );
+      var placeholder = this._els.$pickerElement.attr("placeholder");
+
       if( this.settings.placeholder === true ) {
-        ret = els.$pickerElement.attr("placeholder");
+        if( typeof(placeholder) !== "undefined" ) {
+          ret = this._els.$pickerElement.attr("placeholder");
+        }
       } else if ( this.settings.placeholder !== false ) {
         ret = this.settings.placeholder;
-      } else {
-        ret = moment().lang(this.lang).format( this.settings.formatOutput );
       }
       return ret;
+
     },
 
     _getNextDay: function( dateArray ) {
@@ -1245,7 +1261,6 @@
       // dateArray should be: [yyyy,mm,dd];
       dateArray = dateArray || this.selected.first;
 
-      var output
       var refreshView = false;
       var days = this._getDaysInMonth( dateArray[1], dateArray[0] );
 
@@ -1269,7 +1284,6 @@
       // dateArray should be: [yyyy,mm,dd];
       dateArray = dateArray || this.selected.first;
 
-      var output
       var refreshView = false;
       var days = this._getDaysInMonth( dateArray[1], dateArray[0] );
 
@@ -1284,6 +1298,7 @@
         var days = this._getDaysInMonth( dateArray[1], dateArray[0] );
         dateArray[2] = days;
       }
+
       return { date: dateArray , refresh: refreshView };
 
     },
@@ -1308,6 +1323,7 @@
 
       // trigger the up/down arrow clicks
       if( directionIsUp ) { 
+
         if( e.shiftKey ) {
           this._goBackAYear();
           this._showOverlay("wheel","year");
@@ -1315,14 +1331,17 @@
           this._goBackAMonth();
           this._showOverlay("wheel","month");
         }        
+
       } else { 
+
         if( e.shiftKey ) {
           this._goForwardAYear();
           this._showOverlay("wheel","year");
         } else {
           this._goForwardAMonth();
           this._showOverlay("wheel","month");
-        }      
+        }     
+         
       }
       
       // we stop the main window scrolling, or it'll be annoying
@@ -1330,7 +1349,45 @@
 
     },
 
-    _goBackAMonth: function() {
+    _handleKeyboard: function( e, delta ) {
+
+
+      var goUp = ( delta < 0 );
+
+      // trigger the up/down arrow clicks
+      if( e.shiftKey && !e.ctrlKey ) {
+        if( goUp ) { 
+          this._goBackAMonth( true );
+          this._showOverlay("keyboard","month");
+        } else {
+          this._goForwardAMonth( true );
+          this._showOverlay("keyboard","month");
+        }
+      } else if( e.ctrlKey ) {
+        if( goUp ) { 
+          this._goBackAYear( true );
+          this._showOverlay("keyboard","year");
+        } else {
+          this._goForwardAYear( true);
+          this._showOverlay("keyboard","year");
+        }
+      } else {
+        if( goUp ) { 
+          this._selectDay("previous");
+        } else {
+          this._selectDay("next");
+        }
+      }
+
+        
+      
+      // we stop the main window scrolling, or it'll be annoying
+      e.preventDefault();
+
+    },
+
+
+    _goBackAMonth: function( select ) {
 
       // figure out what the new months will be
       // if we go below jan, set to dec of previous year
@@ -1344,9 +1401,17 @@
 
       this._populatePicker( "up" );
 
+
+
+      if( select ) {       
+
+        this._selectActiveMonthYear();
+
+      }
+
     },
 
-    _goForwardAMonth: function() {
+    _goForwardAMonth: function( select ) {
 
       // figure out what the new months will be
       // if we go above dec, set to jan of next year
@@ -1359,21 +1424,74 @@
       
       this._populatePicker( "down" );
 
-    },    
 
-    _goBackAYear: function() {
 
-      // figure out what the new year will be
-      this._active.year -= 1;
-      this._populatePicker( "up", true );   
+      if( select ) {       
+
+        this._selectActiveMonthYear();
+
+      }
 
     },
 
-    _goForwardAYear: function() {
+    _selectActiveMonthYear: function() {
+
+        // set the first and last days, if they are not set.
+        if( this.selected.first === null ) {
+          this.selected.first = [ moment().year(), moment().month(), moment().date() ];
+        }
+
+        if( this.selected.last === null ) {
+          this.selected.last = this.selected.first;
+        }
+
+        // some varibles to help calculate the dates
+        var daysInMonth = this._getDaysInMonth( this._active.month, this._active.year );
+        var difference = this._getDifferenceInDays( this.selected.first , this.selected.last );
+
+        // prevent an invalid date because its not in the month.
+        var day = ( this.selected.first[2] > daysInMonth ) ? daysInMonth : this.selected.first[2];
+
+        this._selectFirstToggle = true;
+        this.selectDate( [ this._active.year , this._active.month , day ] );
+
+        var lastDate = moment( this.selected.first ).add('days', difference );
+        this.selectDate( [ lastDate['year']() , lastDate['month']() , lastDate['date']() ] );
+
+        // update the UI
+        this._highlightDates();
+        this._dimDates();
+        this._outputDates();
+
+    },
+
+    _goBackAYear: function( select ) {
+
+      // figure out what the new year will be
+      this._active.year -= 1;
+      this._populatePicker( "up", true );
+
+
+      if( select ) {       
+
+        this._selectActiveMonthYear();
+
+      }
+
+    },
+
+    _goForwardAYear: function( select ) {
 
       // figure out what the new year will be
       this._active.year += 1;
       this._populatePicker( "down", true );
+
+
+      if( select ) {       
+
+        this._selectActiveMonthYear();
+
+      }
 
     },
 
@@ -1438,7 +1556,6 @@
     // this helper create formatted dates for the inputs
     _makeFormattedDates: function() {
 
-
       if( this.selected.first !== null ) {
 
         this.formatted.first.edit = 
@@ -1450,6 +1567,8 @@
           moment( this.selected.first )
             .lang(this.lang)
             .format( this.settings.formatOutput );
+
+        
 
         this.formatted.first.hidden = 
           moment( this.selected.first )
@@ -1591,8 +1710,6 @@
         if( $.type( what ) === "array" ) {
           
           return what;
-        
-
 
         } else if ( $.type( what ) === "object" ) {
           
@@ -1601,8 +1718,6 @@
             parseInt( $( what ).data('month') , 10 ) , 
             parseInt( $( what ).data('day') , 10 ) 
           ];   
-
-
 
         } else {
           
@@ -1623,6 +1738,15 @@
         this._els.$pickerElement.val().split( this.settings.divider );
       
       var momentDate;
+      var invalidFormat;
+
+      // need to temporarily set global language
+      // because momentjs doesn't allow validating dates
+      // with a local languag,e only global.
+      moment.lang( this.lang );
+
+
+
 
       // if we are range-inputting
       if( this.settings.selectRange ) {
@@ -1634,6 +1758,7 @@
           first: moment( inputDate[0] , this._localLongFormat ) , 
           last: moment( inputDate[1] , this._localLongFormat ) 
         };
+
 
         // if we don't supply 2 dates as the value="" in teh HTML,
         // then we want the "first pickable date" to be the "last date"
@@ -1650,6 +1775,9 @@
             momentDate.last = momentDate.first;
           }
 
+          // set the global language back.
+          moment.lang( this.originalLanguage );
+
           this.selectDate( momentDate.first.toArray() );
           this.selectDate( momentDate.last.toArray() );
 
@@ -1657,21 +1785,45 @@
             this._selectFirstToggle = false;
           }
 
+        } else {
+
+          invalidFormat = true;
+
         }
 
       } else {
         
         // store formatted moment() date.
         momentDate = moment( inputDate[0] , this._localLongFormat );
-
+  
         // if the input date is not falsey
         if( inputDate[0] ) {
-          
+
           this._els.$pickerElement.val("");
+
           if( momentDate.isValid() ) {
+         
+            // set the global language back.
+            moment.lang( this.originalLanguage );
+
             this.selectDate( momentDate.toArray() );
+
+          } else {
+
+            invalidFormat = true;
+
           }
+
         }
+
+      }
+
+
+      if( invalidFormat ) {
+
+            console.error( "The value of the input doesn't match the localised date format" );
+            console.error( "Make sure the value=\""+ inputDate[0] +"\" matches the \""+ this.lang +"\" ("+ this._localLongFormat +") format." );
+
       }
 
 
@@ -1707,7 +1859,7 @@
 
   $.fn.gdatepicker.defaults = {
 
-    placeholder: false,
+    placeholder: true,
     // boolean, string:  
     // eg: "Pick me!" / false / true
     // generated input's placeholder.
@@ -1744,7 +1896,7 @@
     // the format for the years in the sidebar
     // http://momentjs.com/docs/#/displaying/format/
     
-    overlayMonthFormat: "MMM",
+    overlayMonthFormat: "MMM, YYYY",
     // string
     // eg: "MMM"
     // the format for the months in the overlay
@@ -1768,31 +1920,36 @@
     // format of original input
     // http://momentjs.com/docs/#/displaying/format/
               
-    formatOutput: "MMMM Do, YYYY",
+    formatOutput: "LL",
     // string
     // eg: "dd of MMMM, yyyy" 
     // format of generated output(s)
     // http://momentjs.com/docs/#/displaying/format/
                             
-    position: { top: 3, left: 0 },                  
-    // array
-    // eg: [0,0] 
+    position: { top: 3, left: 0 },
+    // object
+    // eg: { top: 0, left: 0 }
     // offset position of calendar
               
-    scrollSpeed: 300,                  
+    scrollSpeed: 300,
     // integer
     // eg: 300
     // how fast the calendar scrolls up and down
               
-    overlayWheel: true,                 
+    overlayWheel: true,
     // string, bool
     // eg: true, false, "month", "year"
     // do we show the overlay for scrolling months/years on mousewheel
               
-    overlayClick: "year",                 
+    overlayClick: "year",
     // string, bool
     // eg: true, false, "month", "year"
     // do we show the overlay for scrolling months/years on click
+
+    overlayKeyboard: true,
+    // string, bool
+    // eg: true, false, "month", "year"
+    // do we show the overlay for scrolling months/years on keyboard
     
     overlayDuration: 1000,                 
     // number

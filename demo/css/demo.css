@@ -3,21 +3,30 @@
 
 		body {
 		
-			font-family: Arial, Helvetica, sans-serif; color: #555; font-size: 13px;
+			font-family: Arial, Helvetica, sans-serif; 
+      color: #555; 
+      font-size: 14px;
 			
 		}
 
 
     .ui-gdatepicker-zh-cn .ui-gdatepicker-body { 
-      padding-top: 24px; }
+      padding-top: 24px!important; 
+    }
+
     .ui-gdatepicker-zh-cn .ui-gdatepicker-header-day { 
-      font-size: 18px; height: 44px; }
+      font-size: 14px!important; height: 44px!important; 
+    }
+
     .ui-gdatepicker-zh-cn .ui-gdatepicker-monthname, 
     .ui-gdatepicker-zh-cn .ui-gdatepicker-newline { 
-      font-size: 18px; width: 150px; }
+      font-size: 14px!important; width: 150px!important; 
+    }
 
 
   .has-gdatepicker { 
-    position: static; width: 300px; height:22px; opacity: 1; overflow:auto; top: 0;
+    position: static; width: 300px; height:22px; opacity: 0.1; overflow:auto; top: 0;
     display: block; margin-bottom: 2px;
   }
+
+  .has-gdatepicker:hover { opacity:1; }
