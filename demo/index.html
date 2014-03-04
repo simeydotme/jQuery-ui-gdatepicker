@@ -7,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="css/normalize.css">
 <link rel="stylesheet" type="text/css" href="../src/css/jquery.gdatepicker.css">
 <link rel="stylesheet" type="text/css" href="../src/css/jquery.gdatepicker.purple.css">
+<link rel="stylesheet" type="text/css" href="../src/css/jquery.gdatepicker.midnight.css">
 <link rel="stylesheet" type="text/css" href="css/demo.css">
 
 <style>hr { margin: 20px 0; border: none; height: 1px; background: #ccc; }</style>
@@ -25,7 +26,7 @@
 	<hr>
 	
 	<h3>ZH-CN (chinese) <br>Single, Header Format Option</h3>
-	<input type="text" id="cal2" placeholder="Pikk sum datez!" value="2150年5月21日 - 2150年5月22日">
+	<input type="text" id="cal2" placeholder="Pikk sum datez!" value="2014年3月21日 - 2014年3月28日">
 	<hr>
 
 	<h3>EN-GB (gb-english) <br>Single, Format Output Option.</h3>
@@ -56,7 +57,8 @@
 
 			language: "zh-cn",
 			headerDayFormat: "ddd",
-			theme: "purple"
+			theme: "purple",
+			selectRange: 30
 			//sidebarYearFormat: "[,] YYYY",
 			//overlayMonthFormat: "MMMM [,] YYYY[年]",
 			//overlayYearFormat: "YYYY[年]",
@@ -66,7 +68,8 @@
 
 		$('#cal3').gdatepicker({ 
 			language: "en-gb",
-			formatOutput: "L"
+			formatOutput: "L",
+			theme: "midnight"
 		});
 		
 			

@@ -40,8 +40,8 @@
       var _settings =  $.extend({}, $.fn.gdatepicker.defaults, settings || {});
 
       // ====================================================================
-
-      var PICKER = new gDatepicker( _settings, $el, uid++ );
+      uid++;
+      var PICKER = new gDatepicker( _settings, $el, uid );
       PICKER.init();
 
       // ====================================================================
@@ -168,6 +168,8 @@
       this._selectFirstToggle = true;
 
 
+      this._scrollBlocker = false;
+      this._scrollTimer = null;
 
 
       // set the active month and year.
@@ -199,9 +201,18 @@
       currentInstance._els.$picker.remove();
       currentInstance._els.$pickerInputWrapper.remove();
       currentInstance._els.$pickerSecondInputWrapper.remove();
-      currentInstance._els.$pickerElement.removeClass("has-gdatepicker");
+
+      currentInstance._els.$pickerElement
+        .removeClass("has-gdatepicker")
+        .prop("tabindex","")
+        .prop("readonly", "");
 
       currentInstance._els = null;
+
+      // unbind namedspaced events from the html/window elements.
+      // events bound to the created elements will be purged by jQuery.
+      $(window).off(".gdatepicker"+this.uid);
+      $("html").off(".gdatepicker"+this.uid);
 
       // finally remove the data bind so it doesn't trip us up.
       this.$el.removeData("gDatepicker");
@@ -298,7 +309,8 @@
       // tabindex stops it being tabbed to
       els.$pickerElement
         .addClass("has-gdatepicker")
-        .attr("tabindex","-1");
+        .prop("tabindex","-1")
+        .prop("readonly", true);
 
 
 
@@ -321,12 +333,14 @@
       // give the input a unique id and placeholder
       this._els.$pickerInput
         .attr("id", "ui_gdatepicker_input_" + this.uid )
-        .prop("placeholder", this.placeholder );
+        .prop("placeholder", this.placeholder )
+        .prop("readonly", true);
 
       // give the input a unique id and placeholder
       this._els.$pickerSecondInput
         .attr("id", "ui_gdatepicker_second_input_" + this.uid )
-        .prop("placeholder", this.placeholder );
+        .prop("placeholder", this.placeholder )
+        .prop("readonly", true);
 
 
 
@@ -380,78 +394,75 @@
     _bindEvents: function() {
 
       var _self = this;
+      var clickEvent = (typeof(document.ontouchend) === "undefined") 
+        ? "click.gdatepicker" : "touchend.gdatepicker" ;
 
 
 
-      $(window).on({
-        
+      $(window).on( "keyup.gdatepicker"+uid , function(e) {
+
         // when we press ESC close the picker if it's open!
-        "keyup.gdatepicker": function(e) {
-          if( e.keyCode === 27 ) {
-            _self.hide.apply( _self );
-          }
+
+        if( e.keyCode === 27 ) {
+          _self.hide.apply( _self );
         }
 
       });
 
 
-      $("html").on({
+      $("html").on( "mouseup.gdatepicker"+uid , function(e) {
 
         // when we click on page, if it wasn't a click on the
         // datepicker, then we close it.
-        "mouseup.gdatepicker": function(e) {
 
-          var $target = $(e.target);
-          var $parents = $target.parents();
+        var $target = $(e.target);
+        var $parents = $target.parents();
 
-          // assume we are going to hide.
-          var hide = true;
+        // assume we are going to hide.
+        var hide = true;
 
-          // the datepicker itself and the input element exempt
-          var $exempt = $()
-                .add( _self._els.$picker )
-                .add( _self._els.$pickerInputWrapper )
-                .add( _self._els.$pickerSecondInputWrapper );
+        // the datepicker itself and the input element exempt
+        var $exempt = $()
+              .add( _self._els.$picker )
+              .add( _self._els.$pickerInputWrapper )
+              .add( _self._els.$pickerSecondInputWrapper );
 
 
-          // if the close button was _not_ clicked, and the
-          // target or it's parent was one of the exempt, we
-          // decide not to close.
-          if( !$target.is( _self._els.$pickerClose ) ) {
-            if( $target.filter( $exempt ).length > 0 ) {
-              hide = false;
-            } else if( $parents.filter( $exempt ).length > 0 ) {
-              hide = false;
-            }
+        // if the close button was _not_ clicked, and the
+        // target or it's parent was one of the exempt, we
+        // decide not to close.
+        if( !$target.is( _self._els.$pickerClose ) ) {
+          if( $target.filter( $exempt ).length > 0 ) {
+            hide = false;
+          } else if( $parents.filter( $exempt ).length > 0 ) {
+            hide = false;
           }
+        }
 
-          // if we haven't set hide to false, hide calendar
-          if( hide && _self._els.$picker.hasClass("ui-gdatepicker-show") ) {
-            _self.hide.apply( _self );
-          }
-
+        // if we haven't set hide to false, hide calendar
+        if( hide && _self._els.$picker.hasClass("ui-gdatepicker-show") ) {
+          _self.hide.apply( _self );
         }
 
       });
       
       
-      this._els.$pickerBody.on({
+      this._els.$pickerBody.on( clickEvent , function(e) {
+       
+        // if we clicked on a day, select it.
 
-        "click.gdatepicker": function(e) {
-          // if we clicked on a day
-          if( $(e.target).is(".ui-gdatepicker-day") ) {
-            
-            var id = e.target.id;
-            var $target = _self._els.$pickerCache.filter( "#"+id );
+        if( $(e.target).is(".ui-gdatepicker-day") ) {
+          
+          var id = e.target.id;
+          var $target = _self._els.$pickerCache.filter( "#"+id );
 
-            _self.selectDate.apply( _self , [ $target ] );
-            _self._highlightDates.apply( _self );
-            _self._dimDates.apply( _self );
+          _self.selectDate.apply( _self , [ $target ] );
+          _self._highlightDates.apply( _self );
+          _self._dimDates.apply( _self );
 
-          }
         }
 
-      })
+      });
 
 
       this._els.$pickerBothInputs.on({
@@ -488,8 +499,8 @@
 
           }
         },
-        // interrupt the interrupt for webkit on
-        // select
+
+        // interrupt the select 
         "mouseup.gdatepicker": function(e) {
           e.target.select();
           e.preventDefault();
@@ -499,23 +510,20 @@
 
 
 
-      this._els.$pickerEmpty.on({
-        "click.gdatepicker": function(e) {
+      this._els.$pickerEmpty.on( clickEvent , function(e) {
 
-          _self._clearOutputs.apply( _self , [ "first" ]);
+        _self._clearOutputs.apply( _self , [ "first" ]);
           
-        }
       });
 
-      this._els.$pickerSecondEmpty.on({
-        "click.gdatepicker": function(e) {
 
-          _self._selectFirstToggle = false;
-          _self.selectDate.apply( _self , [ _self.selected.first ]);
-          _self._highlightDates.apply( _self );
-          _self._selectFirstToggle = false;
+      this._els.$pickerSecondEmpty.on( clickEvent , function(e) {
 
-        }
+        _self._selectFirstToggle = false;
+        _self.selectDate.apply( _self , [ _self.selected.first ]);
+        _self._highlightDates.apply( _self );
+        _self._selectFirstToggle = false;
+
       });
 
 
@@ -526,8 +534,13 @@
       if( $.event.special.mousewheel !== undefined ) {
         this._els.$picker.on({
 
+          // throttle that bitch!
           "mousewheel.gdatepicker": function(e,delta) {
             _self._handleMouseWheel.apply( _self , [ e, delta ]);
+          },
+
+          "mousewheel": function(e) {
+            e.preventDefault();
           }
 
         });
@@ -536,40 +549,24 @@
 
 
 
-      this._els.$pickerUpArrow.on({
-
-        "click.gdatepicker": function(e) {
-          _self._goBackAMonth.apply( _self );
-          _self._showOverlay.apply( _self , [ "click" , "month" ] );
-        }
-
+      this._els.$pickerUpArrow.on( clickEvent , function(e) {
+        _self._goBackAMonth.apply( _self );
+        _self._showOverlay.apply( _self , [ "click" , "month" ] );
       });
 
-      this._els.$pickerDownArrow.on({
-
-        "click.gdatepicker": function(e) {
-          _self._goForwardAMonth.apply( _self );
-          _self._showOverlay.apply( _self , [ "click" , "month" ] );
-        }
-
+      this._els.$pickerDownArrow.on( clickEvent , function(e) {
+        _self._goForwardAMonth.apply( _self );
+        _self._showOverlay.apply( _self , [ "click" , "month" ] );
       });
 
-      this._els.$pickerUpArrowYear.on({
-
-        "click.gdatepicker": function(e) {
+      this._els.$pickerUpArrowYear.on( clickEvent , function(e) {
           _self._goBackAYear.apply( _self );
           _self._showOverlay.apply( _self , [ "click" , "year" ] );
-        }
-
       });
 
-      this._els.$pickerDownArrowYear.on({
-
-        "click.gdatepicker": function(e) {
-          _self._goForwardAYear.apply( _self );
-          _self._showOverlay.apply( _self , [ "click" , "year" ] );
-        }
-
+      this._els.$pickerDownArrowYear.on( clickEvent , function(e) {
+        _self._goForwardAYear.apply( _self );
+        _self._showOverlay.apply( _self , [ "click" , "year" ] );
       });
 
 
@@ -1315,13 +1312,44 @@
 
     },
 
+    _throttle: function(func, wait, options) {
+      //shameless taken from _underscore.js
+      var context, args, result;
+      var timeout = null;
+      var previous = 0;
+      options || (options = {});
+      var later = function() {
+        previous = options.leading === false ? 0 : new Date().getTime();
+        timeout = null;
+        result = func.apply(context, args);
+        context = args = null;
+      };
+      return function() {
+        var now = new Date().getTime();
+        if (!previous && options.leading === false) previous = now;
+        var remaining = wait - (now - previous);
+        context = this;
+        args = arguments;
+        if (remaining <= 0) {
+          clearTimeout(timeout);
+          timeout = null;
+          previous = now;
+          result = func.apply(context, args);
+          context = args = null;
+        } else if (!timeout && options.trailing !== false) {
+          timeout = setTimeout(later, remaining);
+        }
+        return result;
+      };
+    },
+
     _handleMouseWheel: function( e, delta ) {
 
+      var _self = this;
 
       var directionIsUp = true;
       if( delta < 0 ) { directionIsUp = false }
 
-      // trigger the up/down arrow clicks
       if( directionIsUp ) { 
 
         if( e.shiftKey ) {
@@ -1343,9 +1371,6 @@
         }     
          
       }
-      
-      // we stop the main window scrolling, or it'll be annoying
-      e.preventDefault();
 
     },
 

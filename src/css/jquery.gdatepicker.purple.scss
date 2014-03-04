@@ -1,6 +1,6 @@
 
-@import "jquery.gdatepicker.mixins.scss";
-@import "jquery.gdatepicker.images.scss";
+@import "includes/jquery.gdatepicker.mixins.scss";
+@import "includes/jquery.gdatepicker.images.scss";
 
 
 
@@ -239,6 +239,23 @@
 // ====================================================================
 
 
+
+
+  // prevent the user from "selecting" things like text
+
+  .ui-gdatepicker ,
+  .ui-gdatepicker * { 
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+
+  
+
   #{$theme}.ui-gdatepicker {
 
     font-size: $pfontSize; 
@@ -470,20 +487,6 @@
     .ui-gdatepicker-divider-left { 
       border-left-color: $dSelectBackColor; 
     }
-
-
-    // prevent the user from "selecting" things like text
-
-    .ui-gdatepicker ,
-    .ui-gdatepicker * { 
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: -moz-none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
 
 
     // the graphical overlay when skipping months/years

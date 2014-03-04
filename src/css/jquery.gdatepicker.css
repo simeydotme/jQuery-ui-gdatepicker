@@ -64,6 +64,15 @@
     .ui-gdatepicker-input-wrapper .ui-gdatepicker-empty.ui-gdatepicker-empty-hover, .ui-gdatepicker-input-wrapper .ui-gdatepicker-empty:hover {
       opacity: 0.6; }
 
+.ui-gdatepicker,
+.ui-gdatepicker * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none; }
+
 .ui-gdatepicker {
   font-size: 10px;
   font-family: "Verdana";
@@ -215,14 +224,6 @@
     border-top-color: #e53b5a; }
   .ui-gdatepicker .ui-gdatepicker-divider-left {
     border-left-color: #e53b5a; }
-  .ui-gdatepicker .ui-gdatepicker,
-  .ui-gdatepicker .ui-gdatepicker * {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: -moz-none;
-    -ms-user-select: none;
-    user-select: none; }
   .ui-gdatepicker .ui-gdatepicker-overlay {
     position: absolute;
     display: block;

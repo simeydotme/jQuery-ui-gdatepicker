@@ -12,7 +12,7 @@
   
   // this is important that it matches the CSS selector.
   // put your theme's name here, like: "purple"
-  $theme: "";
+  $theme: "midnight";
 
   // we marry up the theme if it was specified.
   // do not touch this.
@@ -44,12 +44,12 @@
 // =======[ Calendar Variables ]=======================================
 // ====================================================================
 
-  $pfontSize: 10px;
-  $pFontFam:  "Verdana";
+  $pfontSize: 11px;
+  $pFontFam:  "Courier New";
 
-  $pTextColor: #555;
-  $pBackColor: #fefefe;
-  $pBordColor: #ccc;
+  $pTextColor: #fefefe;
+  $pBackColor: #2c3e50;
+  $pBordColor: Black;
   
   $arrowHeight: 24px; 
   $arrowWidth: 55px;
@@ -64,10 +64,10 @@
   $dFontFam:  $pFontFam;
 
   $dTextColor: #444;
-  $dBackColor: $iBackColor;
+  $dBackColor: transparent;
 
   $dSelectColor: #fff;
-  $dSelectBackColor: #e53b5a;
+  $dSelectBackColor: #8e44ad;
   $dComplement: hsl( hue($dSelectBackColor), saturation($dSelectBackColor) , lightness($dSelectBackColor));
   
   // uncomment this next line for actual complementary colors
@@ -255,6 +255,7 @@
 
 
   
+
 
   #{$theme}.ui-gdatepicker {
 
@@ -487,6 +488,7 @@
     .ui-gdatepicker-divider-left { 
       border-left-color: $dSelectBackColor; 
     }
+
 
     // the graphical overlay when skipping months/years
 
