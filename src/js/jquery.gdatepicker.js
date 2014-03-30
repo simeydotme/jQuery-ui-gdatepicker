@@ -1,367 +1,277 @@
-
-
 (function($){
 
-  "use strict";
+    "use strict";
 
-  // a unique id for each gdatepicker
-  var uid = 0;
+    // a unique id for each gdatepicker
+    var uid = 0;
 
+    $.fn.gdatepicker = function( settings ) {
 
-/*** 
-* http://patorjk.com/software/taag/#p=display&h=2&v=2&c=c&f=Fraktur&t=test
-*                                                                            
-*       ..                                                        ..         
-*      888>                 x.    .                   .u    .    @L          
-*      "8P       .u@u     .@88k  z88u        .u     .d88B :@8c  9888i   .dL  
-*       .     .zWF8888bx ~"8888 ^8888     ud8888.  ="8888f8888r `Y888k:*888. 
-*     u888u. .888  9888    8888  888R   :888'8888.   4888>'88"    888E  888I 
-*    `'888E  I888  9888    8888  888R   d888 '88%"   4888> '      888E  888I 
-*      888E  I888  9888    8888  888R   8888.+"      4888>        888E  888I 
-*      888E  I888  9888    8888 ,888B . 8888L       .d888L .+     888E  888I 
-*      888E  `888Nx?888   "8888Y 8888"  '8888c. .+  ^"8888*"     x888N><888' 
-*      888E   "88" '888    `Y"   'YP     "88888%       "Y"        "88"  888  
-*      888E         88E                    "YP'                         88F  
-*      888E         98>                                                98"   
-*      888P         '8                                               ./"     
-*    .J88" "         `                                              ~`       
-*/
+        return this.each( function() {
+            
+            uid++;
+
+            if( typeof( moment ) !== "function" ) {
+                throw new Error( "Moment.js (2.5.x) Library is required: http://momentjs.com/" );
+            }
+
+            var $el = $(this);
+            var _settings = $.extend({}, $.fn.gdatepicker.defaults, settings || {});
 
 
-  $.fn.gdatepicker = function( settings ) {
+            var PICKER = new gDatepicker( _settings, $el, uid );
+            PICKER.init();
 
-    return this.each( function() {
+            $el.data( 'gDatepicker', PICKER );
 
-      if( typeof( moment ) !== "function" ) {
-        throw new Error( "Moment.js (2.5.x) Library is required: http://momentjs.com/" );
-      }
+        });
 
-      var $el = $(this);
-      var _settings =  $.extend({}, $.fn.gdatepicker.defaults, settings || {});
-
-      // ====================================================================
-      uid++;
-      var PICKER = new gDatepicker( _settings, $el, uid );
-      PICKER.init();
-
-      // ====================================================================
-
-      $el.data( 'gDatepicker', PICKER );
-
-    });
-
-  };
-
-
-
-
-
-
-/***
-*                    ..                .x+=:.      .x+=:.   
-*              x .d88"                z`    ^%    z`    ^%  
-*               5888R                    .   <k      .   <k 
-*          .    '888R         u        .@8Ned8"    .@8Ned8" 
-*     .udR88N    888R      us888u.   .@^%8888"   .@^%8888"  
-*    <888'888k   888R   .@88 "8888" x88:  `)8b. x88:  `)8b. 
-*    9888 'Y"    888R   9888  9888  8888N=*8888 8888N=*8888 
-*    9888        888R   9888  9888   %8"    R88  %8"    R88 
-*    9888        888R   9888  9888    @8Wou 9%    @8Wou 9%  
-*    ?8888u../  .888B . 9888  9888  .888888P`   .888888P`   
-*     "8888P'   ^*888%  "888*""888" `   ^"F     `   ^"F     
-*       "P'       "%     ^Y"   ^Y'                          
-*                                                           
-*/
-
-  function gDatepicker(settings, $el, uid) {
-    
-    this.$el = $el;
-    this.uid = uid;
-    this.settings = settings;
-    this.lang = this.settings.language;
-
-
-
-    this.selected = { 
-      first: null, 
-      last: null, 
-      temp: { 
-        first: [], 
-        last: [] 
-      }
-    };
-
-    this.formatted = { 
-      first: { edit: null, view: null, hidden: null }, 
-      last: { edit: null, view: null, hidden: null }
     };
 
 
-    return this;
-
-  };
 
 
 
 
+    /***
+    *                    ..                .x+=:.      .x+=:.   
+    *              x .d88"                z`    ^%    z`    ^%  
+    *               5888R                    .   <k      .   <k 
+    *          .    '888R         u        .@8Ned8"    .@8Ned8" 
+    *     .udR88N    888R      us888u.   .@^%8888"   .@^%8888"  
+    *    <888'888k   888R   .@88 "8888" x88:  `)8b. x88:  `)8b. 
+    *    9888 'Y"    888R   9888  9888  8888N=*8888 8888N=*8888 
+    *    9888        888R   9888  9888   %8"    R88  %8"    R88 
+    *    9888        888R   9888  9888    @8Wou 9%    @8Wou 9%  
+    *    ?8888u../  .888B . 9888  9888  .888888P`   .888888P`   
+    *     "8888P'   ^*888%  "888*""888" `   ^"F     `   ^"F     
+    *       "P'       "%     ^Y"   ^Y'                          
+    *                                                           
+    */
 
+    function gDatepicker(settings, $el, uid) {
 
-/***
-*                                                s                
-*                                               :8                
-*     .d``            .u    .          u.      .88           u.   
-*     @8Ne.   .u    .d88B :@8c   ...ue888b    :888ooo  ...ue888b  
-*     %8888:u@88N  ="8888f8888r  888R Y888r -*8888888  888R Y888r 
-*      `888I  888.   4888>'88"   888R I888>   8888     888R I888> 
-*       888I  888I   4888> '     888R I888>   8888     888R I888> 
-*       888I  888I   4888>       888R I888>   8888     888R I888> 
-*     uW888L  888'  .d888L .+   u8888cJ888   .8888Lu= u8888cJ888  
-*    '*88888Nu88P   ^"8888*"     "*888*P"    ^%888*    "*888*P"   
-*    ~ '88888F`        "Y"         'Y"         'Y"       'Y"      
-*       888 ^                                                     
-*       *8E                                                       
-*       '8>                                                       
-*        "                                                        
-*/
+        this.$el = $el;
+        this.uid = uid;
+        this.settings = settings;
+        this.lang = this.settings.language;
 
-  gDatepicker.prototype = {
-    
+        this.selected = { 
+          first: null, 
+          last: null, 
+          temp: { 
+            first: [], 
+            last: [] 
+          }
+        };
 
+        this.formatted = { 
+          first: { edit: null, view: null, hidden: null }, 
+          last: { edit: null, view: null, hidden: null }
+        };
 
+        return this;
 
+    };
 
+    gDatepicker.prototype = {
 
+        // initialize the plugin
+        init: function() {
 
+            var _self = this;
 
-/***
-*       .                     .         s    
-*      @88>                  @88>      :8    
-*      %8P      u.    u.     %8P      .88    
-*       .     x@88k u@88c.    .      :888ooo 
-*     .@88u  ^"8888""8888"  .@88u  -*8888888 
-*    ''888E`   8888  888R  ''888E`   8888    
-*      888E    8888  888R    888E    8888    
-*      888E    8888  888R    888E    8888    
-*      888E    8888  888R    888E   .8888Lu= 
-*      888&   "*88*" 8888"   888&   ^%888*   
-*      R888"    ""   'Y"     R888"    'Y"    
-*       ""                    ""             
-*/
+            // sort out language settings.
+            // moment will default to global language if we
+            // provide an invalid language, so we just re-set the
+            // language here, as we can't validate it.
+            this.originalLanguage = moment.lang();
+            this.lang = moment().lang( this.lang )._lang._abbr;
+            this._localLongFormat = moment().lang(this.lang)._lang._longDateFormat.L;
 
-  // initialize the plugin
+            // this is used for toggling if we selecting first or last
+            // date in the ranged picker
+            this._selectFirstToggle = true;
 
-    init: function() {
+            // set the active month and year.
+            this._active = { 
+                month: moment().month(), 
+                year: moment().year() 
+            };
 
-      var _self = this;
+            // create the picker with the designated theme
+            this._createPicker( this._getTheme() );
+            this._bindEvents();
+            this._initInputs();
 
-      // sort out language settings.
-      // moment will default to global language if we
-      // provide an invalid language, so we just re-set the
-      // language here, as we can't validate it.
-      this.originalLanguage = moment.lang();
-      this.lang = moment().lang( this.lang )._lang._abbr;
-      this._localLongFormat = moment().lang(this.lang)._lang._longDateFormat.L;
+        },
 
+        // destroy the current instance
+        destroy: function() {
 
-      // this is used for toggling if we selecting first or last
-      // date in the ranged picker
-      this._selectFirstToggle = true;
+            // get the current instance via it's data bind
+            var currentInstance = this.$el.data("gDatepicker");
 
+            // remove the elements stored in the data bind
+            // all events should disappear, too.
+            currentInstance._els.$picker.remove();
+            currentInstance._els.$pickerInputWrapper.remove();
+            currentInstance._els.$pickerSecondInputWrapper.remove();
 
-      this._scrollBlocker = false;
-      this._scrollTimer = null;
+            currentInstance._els.$pickerElement
+                .removeClass("has-gdatepicker")
+                .prop("tabindex","")
+                .prop("readonly", "");
 
+            currentInstance._els = null;
 
-      // set the active month and year.
-      this._active = { 
-        month: moment().month(), 
-        year: moment().year() 
-      };
+            // unbind namedspaced events from the html/window elements.
+            // events bound to the created elements will be purged by jQuery.
+            $(window).off(".gdatepicker"+this.uid);
+            $("html").off(".gdatepicker"+this.uid);
 
+            // finally remove the data bind so it doesn't trip us up.
+            this.$el.removeData("gDatepicker");
 
-
-      // create the picker with the designated theme
-      this._createPicker( this._getTheme() );
-      this._bindEvents();
-      this._initInputs();
-
-
-
-    },
-
-
-    // destroy the current instance
-    destroy: function() {
-
-      // get the current instance via it's data bind
-      var currentInstance = this.$el.data("gDatepicker");
-
-      // remove the elements stored in the data bind
-      // all events should disappear, too.
-      currentInstance._els.$picker.remove();
-      currentInstance._els.$pickerInputWrapper.remove();
-      currentInstance._els.$pickerSecondInputWrapper.remove();
-
-      currentInstance._els.$pickerElement
-        .removeClass("has-gdatepicker")
-        .prop("tabindex","")
-        .prop("readonly", "");
-
-      currentInstance._els = null;
-
-      // unbind namedspaced events from the html/window elements.
-      // events bound to the created elements will be purged by jQuery.
-      $(window).off(".gdatepicker"+this.uid);
-      $("html").off(".gdatepicker"+this.uid);
-
-      // finally remove the data bind so it doesn't trip us up.
-      this.$el.removeData("gDatepicker");
-
-    },
+        },
 
 
 
 
 
 
-/***
-*                     ..                                   .x+=:.   
-*               x .d88"                                   z`    ^%  
-*                5888R                 ..    .     :         .   <k 
-*         .u     '888R        .u     .888: x888  x888.     .@8Ned8" 
-*      ud8888.    888R     ud8888.  ~`8888~'888X`?888f`  .@^%8888"  
-*    :888'8888.   888R   :888'8888.   X888  888X '888>  x88:  `)8b. 
-*    d888 '88%"   888R   d888 '88%"   X888  888X '888>  8888N=*8888 
-*    8888.+"      888R   8888.+"      X888  888X '888>   %8"    R88 
-*    8888L        888R   8888L        X888  888X '888>    @8Wou 9%  
-*    '8888c. .+  .888B . '8888c. .+  "*88%""*88" '888!` .888888P`   
-*     "88888%    ^*888%   "88888%      `~    "    `"`   `   ^"F     
-*       "YP'       "%       "YP'                                    
-*                                                                   *                                                                   
-*/
+    /***
+    *                     ..                                   .x+=:.   
+    *               x .d88"                                   z`    ^%  
+    *                5888R                 ..    .     :         .   <k 
+    *         .u     '888R        .u     .888: x888  x888.     .@8Ned8" 
+    *      ud8888.    888R     ud8888.  ~`8888~'888X`?888f`  .@^%8888"  
+    *    :888'8888.   888R   :888'8888.   X888  888X '888>  x88:  `)8b. 
+    *    d888 '88%"   888R   d888 '88%"   X888  888X '888>  8888N=*8888 
+    *    8888.+"      888R   8888.+"      X888  888X '888>   %8"    R88 
+    *    8888L        888R   8888L        X888  888X '888>    @8Wou 9%  
+    *    '8888c. .+  .888B . '8888c. .+  "*88%""*88" '888!` .888888P`   
+    *     "88888%    ^*888%   "88888%      `~    "    `"`   `   ^"F     
+    *       "YP'       "%       "YP'                                    
+    *                                                                   *                                                                   
+    */
 
-  // -----------------------------------------------------------------------
-  // generate HTML needed for creating Calendar,
-  // and append them all to the this._$picker
-    
+    // generate HTML needed for creating Calendar,
+    // and append them all to the this._$picker
+
     _createPicker: function( theme ) {
 
-      var els = {
+        var els = {
 
-        // the main picker wrapper element
-        $picker: $("<div class='ui-gdatepicker'/>") ,
+            // the main picker wrapper element
+            $picker: $("<div class='ui-gdatepicker'/>") ,
 
-        // the larger sections inside the wrapper
-        $pickerInner: $("<div class='ui-gdatepicker-wrapper'/>") ,
-        $pickerHead: $("<div class='ui-gdatepicker-head'/>") ,
-        $pickerBody: $("<div class='ui-gdatepicker-body'/>") ,
-        
-        // a fragment cache we can use for generating the body
-        $pickerCache: $() ,
+            // the larger sections inside the wrapper
+            $pickerInner: $("<div class='ui-gdatepicker-wrapper'/>") ,
+            $pickerHead: $("<div class='ui-gdatepicker-head'/>") ,
+            $pickerBody: $("<div class='ui-gdatepicker-body'/>") ,
 
-        // other interface elements
-        $pickerUpArrow: $("<div class='ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-up'><span>previous month</span></div>") ,
-        $pickerDownArrow: $("<div class='ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-down'><span>next month</span></div>") ,
-        $pickerUpArrowYear: $("<div class='ui-gdatepicker-scroll-arrow-year ui-gdatepicker-scroll-arrow-up-year'><span>previous year</span></div>") ,
-        $pickerDownArrowYear: $("<div class='ui-gdatepicker-scroll-arrow-year ui-gdatepicker-scroll-arrow-down-year'><span>next year</span></div>") ,
-        $pickerDateOverlay: $("<div class='ui-gdatepicker-overlay'/>") ,
-        $pickerClose: $("<div class='ui-gdatepicker-close'>Close</div>") ,
+            // a fragment cache we can use for generating the body
+            $pickerCache: $() ,
 
-        // the input element we"ve bound to
-        $pickerElement: this.$el ,
+            // other interface elements
+            $pickerUpArrow: $("<div class='ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-up'><span>previous month</span></div>") ,
+            $pickerDownArrow: $("<div class='ui-gdatepicker-scroll-arrow ui-gdatepicker-scroll-arrow-down'><span>next month</span></div>") ,
+            $pickerUpArrowYear: $("<div class='ui-gdatepicker-scroll-arrow-year ui-gdatepicker-scroll-arrow-up-year'><span>previous year</span></div>") ,
+            $pickerDownArrowYear: $("<div class='ui-gdatepicker-scroll-arrow-year ui-gdatepicker-scroll-arrow-down-year'><span>next year</span></div>") ,
+            $pickerDateOverlay: $("<div class='ui-gdatepicker-overlay'/>") ,
+            $pickerClose: $("<div class='ui-gdatepicker-close'>Close</div>") ,
 
-        // a new input, its wrapper and a element for clearing it.
-        $pickerInputWrapper: $("<div class='ui-gdatepicker-input-wrapper'/>") ,
-        $pickerInput: $("<input class='ui-gdatepicker-input' type='text'/>") ,
-        $pickerEmpty: $("<span class='ui-gdatepicker-empty'><span>Clear</span></span>"),
-        
-        // a new input, its wrapper and a element for clearing it.
-        $pickerSecondInputWrapper: $("<div class='ui-gdatepicker-input-wrapper ui-gdatepicker-second-input-wrapper'/>") ,
-        $pickerSecondInput: $("<input class='ui-gdatepicker-input ui-gdatepicker-second-input' type='text'/>") ,
-        $pickerSecondEmpty: $("<span class='ui-gdatepicker-empty ui-gdatepicker-second-empty'><span>Clear</span></span>")
+            // the input element we"ve bound to
+            $pickerElement: this.$el ,
 
-      };
+            // a new input, its wrapper and a element for clearing it.
+            $pickerInputWrapper: $("<div class='ui-gdatepicker-input-wrapper'/>") ,
+            $pickerInput: $("<input class='ui-gdatepicker-input' type='text'/>") ,
+            $pickerEmpty: $("<span class='ui-gdatepicker-empty'><span>Clear</span></span>"),
 
+            // a new input, its wrapper and a element for clearing it.
+            $pickerSecondInputWrapper: $("<div class='ui-gdatepicker-input-wrapper ui-gdatepicker-second-input-wrapper'/>") ,
+            $pickerSecondInput: $("<input class='ui-gdatepicker-input ui-gdatepicker-second-input' type='text'/>") ,
+            $pickerSecondEmpty: $("<span class='ui-gdatepicker-empty ui-gdatepicker-second-empty'><span>Clear</span></span>")
 
+        };
 
-      // give the picker a unique id, and a theme class,
-      // also append the large inner wrapper.
-      els.$picker
-        .attr("id", "ui_gdatepicker_" + this.uid )
-        .addClass( theme + " ui-gdatepicker-"+this.lang )
-        .append( els.$pickerInner );
+        // give the picker a unique id, and a theme class,
+        // also append the large inner wrapper.
+        els.$picker
+            .attr("id", "ui_gdatepicker_" + this.uid )
+            .addClass( theme + " ui-gdatepicker-"+this.lang )
+            .append( els.$pickerInner );
 
-
-
-      // append all the children to the inner wrapper
-      // head and body go first as they are position static.
-      els.$pickerInner
-        .append( 
-          els.$pickerHead , els.$pickerBody ,
-          els.$pickerUpArrow , els.$pickerDownArrow ,
-          els.$pickerUpArrowYear , els.$pickerDownArrowYear ,
-          els.$pickerDateOverlay , els.$pickerClose 
-        );
-
-
-
-      // give the original input a class for hiding/manip
-      // tabindex stops it being tabbed to
-      els.$pickerElement
-        .addClass("has-gdatepicker")
-        .prop("tabindex","-1")
-        .prop("readonly", true);
+        // append all the children to the inner wrapper
+        // head and body go first as they are position static.
+        els.$pickerInner
+            .append( 
+                els.$pickerHead , 
+                els.$pickerBody ,
+                els.$pickerUpArrow , 
+                els.$pickerDownArrow ,
+                els.$pickerUpArrowYear , 
+                els.$pickerDownArrowYear ,
+                els.$pickerDateOverlay , 
+                els.$pickerClose 
+            );
 
 
 
-      // create the wrapper heirarchy and give it a theme class
-      els.$pickerInputWrapper
-        .append( els.$pickerInput , els.$pickerEmpty )
-        .addClass( theme );
+        // give the original input a class for hiding/manip
+        // tabindex stops it being tabbed to
+        els.$pickerElement
+            .addClass("has-gdatepicker")
+            .prop("tabindex","-1")
+            .prop("readonly", true);
 
-      els.$pickerSecondInputWrapper
-        .append( els.$pickerSecondInput , els.$pickerSecondEmpty )
-        .addClass( theme );
-      
+        // append elements to wrappers and give them a theme class
+        els.$pickerInputWrapper
+            .addClass( theme )
+            .append( 
+                els.$pickerInput , 
+                els.$pickerEmpty 
+            );
 
-      // give access to the els globally
-      this._els = els;
+        els.$pickerSecondInputWrapper
+            .addClass( theme )
+            .append( 
+                els.$pickerSecondInput , 
+                els.$pickerSecondEmpty 
+            );
 
-      // figure out the placeholder
-      this.placeholder = this._getPlaceholder();
+        // give access to the els globally
+        this._els = els;
 
-      // give the input a unique id and placeholder
-      this._els.$pickerInput
-        .attr("id", "ui_gdatepicker_input_" + this.uid )
-        .prop("placeholder", this.placeholder )
-        .prop("readonly", true);
+        // figure out the placeholder
+        this.placeholder = this._getPlaceholder();
 
-      // give the input a unique id and placeholder
-      this._els.$pickerSecondInput
-        .attr("id", "ui_gdatepicker_second_input_" + this.uid )
-        .prop("placeholder", this.placeholder )
-        .prop("readonly", true);
+        // give the input a unique id and placeholder
+        this._els.$pickerInput
+            .attr("id", "ui_gdatepicker_input_" + this.uid )
+            .prop("placeholder", this.placeholder )
+            .prop("readonly", true);
 
+        // give the input a unique id and placeholder
+        this._els.$pickerSecondInput
+            .attr("id", "ui_gdatepicker_second_input_" + this.uid )
+            .prop("placeholder", this.placeholder )
+            .prop("readonly", true);
 
+        // append fragments to body.
+        $("body").append( this._els.$picker );
+        this._els.$pickerInputWrapper.insertAfter( this._els.$pickerElement );
 
-      
+        // if we've chosen ranged, then append second input one.
+        if( this.settings.selectRange ) {
+            this._els.$pickerSecondInputWrapper.insertAfter( this._els.$pickerInputWrapper );
+        }
 
-
-      // append fragments to body.
-      $("body").append( this._els.$picker );
-      this._els.$pickerInputWrapper.insertAfter( this._els.$pickerElement );
-      
-
-
-      // if we've chosen ranged, then append second input one.
-      if( this.settings.selectRange ) {
-        this._els.$pickerSecondInputWrapper.insertAfter( this._els.$pickerInputWrapper );
-      }
-
-      // collection holding both inputs for events and such.
-      this._els.$pickerBothInputs = 
-        $( this._els.$pickerInput ).add( this._els.$pickerSecondInput );
-
+        // collection holding both inputs for events and such.
+        this._els.$pickerBothInputs = 
+            $( this._els.$pickerInput ).add( this._els.$pickerSecondInput );
 
     },
 
@@ -373,200 +283,188 @@
 
 
 
-/***
-*                  _                                       s       .x+=:.   
-*                 u                                       :8      z`    ^%  
-*                88Nu.   u.                u.    u.      .88         .   <k 
-*         .u    '88888.o888c      .u     x@88k u@88c.   :888ooo    .@8Ned8" 
-*      ud8888.   ^8888  8888   ud8888.  ^"8888""8888" -*8888888  .@^%8888"  
-*    :888'8888.   8888  8888 :888'8888.   8888  888R    8888    x88:  `)8b. 
-*    d888 '88%"   8888  8888 d888 '88%"   8888  888R    8888    8888N=*8888 
-*    8888.+"      8888  8888 8888.+"      8888  888R    8888     %8"    R88 
-*    8888L       .8888b.888P 8888L        8888  888R   .8888Lu=   @8Wou 9%  
-*    '8888c. .+   ^Y8888*""  '8888c. .+  "*88*" 8888"  ^%888*   .888888P`   
-*     "88888%       `Y"       "88888%      ""   'Y"      'Y"    `   ^"F     
-*       "YP'                    "YP'                                        
-*                                                                           
-*                                                                           
-*                                                                           
-*/
+    /***
+    *                  _                                       s       .x+=:.   
+    *                 u                                       :8      z`    ^%  
+    *                88Nu.   u.                u.    u.      .88         .   <k 
+    *         .u    '88888.o888c      .u     x@88k u@88c.   :888ooo    .@8Ned8" 
+    *      ud8888.   ^8888  8888   ud8888.  ^"8888""8888" -*8888888  .@^%8888"  
+    *    :888'8888.   8888  8888 :888'8888.   8888  888R    8888    x88:  `)8b. 
+    *    d888 '88%"   8888  8888 d888 '88%"   8888  888R    8888    8888N=*8888 
+    *    8888.+"      8888  8888 8888.+"      8888  888R    8888     %8"    R88 
+    *    8888L       .8888b.888P 8888L        8888  888R   .8888Lu=   @8Wou 9%  
+    *    '8888c. .+   ^Y8888*""  '8888c. .+  "*88*" 8888"  ^%888*   .888888P`   
+    *     "88888%       `Y"       "88888%      ""   'Y"      'Y"    `   ^"F     
+    *       "YP'                    "YP'                                        
+    *                                                                           
+    *                                                                           
+    *                                                                           
+    */
 
     _bindEvents: function() {
 
-      var _self = this;
-      var clickEvent = (typeof(document.ontouchend) === "undefined") 
-        ? "click.gdatepicker" : "touchend.gdatepicker" ;
+        var _self = this;
+        this.clickEvent = (typeof(document.ontouchend) === "undefined") ? "click.gdatepicker" : "touchend.gdatepicker" ;
 
+        $(window).on( "keyup.gdatepicker"+uid , function(e) {
 
-
-      $(window).on( "keyup.gdatepicker"+uid , function(e) {
-
-        // when we press ESC close the picker if it's open!
-
-        if( e.keyCode === 27 ) {
-          _self.hide.apply( _self );
-        }
-
-      });
-
-
-      $("html").on( "mouseup.gdatepicker"+uid , function(e) {
-
-        // when we click on page, if it wasn't a click on the
-        // datepicker, then we close it.
-
-        var $target = $(e.target);
-        var $parents = $target.parents();
-
-        // assume we are going to hide.
-        var hide = true;
-
-        // the datepicker itself and the input element exempt
-        var $exempt = $()
-              .add( _self._els.$picker )
-              .add( _self._els.$pickerInputWrapper )
-              .add( _self._els.$pickerSecondInputWrapper );
-
-
-        // if the close button was _not_ clicked, and the
-        // target or it's parent was one of the exempt, we
-        // decide not to close.
-        if( !$target.is( _self._els.$pickerClose ) ) {
-          if( $target.filter( $exempt ).length > 0 ) {
-            hide = false;
-          } else if( $parents.filter( $exempt ).length > 0 ) {
-            hide = false;
-          }
-        }
-
-        // if we haven't set hide to false, hide calendar
-        if( hide && _self._els.$picker.hasClass("ui-gdatepicker-show") ) {
-          _self.hide.apply( _self );
-        }
-
-      });
-      
-      
-      this._els.$pickerBody.on( clickEvent , function(e) {
-       
-        // if we clicked on a day, select it.
-
-        if( $(e.target).is(".ui-gdatepicker-day") ) {
-          
-          var id = e.target.id;
-          var $target = _self._els.$pickerCache.filter( "#"+id );
-
-          _self.selectDate.apply( _self , [ $target ] );
-          _self._highlightDates.apply( _self );
-          _self._dimDates.apply( _self );
-
-        }
-
-      });
-
-
-      this._els.$pickerBothInputs.on({
-
-        // run the "show" function on focus
-        "focus.gdatepicker": function(e) {
-          _self.show.apply( _self );
-        },
-
-        "keydown.gdatepicker": function(e) {
-          switch( e.which ) {
-            
-            // run the "hide" function on tabbing 
-            // (not blur, as that intercepts clicking on the calender)
-            case 9:
-              _self.hide.apply( _self );
-              break;
-
-            case 37:
-              _self._handleKeyboard.apply( _self , [ e, -1 ]);
-              break;
-
-            case 38:
-              _self._handleKeyboard.apply( _self , [ e, 1 ]);
-              break;
-
-            case 39:
-              _self._handleKeyboard.apply( _self , [ e, 1 ]);
-              break;
-
-            case 40:
-              _self._handleKeyboard.apply( _self , [ e, -1 ]);
-              break;             
-
-          }
-        },
-
-        // interrupt the select 
-        "mouseup.gdatepicker": function(e) {
-          e.target.select();
-          e.preventDefault();
-        }
-
-      });
-
-
-
-      this._els.$pickerEmpty.on( clickEvent , function(e) {
-
-        _self._clearOutputs.apply( _self , [ "first" ]);
-          
-      });
-
-
-      this._els.$pickerSecondEmpty.on( clickEvent , function(e) {
-
-        _self._selectFirstToggle = false;
-        _self.selectDate.apply( _self , [ _self.selected.first ]);
-        _self._highlightDates.apply( _self );
-        _self._selectFirstToggle = false;
-
-      });
-
-
-      // if mousewheel scroll plugin is present...
-      if( $.event.special.mousewheel !== undefined ) {
-        this._els.$picker.on({
-
-          // throttle that bitch!
-          "mousewheel.gdatepicker": function(e,delta) {
-            _self._handleMouseWheel.apply( _self , [ e, delta ]);
-          },
-
-          "mousewheel": function(e) {
-            e.preventDefault();
-          }
+            // when we press ESC close the picker if it's open!
+            if( e.keyCode === 27 ) {
+                _self.hide.apply( _self );
+            }
 
         });
-      }
+
+        $("html").on( "mouseup.gdatepicker"+uid , function(e) {
+
+            // when we click on page, if it wasn't a click on the
+            // datepicker, then we close it.
+
+            var $target = $(e.target);
+            var $parents = $target.parents();
+
+            // assume we are going to hide.
+            var hide = true;
+
+            // the datepicker itself and the input element exempt
+            var $exempt = $()
+                .add( _self._els.$picker )
+                .add( _self._els.$pickerInputWrapper )
+                .add( _self._els.$pickerSecondInputWrapper );
 
 
+            // if the close button was _not_ clicked, and the
+            // target or it's parent was one of the exempt, we
+            // decide not to close.
+            if( !$target.is( _self._els.$pickerClose ) ) {
+                if( $target.filter( $exempt ).length > 0 ) {
+                    hide = false;
+                } else if( $parents.filter( $exempt ).length > 0 ) {
+                    hide = false;
+                }
+            }
+
+            // if we haven't set hide to false, hide calendar
+            if( hide && _self._els.$picker.hasClass("ui-gdatepicker-show") ) {
+                _self.hide.apply( _self );
+            }
+
+        });
+
+        this._els.$pickerBody.on( this.clickEvent , function(e) {
+
+            // if we clicked on a day, select it.
+            if( $(e.target).is(".ui-gdatepicker-day") ) {
+
+                var id = e.target.id;
+                var $target = _self._els.$pickerCache.filter( "#"+id );
+
+                _self.selectDate.apply( _self , [ $target ] );
+                _self._highlightDates.apply( _self );
+                _self._dimDates.apply( _self );
+
+            }
+
+        });
 
 
-      this._els.$pickerUpArrow.on( clickEvent , function(e) {
-        _self._goBackAMonth.apply( _self );
-        _self._showOverlay.apply( _self , [ "click" , "month" ] );
-      });
+        this._els.$pickerBothInputs.on({
 
-      this._els.$pickerDownArrow.on( clickEvent , function(e) {
-        _self._goForwardAMonth.apply( _self );
-        _self._showOverlay.apply( _self , [ "click" , "month" ] );
-      });
+            // run the "show" function on focus
+            "focus.gdatepicker": function(e) {
+                _self.show.apply( _self );
+            },
 
-      this._els.$pickerUpArrowYear.on( clickEvent , function(e) {
-          _self._goBackAYear.apply( _self );
-          _self._showOverlay.apply( _self , [ "click" , "year" ] );
-      });
+            "keydown.gdatepicker": function(e) {
+                switch( e.which ) {
 
-      this._els.$pickerDownArrowYear.on( clickEvent , function(e) {
-        _self._goForwardAYear.apply( _self );
-        _self._showOverlay.apply( _self , [ "click" , "year" ] );
-      });
+                    // run the "hide" function on tabbing 
+                    // (not blur, as that intercepts clicking on the calender)
+                    case 9:
+                        _self.hide.apply( _self );
+                        break;
 
+                    case 37:
+                        _self._handleKeyboard.apply( _self , [ e, -1 ]);
+                        break;
 
+                    case 38:
+                        _self._handleKeyboard.apply( _self , [ e, 1 ]);
+                        break;
+
+                    case 39:
+                        _self._handleKeyboard.apply( _self , [ e, 1 ]);
+                        break;
+
+                    case 40:
+                        _self._handleKeyboard.apply( _self , [ e, -1 ]);
+                        break;             
+
+                }
+            },
+
+            // interrupt the select 
+            "mouseup.gdatepicker": function(e) {
+                e.target.select();
+                e.preventDefault();
+            }
+
+        });
+        
+        this._els.$pickerEmpty.on( this.clickEvent , function(e) {
+
+            _self._clearOutputs.apply( _self , [ "first" ]);
+
+        });
+
+        this._els.$pickerSecondEmpty.on( this.clickEvent , function(e) {
+
+            if( _self.selected.first !== null ) {
+                _self._selectFirstToggle = false;
+                _self.selectDate.apply( _self , [ _self.selected.first ]);
+                _self._highlightDates.apply( _self );
+                _self._selectFirstToggle = false;
+            }
+
+        });
+
+        // if mousewheel scroll plugin is present...
+        if( $.event.special.mousewheel !== undefined ) {
+
+            this._els.$picker.on({
+
+                // throttle that bitch!
+                "mousewheel.gdatepicker": function(e,delta) {
+                    _self._handleMouseWheel.apply( _self , [ e, delta ]);
+                },
+
+                "mousewheel": function(e) {
+                    e.preventDefault();
+                }
+
+            });
+
+        }
+
+        this._els.$pickerUpArrow.on( this.clickEvent , function(e) {
+            _self._goBackAMonth.apply( _self );
+            _self._showOverlay.apply( _self , [ "click" , "month" ] );
+        });
+
+        this._els.$pickerDownArrow.on( this.clickEvent , function(e) {
+            _self._goForwardAMonth.apply( _self );
+            _self._showOverlay.apply( _self , [ "click" , "month" ] );
+        });
+
+        this._els.$pickerUpArrowYear.on( this.clickEvent , function(e) {
+            _self._goBackAYear.apply( _self );
+            _self._showOverlay.apply( _self , [ "click" , "year" ] );
+        });
+
+        this._els.$pickerDownArrowYear.on( this.clickEvent , function(e) {
+            _self._goForwardAYear.apply( _self );
+            _self._showOverlay.apply( _self , [ "click" , "year" ] );
+        });
 
     },
 
@@ -578,129 +476,131 @@
 
 
 
-/***
- *                                                          s       .                                 .x+=:.   
- *       oec :                                             :8      @88>                              z`    ^%  
- *      @88888     x.    .        u.    u.                .88      %8P          u.      u.    u.        .   <k 
- *      8"*88%   .@88k  z88u    x@88k u@88c.       .     :888ooo    .     ...ue888b   x@88k u@88c.    .@8Ned8" 
- *      8b.     ~"8888 ^8888   ^"8888""8888"  .udR88N  -*8888888  .@88u   888R Y888r ^"8888""8888"  .@^%8888"  
- *     u888888>   8888  888R     8888  888R  <888'888k   8888    ''888E`  888R I888>   8888  888R  x88:  `)8b. 
- *      8888R     8888  888R     8888  888R  9888 'Y"    8888      888E   888R I888>   8888  888R  8888N=*8888 
- *      8888P     8888  888R     8888  888R  9888        8888      888E   888R I888>   8888  888R   %8"    R88 
- *      *888>     8888 ,888B .   8888  888R  9888       .8888Lu=   888E  u8888cJ888    8888  888R    @8Wou 9%  
- *      4888     "8888Y 8888"   "*88*" 8888" ?8888u../  ^%888*     888&   "*888*P"    "*88*" 8888" .888888P`   
- *      '888      `Y"   'YP       ""   'Y"    "8888P'     'Y"      R888"    'Y"         ""   'Y"   `   ^"F     
- *       88R                                    "P'                 ""                                         
- *       88>                                                                                                   
- *       48                                                                                                    
- *       '8                                                                                                    
- */
+    /***
+    *                                                          s       .                                 .x+=:.   
+    *       oec :                                             :8      @88>                              z`    ^%  
+    *      @88888     x.    .        u.    u.                .88      %8P          u.      u.    u.        .   <k 
+    *      8"*88%   .@88k  z88u    x@88k u@88c.       .     :888ooo    .     ...ue888b   x@88k u@88c.    .@8Ned8" 
+    *      8b.     ~"8888 ^8888   ^"8888""8888"  .udR88N  -*8888888  .@88u   888R Y888r ^"8888""8888"  .@^%8888"  
+    *     u888888>   8888  888R     8888  888R  <888'888k   8888    ''888E`  888R I888>   8888  888R  x88:  `)8b. 
+    *      8888R     8888  888R     8888  888R  9888 'Y"    8888      888E   888R I888>   8888  888R  8888N=*8888 
+    *      8888P     8888  888R     8888  888R  9888        8888      888E   888R I888>   8888  888R   %8"    R88 
+    *      *888>     8888 ,888B .   8888  888R  9888       .8888Lu=   888E  u8888cJ888    8888  888R    @8Wou 9%  
+    *      4888     "8888Y 8888"   "*88*" 8888" ?8888u../  ^%888*     888&   "*888*P"    "*88*" 8888" .888888P`   
+    *      '888      `Y"   'YP       ""   'Y"    "8888P'     'Y"      R888"    'Y"         ""   'Y"   `   ^"F     
+    *       88R                                    "P'                 ""                                         
+    *       88>                                                                                                   
+    *       48                                                                                                    
+    *       '8                                                                                                    
+    */
 
     // function for showing the calendar
     show: function() {
 
-      if( this.selected.first !== null ) {
-        this._active = { 
-          month: this.selected.first[1], 
-          year: this.selected.first[0] 
-        };
-      } else {
-        this._active = { 
-          month: moment().month(), 
-          year: moment().year()
-        };      
-      }
+        if( this.selected.first !== null ) {
+            this._active = { 
+                month: this.selected.first[1], 
+                year: this.selected.first[0] 
+            };
+        } else {
+            this._active = { 
+                month: moment().month(), 
+                year: moment().year()
+            };      
+        }
 
-      this._els.$picker.addClass("ui-gdatepicker-show");
-      
-      this._populatePicker();
-      this.position();
+        this._els.$picker.addClass("ui-gdatepicker-show");
+
+        this._populatePicker();
+        this.position();
 
     },
 
     // function for hiding the calendar
     hide: function() {
 
-      this._els.$picker.removeClass("ui-gdatepicker-show");
-      this._outputDates();
+        this._els.$picker.removeClass("ui-gdatepicker-show");
+
+        if( this.selected.last === null ) {
+            this.selected.last = this.selected.first;
+        }
+
+        this._outputDates();
 
     },
 
     selectDate: function( what ) {
 
-      // selectDate function takes parameter of either:
-      // [yyyy,mm,dd] or $();
-      
-      // if what is supplied then we proceed
-      // otherwise we just set to previously stored date.
-      
-      // selected will be a temp array;
-      var selected = this._selectedDateArray( what );
-      var range = this.settings.selectRange;
+        // selectDate function takes parameter of either:
+        // [yyyy,mm,dd] or $();
 
-      // if we've chosen a ranged date picker,
-      // we need to decide whether we are storing the first
-      // date or the last date in the range.
+        // if what is supplied then we proceed
+        // otherwise we just set to previously stored date.
 
-      // also we need to avoid picking a reverse range
-      // ie: second date must be after first date.
+        // selected will be a temp array;
+        var selected = this._selectedDateArray( what );
+        var range = this.settings.selectRange;
+
+        // if we've chosen a ranged date picker,
+        // we need to decide whether we are storing the first
+        // date or the last date in the range.
+
+        // also we need to avoid picking a reverse range
+        // ie: second date must be after first date.
 
         // if we're picking the first date in range
         // then we want to clear the last date!
-        
+
         if( this._selectFirstToggle ) {
-          
-          this.selected.first = selected;
-          this.selected.last = null;
-
-          if( range ) {
-            this._selectFirstToggle = false;
-          }
-          
-        } else {
-
-          // if the last date is earlier than the first date.
-          var earlier = 
-            moment(selected)
-              .isBefore(this.selected.first);
-
-          if( earlier ) {
 
             this.selected.first = selected;
             this.selected.last = null;
-            this._selectFirstToggle = false;
 
-          } else {
+            if( range ) {
 
-            this.selected.last = selected;
-            this._selectFirstToggle = true;
+                this._selectFirstToggle = false;
 
-          }
+            }
 
-        }
+        } else {
 
-      if( range ) {
+            // if the last date is earlier than the first date.
+            var earlier = moment(selected).isBefore(this.selected.first);
 
-        // if we tried to select a range larger than the one
-        // set in teh options, then we max it out and carry on.
-        var diff = 
-          this._getDifferenceInDays( this.selected.first , this.selected.last );
-        
-        if( diff > range ) {
-          
-          var end = 
-            moment( this.selected.first )
-              .add( range, "days")
-              .toArray(3);
+            if( earlier ) {
 
-          this.selected.last = [ end[0] , end[1] , end[2] ];
-          this._selectFirstToggle = true;
+                this.selected.first = selected;
+                this.selected.last = null;
+                this._selectFirstToggle = false;
+
+            } else {
+
+                this.selected.last = selected;
+                this._selectFirstToggle = true;
+
+            }
 
         }
 
-      }
+        if( range ) {
 
-      this._outputDates();
+            // if we tried to select a range larger than the one
+            // set in teh options, then we max it out and carry on.
+            var diff = 
+            this._getDifferenceInDays( this.selected.first , this.selected.last );
+
+            if( diff > range ) {
+
+                var end = moment( this.selected.first ).add( range, "days").toArray(3);
+
+                this.selected.last = [ end[0] , end[1] , end[2] ];
+                this._selectFirstToggle = true;
+
+            }
+
+        }
+
+        this._outputDates();
 
     },
 
@@ -708,243 +608,232 @@
     _highlightDates: function() {
 
 
-      var d = this.selected;
-      //      { first: [year, month, day], last: [year, month, day] };
+        var d = this.selected;
 
-      // remove previously highlighted dates
-      this._els.$pickerCache.removeClass("ui-gdatepicker-selected");
-      if( d.first === null ) { return false; }
+        // remove previously highlighted dates
+        this._els.$pickerCache.removeClass("ui-gdatepicker-selected");
 
+        if( d.first === null ) { 
+            return false; 
+        }
 
+        if( !this.settings.selectRange || d.last === null ) {
 
-      if( !this.settings.selectRange || d.last === null ) {
+            this._els.$pickerCache
+                .filter( "#gdp-"+this.uid+"-"+d.first[2]+"-"+d.first[1]+"-"+d.first[0] )
+                .addClass("ui-gdatepicker-selected");
 
-        this._els.$pickerCache
-          .filter( "#gdp-"+this.uid+"-"+d.first[2]+"-"+d.first[1]+"-"+d.first[0] )
-          .addClass("ui-gdatepicker-selected");
+        } else {
 
-      } else {
+            var diff = this._getDifferenceInDays( d.first , d.last );
 
-        var diff = this._getDifferenceInDays( d.first , d.last );
+            if( diff !== undefined ) {
 
-        if( diff !== undefined ) {
+                // need to store the loop dates so we
+                // can manipulate them
+                var loopDay = d.last[2],
+                    loopMonth = d.last[1],
+                    loopYear = d.last[0];
 
-          // need to store the loop dates so we
-          // can manipulate them
-          var loopDay = d.last[2],
-              loopMonth = d.last[1],
-              loopYear = d.last[0];
-          
-          // this will hold all the dates we get
-          var $collection = $();
-          
-          // THIS LOOP GETS HEAVY WHEN DIFF > 14.
-          // TRY TO FIGURE LIGHT WAY TO DO THIS.
-          
-          // basically:
-          // for all the dates between first and last
-          // hilight them.
-          for( var i = diff+1; i > 0; i-- ) {
-             
-            var $current = 
-              this._els.$pickerCache.filter( 
-                "#gdp-"+this.uid+"-"+loopDay+"-"+loopMonth+"-"+loopYear 
-              );
-            
-            $collection = $collection.add( $current );
-            
-            loopDay--;
-            if( loopDay === 0 ) {
-              loopMonth--;
-              if( loopMonth < 0 ) {
-                loopYear--;
-                loopMonth = 11;
-              }
-              loopDay = this._getDaysInMonth( loopMonth , loopYear );
+                // this will hold all the dates we get
+                var $collection = $();
+
+                // THIS LOOP GETS HEAVY WHEN DIFF > 14.
+                // TRY TO FIGURE LIGHT WAY TO DO THIS.
+
+                // basically:
+                // for all the dates between first and last
+                // hilight them.
+                for( var i = diff+1; i > 0; i-- ) {
+
+                    var $current = this._els.$pickerCache.filter( "#gdp-"+this.uid+"-"+loopDay+"-"+loopMonth+"-"+loopYear );
+
+                    $collection = $collection.add( $current );
+
+                    loopDay--;
+                    if( loopDay === 0 ) {
+                        loopMonth--;
+                        if( loopMonth < 0 ) {
+                            loopYear--;
+                            loopMonth = 11;
+                        }
+                        loopDay = this._getDaysInMonth( loopMonth , loopYear );
+                    }
+
+                }
+
+                $collection.addClass('ui-gdatepicker-selected');
+
             }
-            
-          }
-          
-          $collection.addClass('ui-gdatepicker-selected');
 
         }
 
-      }
-
     },
-
 
     _dimDates: function() {
 
-      var d = this.selected;
-      //      { first: [year, month, day], last: [year, month, day] };
+        var d = this.selected;
 
-      // remove previously dimmed dates
-      this._els.$pickerCache.removeClass("ui-gdatepicker-dim");
-      if( d.first === null ) { return false; }
-
-
-      // if we are in a range picker, and we have already
-      // selected the first date
-
-      if( this.settings.selectRange && !this._selectFirstToggle ) {
-
-        var range = this.settings.selectRange;
-
-        // need to store the loop dates so we
-        // can manipulate them
-        var loopDay = d.first[2],
-            loopMonth = d.first[1],
-            loopYear = d.first[0];
+        // remove previously dimmed dates
+        this._els.$pickerCache.removeClass("ui-gdatepicker-dim");
         
-        // this will hold all the dates we get
-        var $collection = $();
-        
-        // THIS LOOP GETS HEAVY WHEN DIFF > 14.
-        // TRY TO FIGURE LIGHT WAY TO DO THIS.
-        
-        // basically:
-        // for all the dates between first and first+range
-        // dim them.
-        for( var i = 0; i <= range; i++ ) {
-          
-          var lastDay = this._getDaysInMonth( loopMonth, loopYear );
-
-          var $current = 
-            this._els.$pickerCache.filter( 
-              "#gdp-"+this.uid+"-"+loopDay+"-"+loopMonth+"-"+loopYear 
-            );
-
-          loopDay++;
-          if( loopDay > lastDay ) {
-            loopMonth++;
-            if( loopMonth > 11 ) {
-              loopYear++;
-              loopMonth = 0;
-            }
-            loopDay = 1;
-          }
-
-          
-          
-          $collection = $collection.add( $current );
-          
+        if( d.first === null ) { 
+            return false; 
         }
-        
-        this._els.$pickerCache
-          .not( $collection )
-          .addClass("ui-gdatepicker-dim");
 
-      }
+        // if we are in a range picker, and we have already
+        // selected the first date
+
+        if( this.settings.selectRange && !this._selectFirstToggle ) {
+
+            var range = this.settings.selectRange;
+
+            // need to store the loop dates so we
+            // can manipulate them
+            var loopDay = d.first[2],
+                loopMonth = d.first[1],
+                loopYear = d.first[0];
+
+            // this will hold all the dates we get
+            var $collection = $();
+
+            // THIS LOOP GETS HEAVY WHEN DIFF > 14.
+            // TRY TO FIGURE LIGHT WAY TO DO THIS.
+
+            // basically:
+            // for all the dates between first and first+range
+            // dim them.
+            for( var i = 0; i <= range; i++ ) {
+
+                var lastDay = this._getDaysInMonth( loopMonth, loopYear );
+
+                var $current = this._els.$pickerCache.filter( "#gdp-"+this.uid+"-"+loopDay+"-"+loopMonth+"-"+loopYear );
+
+                loopDay++;
+                if( loopDay > lastDay ) {
+                    loopMonth++;
+                    if( loopMonth > 11 ) {
+                        loopYear++;
+                        loopMonth = 0;
+                    }
+                    loopDay = 1;
+                }
+
+                $collection = $collection.add( $current );
+
+            }
+
+            this._els.$pickerCache
+                .not( $collection )
+                .addClass("ui-gdatepicker-dim");
+
+        }
 
     },
 
-
     _outputDates: function() {
 
-      this._makeFormattedDates();
+        this._makeFormattedDates();
 
-      var dates = this.formatted;
-      var full;
+        var dates = this.formatted;
+        var full;
 
-      this._els.$pickerInput.val("");
-      this._els.$pickerSecondInput.val("");
+        this._els.$pickerInput.val("");
+        this._els.$pickerSecondInput.val("");
 
-      this._els.$pickerInput.val( dates.first.view );
+        this._els.$pickerInput.val( dates.first.view );
 
-      if( this.settings.selectRange ) {
-        if( this.selected.last !== null ) {
-          this._els.$pickerSecondInput.val( dates.last.view );
-          full = dates.first.hidden + this.settings.divider + dates.last.hidden;
+        if( this.settings.selectRange ) {
+            if( this.selected.last !== null ) {
+
+                this._els.$pickerSecondInput.val( dates.last.view );
+                full = dates.first.hidden + this.settings.divider + dates.last.hidden;
+
+            }
+        } else {
+
+            full = dates.first.hidden;
+
         }
-      } else {
-        full = dates.first.hidden;
-      }
 
-      this._els.$pickerElement.val(full);
+        this._els.$pickerElement.val( full );
 
     },
 
 
     _clearOutputs: function( which ) {
 
-      which = which || "first";
+        which = which || "first";
 
-      this.selected.last = null;
-      this._selectFirstToggle = false;
+        this.selected.last = null;
+        this._selectFirstToggle = false;
 
-      if( which === "first" ) {
+        if( which === "first" ) {
 
-        this.selected.first = null;
-        this._selectFirstToggle = true;
+            this.selected.first = null;
+            this._selectFirstToggle = true;
 
-      }
+        }
 
-      this._highlightDates();
-      this._dimDates();
-      this._outputDates();
+        this._highlightDates();
+        this._dimDates();
+        this._outputDates();
 
     },
 
 
     _showOverlay: function( event , type ) {
 
-      event = event || "click";
-      type = type || "month";
+        event = event || "click";
+        type = type || "month";
 
-      var format, show = false;
+        var format, show = false;
 
-      var m = this._active.month , 
-          y = this._active.year;
+        var m = this._active.month , 
+            y = this._active.year;
 
-      var current = moment([y,m,1]).lang( this.lang );
+        var current = moment([y,m,1]).lang( this.lang );
 
-
-
-      if( event === "wheel" ) {
-        if( this.settings.overlayWheel ) { 
-          if( this.settings.overlayWheel === type || this.settings.overlayWheel === true ) { show = true; }
+        if( event === "wheel" ) {
+            if( this.settings.overlayWheel ) { 
+                if( this.settings.overlayWheel === type || this.settings.overlayWheel === true ) { show = true; }
+            }
         }
-      }
 
-      if( event === "click" ) {
-        if( this.settings.overlayClick ) { 
-          if( this.settings.overlayClick === type || this.settings.overlayClick === true ) { show = true; }
+        if( event === "click" ) {
+            if( this.settings.overlayClick ) { 
+                if( this.settings.overlayClick === type || this.settings.overlayClick === true ) { show = true; }
+            }
         }
-      }
 
-      if( event === "keyboard" ) {
-        if( this.settings.overlayKeyboard ) { 
-          if( this.settings.overlayKeyboard === type || this.settings.overlayKeyboard === true ) { show = true; }
+        if( event === "keyboard" ) {
+            if( this.settings.overlayKeyboard ) { 
+                if( this.settings.overlayKeyboard === type || this.settings.overlayKeyboard === true ) { show = true; }
+            }
         }
-      }
+
+        if( type === "month" ) {
+            format = this.settings.overlayMonthFormat;
+        } else if( type === "year" ) {
+            format = this.settings.overlayYearFormat;
+        }
 
 
-      if( type === "month" ) {
-        format = 
-          this.settings.overlayMonthFormat;
-      }
+        if( show ) { 
 
-      if( type === "year" ) {
-        format = 
-          this.settings.overlayYearFormat;
-      }
-      
+            var $overlay = this._els.$pickerDateOverlay
+            var str = current.format( format );
 
-      if( show ) { 
+            $overlay.text( str );
 
-        var $overlay = this._els.$pickerDateOverlay
-        var str = current.format( format );
+            clearTimeout( this.overlayTimer );
+            $overlay.addClass("ui-gdatepicker-overlay-visible");
 
-        $overlay.text( str );
+            this.overlayTimer = setTimeout( function() {
+                $overlay.removeClass("ui-gdatepicker-overlay-visible");
+            }, this.settings.overlayDuration);
 
-        clearTimeout( this.overlayTimer );
-        $overlay.addClass("ui-gdatepicker-overlay-visible");
-        this.overlayTimer = setTimeout( function() {
-          $overlay.removeClass("ui-gdatepicker-overlay-visible");
-        }, this.settings.overlayDuration);
-
-      }
+        }
 
     },
 
@@ -953,42 +842,39 @@
 
 
 
-/***
-*                                                                                  s               
-*                                                                                 :8               
-*                              u.    u.                 .u    .                  .88               
-*         uL          .u     x@88k u@88c.      .u     .d88B :@8c        u       :888ooo      .u    
-*     .ue888Nc..   ud8888.  ^"8888""8888"   ud8888.  ="8888f8888r    us888u.  -*8888888   ud8888.  
-*    d88E`"888E` :888'8888.   8888  888R  :888'8888.   4888>'88"  .@88 "8888"   8888    :888'8888. 
-*    888E  888E  d888 '88%"   8888  888R  d888 '88%"   4888> '    9888  9888    8888    d888 '88%" 
-*    888E  888E  8888.+"      8888  888R  8888.+"      4888>      9888  9888    8888    8888.+"    
-*    888E  888E  8888L        8888  888R  8888L       .d888L .+   9888  9888   .8888Lu= 8888L      
-*    888& .888E  '8888c. .+  "*88*" 8888" '8888c. .+  ^"8888*"    9888  9888   ^%888*   '8888c. .+ 
-*    *888" 888&   "88888%      ""   'Y"    "88888%       "Y"      "888*""888"    'Y"     "88888%   
-*     `"   "888E    "YP'                     "YP'                  ^Y"   ^Y'               "YP'    
-*    .dWi   `88E                                                                                   
-*    4888~  J8%                                                                                    
-*     ^"===*"`                                                                                     
-*/
-    
+    /***
+    *                                                                                  s               
+    *                                                                                 :8               
+    *                              u.    u.                 .u    .                  .88               
+    *         uL          .u     x@88k u@88c.      .u     .d88B :@8c        u       :888ooo      .u    
+    *     .ue888Nc..   ud8888.  ^"8888""8888"   ud8888.  ="8888f8888r    us888u.  -*8888888   ud8888.  
+    *    d88E`"888E` :888'8888.   8888  888R  :888'8888.   4888>'88"  .@88 "8888"   8888    :888'8888. 
+    *    888E  888E  d888 '88%"   8888  888R  d888 '88%"   4888> '    9888  9888    8888    d888 '88%" 
+    *    888E  888E  8888.+"      8888  888R  8888.+"      4888>      9888  9888    8888    8888.+"    
+    *    888E  888E  8888L        8888  888R  8888L       .d888L .+   9888  9888   .8888Lu= 8888L      
+    *    888& .888E  '8888c. .+  "*88*" 8888" '8888c. .+  ^"8888*"    9888  9888   ^%888*   '8888c. .+ 
+    *    *888" 888&   "88888%      ""   'Y"    "88888%       "Y"      "888*""888"    'Y"     "88888%   
+    *     `"   "888E    "YP'                     "YP'                  ^Y"   ^Y'               "YP'    
+    *    .dWi   `88E                                                                                   
+    *    4888~  J8%                                                                                    
+    *     ^"===*"`                                                                                     
+    */
+
 
     // function that allows us to populate the datepicker
     // according to the data supplied.
     _populatePicker: function( direction, fast ) {
 
-      var tempBody = 
-        this._generateBody();
-      
-      var tempHead =
-        this._generateHead();
+        var tempBody = this._generateBody();
+        var tempHead = this._generateHead();
 
-      this._appendHead( tempHead );
-      this._appendBody( tempBody );
+        this._appendHead( tempHead );
+        this._appendBody( tempBody );
 
-      this._positionCurrentMonth( direction, fast );
+        this._positionCurrentMonth( direction, fast );
 
-      this._dimDates();
-      this._highlightDates();
+        this._dimDates();
+        this._highlightDates();
 
     },
 
@@ -996,82 +882,83 @@
 
     _generateBody: function( month, year ) {
 
-      var html = "";
+        var html = "";
 
-      // if month isn't supplied correctly, we use the current month.
-      if( typeof( month ) !== "number" || ( month > 11 || month < 0 ) ) {
-        month = this._active.month;
-      }
+        // if month isn't supplied correctly, we use the current month.
+        if( typeof( month ) !== "number" || ( month > 11 || month < 0 ) ) {
+            month = this._active.month;
+        }
 
-      // if year isn't supplied correctly, we use the current year.
-      if( typeof( year ) !== "number" || ( year < 1000 ) ) {
-        year = this._active.year;
-      }
+        // if year isn't supplied correctly, we use the current year.
+        if( typeof( year ) !== "number" || ( year < 1000 ) ) {
+            year = this._active.year;
+        }
 
+        // Basically we cheat and pad the visible area with a month before,
+        // and a couple after. This is to save on generating dom elements.
+        // So technically there's only ever 5 months in the calendar.
+        // But this means we always start a month before the current month.
 
-    // Basically we cheat and pad the visible area with a month before,
-    // and a couple after. This is to save on generating dom elements.
-    // So technically there's only ever 5 months in the calendar.
-    // But this means we always start a month before the current month.
-      
-      // set month to the month before.
-      if ( month === 0 ) { 
-        month = 11; 
-        year -= 1; 
-      } else { 
-        month -= 1; 
-      }
+        // set month to the month before.
+        if ( month === 0 ) { 
+            month = 11; 
+            year -= 1; 
+        } else { 
+            month -= 1; 
+        }
 
-      html += this._generateRemainderDays( month, year );
-      html += this._generateMonths( month, year );
+        html += this._generateRemainderDays( month, year );
+        html += this._generateMonths( month, year );
 
-      return html;
+        return html;
 
     },
 
     _generateRemainderDays: function( month , year ) {
 
-    // This function figures out the remainder days in the last week of
-    // the month previous to the one supplied. 
-    // (if month is march, generate the remainder days in last week of april)
+        // This function figures out the remainder days in the last week of
+        // the month previous to the one supplied. 
+        // (if month is march, generate the remainder days in last week of april)
 
-      var html = "",
-          previousMonth,
-          previousMonthYear,
-          daysInPreviousMonth;
+        var html = "",
+            previousMonth,
+            previousMonthYear,
+            daysInPreviousMonth;
 
-      // we need the month and year of the previous month.
-      // eg: supplied: Jan 2012... then we need Dec 2011.
-      if( month === 0 ) {
-        previousMonth = 11;
-        previousMonthYear = year - 1;
-      } else {
-        previousMonth = month - 1;
-        previousMonthYear = year;
-      }
+        // we need the month and year of the previous month.
+        // eg: supplied: Jan 2012... then we need Dec 2011.
+        if( month === 0 ) {
+            previousMonth = 11;
+            previousMonthYear = year - 1;
+        } else {
+            previousMonth = month - 1;
+            previousMonthYear = year;
+        }
 
-      // store how many days were in the previous month
-      daysInPreviousMonth = 
-        this._getDaysInMonth( previousMonth , previousMonthYear );
+        // store how many days were in the previous month
+        daysInPreviousMonth = this._getDaysInMonth( previousMonth , previousMonthYear );
 
-      // offset is the first day of the week (0=sunday, 1=monday, 2=tuesday...)
-      // if the offset is 0 we actually want to count down from 7, because
-      // we show sunday as the last day in the week, not the first.
-      var offset = moment([year,month,1]).day();
-      if (offset === 0) { offset = 7; }
-
-      // count down from the offset to populate all days in previous month
-      var oday; 
-      for( var o = offset-1; o > 0; o-- ) {
-
-        oday = daysInPreviousMonth-o+1;
-        html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month\">";
-        html += oday;
-        html += "</span>";  
+        // offset is the first day of the week (0=sunday, 1=monday, 2=tuesday...)
+        // if the offset is 0 we actually want to count down from 7, because
+        // we show sunday as the last day in the week, not the first.
+        var offset = moment([year,month,1]).day();
         
-      }
+        if (offset === 0) { 
+            offset = 7; 
+        }
 
-      return html;
+        // count down from the offset to populate all days in previous month
+        var oday; 
+        for( var o = offset-1; o > 0; o-- ) {
+
+            oday = daysInPreviousMonth-o+1;
+            html += "<span class=\"ui-gdatepicker-day ui-gdatepicker-previous-month\">";
+            html += oday;
+            html += "</span>";  
+
+        }
+
+        return html;
 
     },
 
@@ -1201,23 +1088,23 @@
 
 
 
-/***
-*                                 ..                                          .x+=:.   
-*      .uef^"               x .d88"                                          z`    ^%  
-*    :d88E                   5888R    .d``                       .u    .        .   <k 
-*    `888E            .u     '888R    @8Ne.   .u        .u     .d88B :@8c     .@8Ned8" 
-*     888E .z8k    ud8888.    888R    %8888:u@88N    ud8888.  ="8888f8888r  .@^%8888"  
-*     888E~?888L :888'8888.   888R     `888I  888. :888'8888.   4888>'88"  x88:  `)8b. 
-*     888E  888E d888 '88%"   888R      888I  888I d888 '88%"   4888> '    8888N=*8888 
-*     888E  888E 8888.+"      888R      888I  888I 8888.+"      4888>       %8"    R88 
-*     888E  888E 8888L        888R    uW888L  888' 8888L       .d888L .+     @8Wou 9%  
-*     888E  888E '8888c. .+  .888B . '*88888Nu88P  '8888c. .+  ^"8888*"    .888888P`   
-*    m888N= 888>  "88888%    ^*888%  ~ '88888F`     "88888%       "Y"      `   ^"F     
-*     `Y"   888     "YP'       "%       888 ^         "YP'                             
-*          J88"                         *8E                                            
-*          @%                           '8>                                            
-*        :"                              "                                             
-*/
+    /***
+    *                                 ..                                          .x+=:.   
+    *      .uef^"               x .d88"                                          z`    ^%  
+    *    :d88E                   5888R    .d``                       .u    .        .   <k 
+    *    `888E            .u     '888R    @8Ne.   .u        .u     .d88B :@8c     .@8Ned8" 
+    *     888E .z8k    ud8888.    888R    %8888:u@88N    ud8888.  ="8888f8888r  .@^%8888"  
+    *     888E~?888L :888'8888.   888R     `888I  888. :888'8888.   4888>'88"  x88:  `)8b. 
+    *     888E  888E d888 '88%"   888R      888I  888I d888 '88%"   4888> '    8888N=*8888 
+    *     888E  888E 8888.+"      888R      888I  888I 8888.+"      4888>       %8"    R88 
+    *     888E  888E 8888L        888R    uW888L  888' 8888L       .d888L .+     @8Wou 9%  
+    *     888E  888E '8888c. .+  .888B . '*88888Nu88P  '8888c. .+  ^"8888*"    .888888P`   
+    *    m888N= 888>  "88888%    ^*888%  ~ '88888F`     "88888%       "Y"      `   ^"F     
+    *     `Y"   888     "YP'       "%       888 ^         "YP'                             
+    *          J88"                         *8E                                            
+    *          @%                           '8>                                            
+    *        :"                              "                                             
+    */
 
     // http://stackoverflow.com/a/1811003/1121532
     // zero-index; return days in month; 0=jan, 11=dec.
@@ -1831,7 +1718,7 @@
         
         // store formatted moment() date.
         momentDate = moment( inputDate[0] , this._localLongFormat );
-  
+
         // if the input date is not falsey
         if( inputDate[0] ) {
 
@@ -1868,136 +1755,136 @@
 
 
 
-  };
+    };
 
 
 
 
 
 
-/***
-*       ..                                                            ..      s       .x+=:.   
-*     dF                      oec :                             x .d88"      :8      z`    ^%  
-*    '88bu.                  @88888                 x.    .      5888R      .88         .   <k 
-*    '*88888bu        .u     8"*88%        u      .@88k  z88u    '888R     :888ooo    .@8Ned8" 
-*      ^"*8888N    ud8888.   8b.        us888u.  ~"8888 ^8888     888R   -*8888888  .@^%8888"  
-*     beWE "888L :888'8888. u888888> .@88 "8888"   8888  888R     888R     8888    x88:  `)8b. 
-*     888E  888E d888 '88%"  8888R   9888  9888    8888  888R     888R     8888    8888N=*8888 
-*     888E  888E 8888.+"     8888P   9888  9888    8888  888R     888R     8888     %8"    R88 
-*     888E  888F 8888L       *888>   9888  9888    8888 ,888B .   888R    .8888Lu=   @8Wou 9%  
-*    .888N..888  '8888c. .+  4888    9888  9888   "8888Y 8888"   .888B .  ^%888*   .888888P`   
-*     `"888*""    "88888%    '888    "888*""888"   `Y"   'YP     ^*888%     'Y"    `   ^"F     
-*        ""         "YP'      88R     ^Y"   ^Y'                    "%                          
-*                             88>                                                              
-*                             48                                                               
-*                             '8                                                               
-*/
+    /***
+    *       ..                                                            ..      s       .x+=:.   
+    *     dF                      oec :                             x .d88"      :8      z`    ^%  
+    *    '88bu.                  @88888                 x.    .      5888R      .88         .   <k 
+    *    '*88888bu        .u     8"*88%        u      .@88k  z88u    '888R     :888ooo    .@8Ned8" 
+    *      ^"*8888N    ud8888.   8b.        us888u.  ~"8888 ^8888     888R   -*8888888  .@^%8888"  
+    *     beWE "888L :888'8888. u888888> .@88 "8888"   8888  888R     888R     8888    x88:  `)8b. 
+    *     888E  888E d888 '88%"  8888R   9888  9888    8888  888R     888R     8888    8888N=*8888 
+    *     888E  888E 8888.+"     8888P   9888  9888    8888  888R     888R     8888     %8"    R88 
+    *     888E  888F 8888L       *888>   9888  9888    8888 ,888B .   888R    .8888Lu=   @8Wou 9%  
+    *    .888N..888  '8888c. .+  4888    9888  9888   "8888Y 8888"   .888B .  ^%888*   .888888P`   
+    *     `"888*""    "88888%    '888    "888*""888"   `Y"   'YP     ^*888%     'Y"    `   ^"F     
+    *        ""         "YP'      88R     ^Y"   ^Y'                    "%                          
+    *                             88>                                                              
+    *                             48                                                               
+    *                             '8                                                               
+    */
 
-  $.fn.gdatepicker.defaults = {
+    $.fn.gdatepicker.defaults = {
 
-    placeholder: true,
-    // boolean, string:  
-    // eg: "Pick me!" / false / true
-    // generated input's placeholder.
-    // false (default) = match the desired input string (MM/DD/YYYY for US).
-    // true = get placeholder from original input
-    // string = use the supplied string
-                            
-    selectRange: false,
-    // number, boolean
-    // eg: 14,
-    // maximum length of the range of dates allowed to pick.
-    // a large number will result in slow performance
+        placeholder: true,
+        // boolean, string:  
+        // eg: "Pick me!" / false / true
+        // generated input's placeholder.
+        // false (default) = match the desired input string (MM/DD/YYYY for US).
+        // true = get placeholder from original input
+        // string = use the supplied string
+                                
+        selectRange: false,
+        // number, boolean
+        // eg: 14,
+        // maximum length of the range of dates allowed to pick.
+        // a large number will result in slow performance
 
-    divider: " - ",
-    // string
-    // eg: -
-    // a string divider to put between ranged dates.
-    
-    language: "en",
-    // string
-    // eg: "cn",
-    // language to use for date formatting,
-    // make sure you've downloaded your language from momentjs.com
+        divider: " - ",
+        // string
+        // eg: -
+        // a string divider to put between ranged dates.
 
-    sidebarMonthFormat: "MMMM",
-    // string
-    // eg: "MMM"
-    // the format for the months in the sidebar
-    // http://momentjs.com/docs/#/displaying/format/
-        
-    sidebarYearFormat: "YYYY",
-    // string
-    // eg: "YY"
-    // the format for the years in the sidebar
-    // http://momentjs.com/docs/#/displaying/format/
-    
-    overlayMonthFormat: "MMM, YYYY",
-    // string
-    // eg: "MMM"
-    // the format for the months in the overlay
-    // http://momentjs.com/docs/#/displaying/format/
-   
-    overlayYearFormat: "YYYY",
-    // string
-    // eg: "YYYY"
-    // the format for the years in the overlay
-    // http://momentjs.com/docs/#/displaying/format/
+        language: "en",
+        // string
+        // eg: "cn",
+        // language to use for date formatting,
+        // make sure you've downloaded your language from momentjs.com
 
-    headerDayFormat: "dd",
-    // string
-    // eg: "ddd"
-    // the format of the days in the column headers
-    // http://momentjs.com/docs/#/displaying/format/
+        sidebarMonthFormat: "MMMM",
+        // string
+        // eg: "MMM"
+        // the format for the months in the sidebar
+        // http://momentjs.com/docs/#/displaying/format/
+            
+        sidebarYearFormat: "YYYY",
+        // string
+        // eg: "YY"
+        // the format for the years in the sidebar
+        // http://momentjs.com/docs/#/displaying/format/
 
-    format: "L",
-    // string 
-    // eg: "DD.MM.YY"
-    // format of original input
-    // http://momentjs.com/docs/#/displaying/format/
-              
-    formatOutput: "LL",
-    // string
-    // eg: "dd of MMMM, yyyy" 
-    // format of generated output(s)
-    // http://momentjs.com/docs/#/displaying/format/
-                            
-    position: { top: 3, left: 0 },
-    // object
-    // eg: { top: 0, left: 0 }
-    // offset position of calendar
-              
-    scrollSpeed: 300,
-    // integer
-    // eg: 300
-    // how fast the calendar scrolls up and down
-              
-    overlayWheel: true,
-    // string, bool
-    // eg: true, false, "month", "year"
-    // do we show the overlay for scrolling months/years on mousewheel
-              
-    overlayClick: "year",
-    // string, bool
-    // eg: true, false, "month", "year"
-    // do we show the overlay for scrolling months/years on click
+        overlayMonthFormat: "MMM, YYYY",
+        // string
+        // eg: "MMM"
+        // the format for the months in the overlay
+        // http://momentjs.com/docs/#/displaying/format/
 
-    overlayKeyboard: true,
-    // string, bool
-    // eg: true, false, "month", "year"
-    // do we show the overlay for scrolling months/years on keyboard
-    
-    overlayDuration: 1000,                 
-    // number
-    // eg: 500
-    // how long to show the overlay
-              
-    theme: false,                  
-    // string, bool
-    // eg: false, "dark", "mint", "..."
-    // sets the css theme style, supply your own string for custom
+        overlayYearFormat: "YYYY",
+        // string
+        // eg: "YYYY"
+        // the format for the years in the overlay
+        // http://momentjs.com/docs/#/displaying/format/
 
-  };
+        headerDayFormat: "dd",
+        // string
+        // eg: "ddd"
+        // the format of the days in the column headers
+        // http://momentjs.com/docs/#/displaying/format/
+
+        format: "L",
+        // string 
+        // eg: "DD.MM.YY"
+        // format of original input
+        // http://momentjs.com/docs/#/displaying/format/
+                  
+        formatOutput: "LL",
+        // string
+        // eg: "dd of MMMM, yyyy" 
+        // format of generated output(s)
+        // http://momentjs.com/docs/#/displaying/format/
+                                
+        position: { top: 3, left: 0 },
+        // object
+        // eg: { top: 0, left: 0 }
+        // offset position of calendar
+                  
+        scrollSpeed: 300,
+        // integer
+        // eg: 300
+        // how fast the calendar scrolls up and down
+                  
+        overlayWheel: true,
+        // string, bool
+        // eg: true, false, "month", "year"
+        // do we show the overlay for scrolling months/years on mousewheel
+                  
+        overlayClick: "year",
+        // string, bool
+        // eg: true, false, "month", "year"
+        // do we show the overlay for scrolling months/years on click
+
+        overlayKeyboard: true,
+        // string, bool
+        // eg: true, false, "month", "year"
+        // do we show the overlay for scrolling months/years on keyboard
+
+        overlayDuration: 1000,                 
+        // number
+        // eg: 500
+        // how long to show the overlay
+                  
+        theme: false,                  
+        // string, bool
+        // eg: false, "dark", "mint", "..."
+        // sets the css theme style, supply your own string for custom
+
+    };
 
 
 
