@@ -45,7 +45,7 @@
     .ui-gdatepicker-theme-midnight.ui-gdatepicker-input-wrapper .ui-gdatepicker-input:hover, .ui-gdatepicker-theme-midnight.ui-gdatepicker-input-wrapper .ui-gdatepicker-input:focus {
       border-color: #999999; }
     .ui-gdatepicker-theme-midnight.ui-gdatepicker-input-wrapper .ui-gdatepicker-input.ui-gdatepicker-active {
-      border-color: #8e44ad; }
+      border-color: #1abc9c; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker-input-wrapper .ui-gdatepicker-empty {
     position: absolute;
     right: 1px;
@@ -75,13 +75,14 @@
 
 .ui-gdatepicker-theme-midnight.ui-gdatepicker {
   font-size: 11px;
-  font-family: "Courier New";
+  font-family: "Arial";
   position: absolute;
-  padding: 19px;
-  color: #fefefe;
+  padding: 22px;
+  color: #dddddd;
   background: #2c3e50;
   border: 1px solid black;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
   visibility: hidden;
   opacity: 0;
   -webkit-transition-duration: 350ms, 0;
@@ -113,12 +114,12 @@
     position: relative; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-body {
     width: auto;
-    max-height: 265px;
+    max-height: 276px;
     overflow: hidden; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-close {
     position: absolute;
-    right: -9px;
-    top: -9px;
+    right: -11px;
+    top: -11px;
     width: 12px;
     height: 12px;
     opacity: 0.1;
@@ -151,10 +152,10 @@
       opacity: 1; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow {
     width: 55px;
-    right: 60px; }
+    right: 63px; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-year {
     width: 38px;
-    right: 22px; }
+    right: 25px; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up,
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up-year {
     top: 0; }
@@ -167,13 +168,13 @@
     width: 100%;
     height: 100%; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up > span {
-    background-image: url("data:image/gif;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wLRIAf3m376n3USJbmWAAAOw=="); }
+    background-image: url("data:image/gif;base64,R0lGODlhDwAUAPcBAP///////wICAgMDAwQEBAUFBQYGBgcHBwgICAkJCQoKCgsLCwwMDA0NDQ4ODg8PDxAQEBERERISEhMTExQUFBUVFRYWFhcXFxgYGBkZGRoaGhsbGxwcHB0dHR4eHh8fHyAgICEhISIiIiMjIyQkJCUlJSYmJicnJygoKCkpKSoqKisrKywsLC0tLS4uLi8vLzAwMDExMTIyMjMzMzQ0NDU1NTY2Njc3Nzg4ODk5OTo6Ojs7Ozw8PD09PT4+Pj8/P0BAQEFBQUJCQkNDQ0REREVFRUZGRkdHR0hISElJSUpKSktLS0xMTE1NTU5OTk9PT1BQUFFRUVJSUlNTU1RUVFVVVVZWVldXV1hYWFlZWVpaWltbW1xcXF1dXV5eXl9fX2BgYGFhYWJiYmNjY2RkZGVlZWZmZmdnZ2hoaGlpaWpqamtra2xsbG1tbW5ubm9vb3BwcHFxcXJycnNzc3R0dHV1dXZ2dnd3d3h4eHl5eXp6ent7e3x8fH19fX5+fn9/f4CAgIGBgYKCgoODg4SEhIWFhYaGhoeHh4iIiImJiYqKiouLi4yMjI2NjY6Ojo+Pj5CQkJGRkZKSkpOTk5SUlJWVlZaWlpeXl5iYmJmZmZqampubm5ycnJ2dnZ6enp+fn6CgoKGhoaKioqOjo6SkpKWlpaampqenp6ioqKmpqaqqqqurq6ysrK2tra6urq+vr7CwsLGxsbKysrOzs7S0tLW1tba2tre3t7i4uLm5ubq6uru7u7y8vL29vb6+vr+/v8DAwMHBwcLCwsPDw8TExMXFxcbGxsfHx8jIyMnJycrKysvLy8zMzM3Nzc7Ozs/Pz9DQ0NHR0dLS0tPT09TU1NXV1dbW1tfX19jY2NnZ2dra2tvb29zc3N3d3d7e3t/f3+Dg4OHh4eLi4uPj4+Tk5OXl5ebm5ufn5+jo6Onp6erq6uvr6+zs7O3t7e7u7u/v7/Dw8PHx8fLy8vPz8/T09PX19fb29vf39/j4+Pn5+fr6+vv7+/z8/P39/f7+/v///yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpEMDJCQzVBQURCN0IxMUUyQjVFNkE3RTUwN0U4MEU1RCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpEMDJCQzVBQkRCN0IxMUUyQjVFNkE3RTUwN0U4MEU1RCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQwMkJDNUE4REI3QjExRTJCNUU2QTdFNTA3RTgwRTVEIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQwMkJDNUE5REI3QjExRTJCNUU2QTdFNTA3RTgwRTVEIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA8AFAAACCoAAwgcSLCgwYMIEypcyLChw4cH/zX8R3EhxYsJL2qMqHEjxI8gQ4r8GBAAOw=="); }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-down > span {
-    background-image: url("data:image/gif;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw=="); }
+    background-image: url("data:image/gif;base64,R0lGODlhDwAUAPcBAP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpCN0MwMEE5MERCN0IxMUUyODQ4NDgwRjNCNjZFNUQ4MSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpCN0MwMEE5MURCN0IxMUUyODQ4NDgwRjNCNjZFNUQ4MSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkI3QzAwQThFREI3QjExRTI4NDg0ODBGM0I2NkU1RDgxIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkI3QzAwQThGREI3QjExRTI4NDg0ODBGM0I2NkU1RDgxIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA8AFAAACCoAAwgcSLCgwYMIEypcyLChw4cDAUicOPEgxYoILy7EuBGix48gQ4oMEBAAOw=="); }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up-year > span {
-    background-image: url("data:image/gif;base64,R0lGODlhDwAUAIABAAAAAP///yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo0RTc0QkE4MkRDMTIxMUUyQTVFOEY1Qzc0MjJGRUIxQyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo0RTc0QkE4M0RDMTIxMUUyQTVFOEY1Qzc0MjJGRUIxQyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjRFNzRCQTgwREMxMjExRTJBNUU4RjVDNzQyMkZFQjFDIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjRFNzRCQTgxREMxMjExRTJBNUU4RjVDNzQyMkZFQjFDIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA8AFAAAAh2Mj6nL7Q8RiHM6G7CyfPXuHVoyjoaZRerKtu5aAAA7"); }
+    background-image: url("data:image/gif;base64,R0lGODlhDwAUAIABAP///////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxRENCODBFQkRDMTIxMUUyOUY5QUE3M0Y2NEY5MkFFRiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxRENCODBFQ0RDMTIxMUUyOUY5QUE3M0Y2NEY5MkFFRiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjFEQ0I4MEU5REMxMjExRTI5RjlBQTczRjY0RjkyQUVGIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjFEQ0I4MEVBREMxMjExRTI5RjlBQTczRjY0RjkyQUVGIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA8AFAAAAh2Mj6nL7Q8RiHM6G7CyfPXuHVoyjoaZRerKtu5aAAA7"); }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-down-year > span {
-    background-image: url("data:image/gif;base64,R0lGODlhDwAUAIABAAAAAP///yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo0NkJFNkVGQURDMTIxMUUyOEVEN0IxRjUzQUM1MDJBMiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo0NkJFNkVGQkRDMTIxMUUyOEVEN0IxRjUzQUM1MDJBMiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ2QkU2RUY4REMxMjExRTI4RUQ3QjFGNTNBQzUwMkEyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjQ2QkU2RUY5REMxMjExRTI4RUQ3QjFGNTNBQzUwMkEyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA8AFAAAAhyMj6nL7Q+jPGBVdWnLOd36WUbIcA8YddPKtlABADs="); }
+    background-image: url("data:image/gif;base64,R0lGODlhDwAUAIABAP///////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozNTU3RDU0MERDMTIxMUUyOTNCNTlFOTA2QzIxMkM0MCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozNTU3RDU0MURDMTIxMUUyOTNCNTlFOTA2QzIxMkM0MCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjM1NTdENTNFREMxMjExRTI5M0I1OUU5MDZDMjEyQzQwIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjM1NTdENTNGREMxMjExRTI5M0I1OUU5MDZDMjEyQzQwIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA8AFAAAAhyMj6nL7Q+jPGBVdWnLOd36WUbIcA8YddPKtlABADs="); }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up > span,
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-down > span,
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-scroll-arrow-up-year > span,
@@ -181,72 +182,82 @@
     background-repeat: no-repeat;
     background-position: center;
     text-indent: -999em; }
+  .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-previous-month {
+    color: #78848c; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-day,
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-monthname,
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-newline {
-    height: 22px;
-    line-height: 22px;
-    width: 23px;
+    height: 23px;
+    line-height: 23px;
+    width: 26px;
     display: inline-block;
     *display: inline;
     *zoom: 1;
     vertical-align: middle;
-    border: 1px dotted transparent;
+    border: none;
+    border-top: 1px solid transparent;
+    border-left: 1px solid transparent;
+    margin-right: -1px;
+    margin-bottom: -1px;
     background: transparent;
-    color: #777777; }
+    color: #bdc3c7;
+    text-shadow: 1px 1px 0 black; }
     .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-current-month,
     .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-monthname.ui-gdatepicker-current-month,
     .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-newline.ui-gdatepicker-current-month {
-      background: #f8f6f9; }
+      background: #395067; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-newline {
-    width: 127px;
+    width: 145px;
     text-indent: 1em; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-day {
     text-align: center;
     cursor: pointer;
     margin-left: 0; }
     .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-dim {
-      color: #d0d0d0; }
+      color: rgba(189, 195, 199, 0.33);
+      text-shadow: none; }
     .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-today {
-      background: #ebd9f2; }
+      background: #5f83a7; }
     .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-day:hover {
-      color: black;
-      background: #ebd9f2; }
+      color: #bdc3c7;
+      background: #5f83a7; }
     .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-selected {
-      color: white;
-      background: #8e44ad; }
-  .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-previous-month {
-    color: #d0d0d0; }
-  .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-monthname,
+      color: #333333;
+      background: #1abc9c;
+      text-shadow: -1px -1px 0 #1bc5a3; }
+  .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-monthname {
+    color: #dddddd;
+    font-size: 1.2em; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-head .ui-gdatepicker-day {
-    color: #444444; }
+    color: #dddddd; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-divider-top {
-    border-top-color: #8e44ad; }
+    border-top-color: #1abc9c; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-divider-left {
-    border-left-color: #8e44ad; }
+    border-left-color: #1abc9c; }
   .ui-gdatepicker-theme-midnight.ui-gdatepicker .ui-gdatepicker-overlay {
     position: absolute;
     display: block;
-    top: 48%;
+    top: 50%;
     left: 50%;
     margin-top: -1.5em;
-    margin-left: -98px;
+    margin-left: -112px;
     padding: 0.5em 0;
-    width: 196px;
+    width: 224px;
     height: 2.2em;
     text-align: center;
-    font-size: 2em;
+    font-size: 2.6em;
     line-height: 2.2;
     border-radius: 2px;
-    background: rgba(142, 68, 173, 0.8);
-    color: white;
+    background: rgba(44, 62, 80, 0.9);
+    color: #1abc9c;
+    box-shadow: 0 0 60px 40px rgba(44, 62, 80, 0.9);
     visibility: hidden;
     opacity: 0;
-    -webkit-transition-duration: 250ms, 200ms, 0;
-    -moz-transition-duration: 250ms, 200ms, 0;
-    -o-transition-duration: 250ms, 200ms, 0;
-    -ms-transition-duration: 250ms, 200ms, 0;
-    transition-duration: 250ms, 200ms, 0;
+    -webkit-transition-duration: 350ms, 200ms, 0;
+    -moz-transition-duration: 350ms, 200ms, 0;
+    -o-transition-duration: 350ms, 200ms, 0;
+    -ms-transition-duration: 350ms, 200ms, 0;
+    transition-duration: 350ms, 200ms, 0;
     -webkit-transition-property: opacity, top, visibility;
     -moz-transition-property: opacity, top, visibility;
     -o-transition-property: opacity, top, visibility;

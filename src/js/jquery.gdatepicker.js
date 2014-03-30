@@ -527,9 +527,6 @@
       });
 
 
-
-
-
       // if mousewheel scroll plugin is present...
       if( $.event.special.mousewheel !== undefined ) {
         this._els.$picker.on({
@@ -1658,67 +1655,81 @@
 
     _positionCurrentMonth: function( direction, fast ) {
 
-      // determine direction (up/down); and speed;
-      var dir = direction || false;
-      var f = fast || false;
-      var pos = [ this._active.year , this._active.month , 1 ];
+        // determine direction (up/down); and speed;
+        var dir = direction || false,
+            fast = fast || false,
+            pos = [ this._active.year , this._active.month , 1 ];
 
-      var $body = this._els.$pickerBody;
-      var $firstday = $body.find("#gdp-"+this.uid+"-"+pos[2]+"-"+pos[1]+"-"+pos[0]);
+        var $picker = this._els.$picker,
+            $body = this._els.$pickerBody,
+            $firstday = $body.find("#gdp-"+this.uid+"-"+pos[2]+"-"+pos[1]+"-"+pos[0]),
+            hidden = this._els.$picker.is(':hidden');
 
-      // we use a 'trick' to position the body if the datepicker
-      // is hidden; this is because we cannot get positions of hidden elements
-      var trick = this._els.$picker.is(':hidden');
-      if( trick ) { 
-        this._els.$picker.css({ display: 'block' , opacity: '0' }); 
-      }
 
-      // find out height of a day (can change via CSS)
-      var height = $body.find(".ui-gdatepicker-day").first().outerHeight();
-      // get the offset of first day of active month
-      var offset = $firstday.position().top;
-      // get current scrollTop of body
-      var current = $body.scrollTop();
-      // see if the body has padding at the top
-      var padding = parseInt($body.css("padding-top"),10);
-      // set the final scroll destination
-      var destination = current + offset - height - padding;
-      // set the speed and half it if we've set fast.
-      var speed = this.settings.scrollSpeed;
-      if( f ) {  speed *= 0.5; }
+        // we can't position a hidden element, so we momentarily
+        if( hidden ) { 
+            $picker.css({ display: 'block' , opacity: '0' });
+        }
 
-      if( dir === "up" ) {
+        // find out height of a day (since it can change via CSS);
+        // get the position of first day of the "active" month;
+        // get current scrollTop of body;
+        // check if the body has padding at the top
+        // add any positive or negative margins;
 
-        // we find out how many days there are before the current month
-        // and then we find out how many days in current month
-        // and then add them together and divide by 7 to find the
-        // number of weeks/rows ... 
-        var count = $firstday.prevAll(".ui-gdatepicker-day").length;
-        var dim = this._getDaysInMonth( this._active.month , this._active.year );
-        var rows = Math.floor((count + dim) / 7);
+        var height = $firstday.outerHeight();
+        var offset = $firstday.position().top;
+        var current = $body.scrollTop();
+        var padding = parseInt($body.css("padding-top"),10);
+        var margins = parseInt( $firstday.css("margin-top") , 10 ) + parseInt( $firstday.css("margin-bottom") , 10 );
 
-        // we then quickly scroll down to the nth row
-        // and then animate back up to the current date.
-        $body.scrollTop( (rows) * height );
-        $body.stop().animate({ "scrollTop": destination }, speed );
+        // set the final scroll destination
+        var destination = current + offset - height - padding;
+        
+        // set the speed and half it if we've set fast.
+        var speed = this.settings.scrollSpeed;
+        if( fast ) { speed *= 0.5; }
 
-      } else if( dir === "down" ) {
 
-        // because we always have exactly one month placed
-        // before the current month, we can just set the scroll
-        // to the top, and scroll down to current date.
-        $body.scrollTop( 0 );
-        $body.stop().animate({ "scrollTop": destination }, speed );
+        if( dir === "up" ) {
 
-      } else {
+            // we find out how many days there are before the current month
+            // and then we find out how many days in current month
+            // and then add them together and divide by 7 to find the
+            // number of weeks/rows ... 
+            var count = $firstday.prevAll(".ui-gdatepicker-day").length;
+            var days = this._getDaysInMonth( this._active.month , this._active.year );
+            var rows = Math.floor((count + days) / 7);
 
-        // scroll the body statically to show the current month
-        $body.scrollTop( destination );
+            // we then quickly scroll down to the nth row
+            // and then animate back up to the current date.
+            $body
+                .scrollTop( rows * height + padding + (margins*rows) )
+                .stop()
+                .animate({ "scrollTop": destination }, speed );
 
-      }
+        } else if( dir === "down" ) {
 
-      // put things back how we found them. good boy.
-      if( trick ) { this._els.$picker.css({ display: '' , opacity: '' }); }
+            // position the body to the top + padding and then scroll
+            // to the current month's position.
+            $body
+                .scrollTop( padding )
+                .stop()
+                .animate({ "scrollTop": destination }, speed );
+
+        } else {
+
+            // just position the body to the current month's beginning
+            $body.scrollTop( destination );
+
+        }
+
+        // put things back how we found them. good boy.
+        if( hidden ) { 
+
+            $picker.css({ display: '' , opacity: '' }); 
+
+        }
 
     },
 
@@ -1846,8 +1857,8 @@
 
       if( invalidFormat ) {
 
-            console.error( "The value of the input doesn't match the localised date format" );
-            console.error( "Make sure the value=\""+ inputDate[0] +"\" matches the \""+ this.lang +"\" ("+ this._localLongFormat +") format." );
+        console.error( "The value of the input doesn't match the localised date format" );
+        console.error( "Make sure the value=\""+ inputDate[0] +"\" matches the \""+ this.lang +"\" ("+ this._localLongFormat +") format." );
 
       }
 

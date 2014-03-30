@@ -1,6 +1,6 @@
 
-@import "includes/jquery.gdatepicker.mixins.scss";
-@import "includes/jquery.gdatepicker.images.scss";
+@import "includes/jquery.gdatepicker.mixins";
+@import "includes/jquery.gdatepicker.images";
 
 
 
@@ -73,7 +73,7 @@
   // uncomment this next line for actual complementary colors
   //$dComplement: complement($dComplement);
 
-  $dDimColor: lighten($dTextColor, 55);
+  $dDimColor: transparentize($dTextColor, 0.82);
   $dPrevColor: lighten($dTextColor, 55);
 
   $pCurrentMonth: hsl( hue($dComplement) , 20 , 97 );
@@ -417,6 +417,13 @@
 // ====================================================================
 
 
+
+    .ui-gdatepicker-previous-month { 
+
+      color: $dPrevColor; 
+
+    }
+
     .ui-gdatepicker-day,
     .ui-gdatepicker-monthname,
     .ui-gdatepicker-newline { 
@@ -446,7 +453,6 @@
 
     }
 
-
     .ui-gdatepicker-day {
 
       text-align: center; 
@@ -474,7 +480,6 @@
 
     }
 
-    .ui-gdatepicker-previous-month { color: $dPrevColor; }
 
     .ui-gdatepicker-monthname,
     .ui-gdatepicker-head .ui-gdatepicker-day { color: $dTextColor; }

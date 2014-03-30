@@ -1,6 +1,6 @@
 
-@import "includes/jquery.gdatepicker.mixins.scss";
-@import "includes/jquery.gdatepicker.images.scss";
+@import "includes/jquery.gdatepicker.mixins";
+@import "includes/jquery.gdatepicker.images";
 
 
 
@@ -45,9 +45,9 @@
 // ====================================================================
 
   $pfontSize: 11px;
-  $pFontFam:  "Courier New";
+  $pFontFam:  "Arial";
 
-  $pTextColor: #fefefe;
+  $pTextColor: #ddd;
   $pBackColor: #2c3e50;
   $pBordColor: Black;
   
@@ -63,27 +63,24 @@
   $dfontSize: $pfontSize;
   $dFontFam:  $pFontFam;
 
-  $dTextColor: #444;
+  $dTextColor: #bdc3c7;
   $dBackColor: transparent;
 
-  $dSelectColor: #fff;
-  $dSelectBackColor: #8e44ad;
+  $dSelectColor: #333;
+  $dSelectBackColor: #1abc9c;
   $dComplement: hsl( hue($dSelectBackColor), saturation($dSelectBackColor) , lightness($dSelectBackColor));
-  
-  // uncomment this next line for actual complementary colors
-  //$dComplement: complement($dComplement);
 
-  $dDimColor: lighten($dTextColor, 55);
-  $dPrevColor: lighten($dTextColor, 55);
+  $dDimColor: transparentize($dTextColor, 0.67);
+  $dPrevColor: darken($dTextColor, 25);
 
-  $pCurrentMonth: hsl( hue($dComplement) , 20 , 97 );
-  $dToday: hsl( hue($pCurrentMonth) , 50 , 90 );
+  $pCurrentMonth: hsl( hue($pBackColor) , saturation($pBackColor) , lightness($pBackColor)+7 );
+  $dToday: lighten( $pCurrentMonth , 20% );
 
-  $dHoverTextColor: #000;
-  $dHoverBackColor: hsl( hue($pCurrentMonth) , 50 , 90 );
+  $dHoverTextColor: #bdc3c7;
+  $dHoverBackColor: $dToday;
 
   $dBorderWidth: 1px;
-  $dBorderStyle: dotted;
+  $dBorderStyle: solid;
   $dBorderColor: $dSelectBackColor;
 
 
@@ -92,8 +89,8 @@
 // =======[ Height / Width Calcs ]=====================================
 // ====================================================================
 
-  $dWidth: 22px; 
-  $dHeight: 22px;
+  $dWidth: 25px; 
+  $dHeight: 23px;
 
   $dNewlineWidth: floor($dWidth*5.8);
 
@@ -270,6 +267,7 @@
     border: 1px solid $pBordColor;
 
     box-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+    border-radius: 3px; 
 
     visibility: hidden; 
     opacity: 0;
@@ -383,16 +381,16 @@
     }
 
     .ui-gdatepicker-scroll-arrow-up > span { 
-      background-image: $imageUpMonth;
+      background-image: $imageUpMonthLight;
     }
     .ui-gdatepicker-scroll-arrow-down > span { 
-      background-image: $imageDownMonth;
+      background-image: $imageDownMonthLight;
     }
     .ui-gdatepicker-scroll-arrow-up-year > span { 
-      background-image: $imageUpYear;
+      background-image: $imageUpYearLight;
     }
     .ui-gdatepicker-scroll-arrow-down-year > span { 
-      background-image: $imageDownYear;
+      background-image: $imageDownYearLight;
     }
 
     .ui-gdatepicker-scroll-arrow-up > span,
@@ -418,6 +416,13 @@
 // ====================================================================
 
 
+    
+    .ui-gdatepicker-previous-month { 
+
+      color: $dPrevColor; 
+
+    }
+
     .ui-gdatepicker-day,
     .ui-gdatepicker-monthname,
     .ui-gdatepicker-newline { 
@@ -429,10 +434,16 @@
       display: inline-block; *display: inline; *zoom:1;
       vertical-align: middle;
 
-      border: $dBorderWidth $dBorderStyle transparent;
+      border: none;
+      border-top: $dBorderWidth $dBorderStyle transparent;
+      border-left: $dBorderWidth $dBorderStyle transparent;
+      margin-right: -1px;
+      margin-bottom: -1px;
 
       background: $dBackColor; 
-      color: lighten($dTextColor, 20);
+      color: $dTextColor;
+
+      text-shadow: 1px 1px 0 black;
 
       &.ui-gdatepicker-current-month {
         background: $pCurrentMonth; 
@@ -447,7 +458,6 @@
 
     }
 
-
     .ui-gdatepicker-day {
 
       text-align: center; 
@@ -455,7 +465,8 @@
       margin-left: 0;
 
       &.ui-gdatepicker-dim { 
-        color: $dDimColor; 
+        color: $dDimColor;
+        text-shadow: none;
       }
 
       &.ui-gdatepicker-today {
@@ -469,17 +480,16 @@
 
       &.ui-gdatepicker-selected { 
         color: $dSelectColor;
-        background: $dSelectBackColor;  
+        background: $dSelectBackColor;
+        text-shadow: -1px -1px 0 lighten($dSelectBackColor, 2%);
       }
 
 
     }
 
-    .ui-gdatepicker-previous-month { color: $dPrevColor; }
 
-    .ui-gdatepicker-monthname,
-    .ui-gdatepicker-head .ui-gdatepicker-day { color: $dTextColor; }
-
+    .ui-gdatepicker-monthname { color: $pTextColor; font-size: 1.2em; }
+    .ui-gdatepicker-head .ui-gdatepicker-day { color: $pTextColor; }
 
     .ui-gdatepicker-divider-top { 
       border-top-color: $dSelectBackColor; 
@@ -497,7 +507,7 @@
       position: absolute; 
       display: block; 
 
-      top: 48%; 
+      top: 50%; 
       left: 50%; 
 
       margin-top: -1.5em; 
@@ -508,18 +518,19 @@
       height: 2.2em; 
 
       text-align: center; 
-      font-size: 2em; 
+      font-size: 2.6em; 
       line-height: 2.2;
 
       border-radius: 2px;
 
-      background: transparentize($dSelectBackColor, 0.2); 
-      color: white;
+      background: transparentize($pBackColor, 0.1); 
+      color: $dSelectBackColor;
+      box-shadow: 0 0 60px 40px transparentize($pBackColor, 0.1); 
 
       visibility: hidden; 
       opacity: 0;
 
-      @include prefix("transition-duration", "250ms, 200ms, 0");
+      @include prefix("transition-duration", "350ms, 200ms, 0");
       @include prefix("transition-property", "opacity, top, visibility");
       @include prefix("transition-delay", "0, 0, 350ms");
 

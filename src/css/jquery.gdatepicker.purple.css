@@ -181,6 +181,8 @@
     background-repeat: no-repeat;
     background-position: center;
     text-indent: -999em; }
+  .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-previous-month {
+    color: #d0d0d0; }
   .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-day,
   .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-monthname,
   .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-newline {
@@ -206,7 +208,7 @@
     cursor: pointer;
     margin-left: 0; }
     .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-dim {
-      color: #d0d0d0; }
+      color: rgba(68, 68, 68, 0.18); }
     .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-today {
       background: #ebd9f2; }
     .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-day:hover {
@@ -215,8 +217,6 @@
     .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-day.ui-gdatepicker-selected {
       color: white;
       background: #8e44ad; }
-  .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-previous-month {
-    color: #d0d0d0; }
   .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-monthname,
   .ui-gdatepicker-theme-purple.ui-gdatepicker .ui-gdatepicker-head .ui-gdatepicker-day {
     color: #444444; }
