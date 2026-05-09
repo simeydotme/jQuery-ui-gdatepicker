@@ -1,7 +1,17 @@
-#jQuery UI gDatepicker
-###Work In Progress
-__* Completely overhauled, moved to moment.js, re-writing docu *__
+# jQuery UI gDatepicker
 
-=========================================
+This repository now contains a modern rewrite of the datepicker in **Svelte + TypeScript + TailwindCSS** under:
 
-#### Currently Tidying up codebase and features for a beta release
+- `/lib`
+
+The legacy jQuery source remains in `/src` and `/build` for historical reference.
+
+## Modern library quick start
+
+```bash
+cd /home/runner/work/jQuery-ui-gdatepicker/jQuery-ui-gdatepicker/lib
+npm install
+npm run dev
+```
+
+See `/lib/README.md` for usage, testing, and GitHub Pages demo build instructions.

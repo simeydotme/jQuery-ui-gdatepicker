@@ -1,0 +1,321 @@
+@import 'tailwindcss';
+
+@layer base {
+  body {
+    @apply m-0;
+  }
+}
+
+@layer components {
+  .has-gdatepicker {
+    @apply absolute h-px w-px overflow-hidden opacity-0;
+    left: -9999em;
+  }
+
+  .ui-gdatepicker,
+  .ui-gdatepicker * {
+    user-select: none;
+  }
+
+  .ui-gdatepicker {
+    --gdp-font-size: 10px;
+    --gdp-font-family: Verdana, sans-serif;
+    --gdp-text: #555555;
+    --gdp-bg: #fefefe;
+    --gdp-border: #cccccc;
+    --gdp-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+    --gdp-input-bg: #fefefe;
+    --gdp-input-text: #555555;
+    --gdp-input-border: #cccccc;
+    --gdp-input-border-hover: #999999;
+    --gdp-accent: #e53b5a;
+    --gdp-today: #f2d9dd;
+    --gdp-current-month-bg: #f9f6f6;
+    --gdp-prev-month: #d0d0d0;
+    --gdp-day-text: #777777;
+    --gdp-day-dim: rgba(68, 68, 68, 0.18);
+    --gdp-header-text: #444444;
+    --gdp-overlay-bg: rgba(229, 59, 90, 0.8);
+    --gdp-overlay-text: white;
+    --gdp-arrow-bg: rgba(254, 254, 254, 0.5);
+    --gdp-cell-h: 22px;
+    --gdp-cell-w: 23px;
+    --gdp-newline-w: 127px;
+    --gdp-body-max-h: 265px;
+
+    @apply invisible absolute border px-[19px] py-[19px] opacity-0;
+    font-size: var(--gdp-font-size);
+    font-family: var(--gdp-font-family);
+    color: var(--gdp-text);
+    background: var(--gdp-bg);
+    border-color: var(--gdp-border);
+    box-shadow: var(--gdp-shadow);
+    transition: opacity 350ms, visibility 350ms;
+  }
+
+  .ui-gdatepicker.ui-gdatepicker-show {
+    @apply visible z-10 opacity-100;
+  }
+
+  .ui-gdatepicker-wrapper {
+    @apply relative m-auto;
+  }
+
+  .ui-gdatepicker-input-wrapper {
+    @apply relative mr-4 inline-block;
+  }
+
+  .ui-gdatepicker-input {
+    @apply inline-block h-[22px] w-[160px] cursor-text border px-2 py-1 text-[14px] leading-[22px] shadow-[inset_1px_1px_1px_rgba(0,0,0,0.1)] transition;
+    color: var(--gdp-input-text);
+    background: var(--gdp-input-bg);
+    border-color: var(--gdp-input-border);
+  }
+
+  .ui-gdatepicker-input::placeholder {
+    color: #cccccc;
+  }
+
+  .ui-gdatepicker-input:hover,
+  .ui-gdatepicker-input:focus {
+    border-color: var(--gdp-input-border-hover);
+    @apply outline-none;
+  }
+
+  .ui-gdatepicker-input.ui-gdatepicker-active {
+    border-color: var(--gdp-accent);
+  }
+
+  .ui-gdatepicker-empty {
+    @apply absolute right-px top-px h-[30px] w-[30px] cursor-pointer border-0 bg-transparent p-0 text-[0] opacity-10 transition;
+  }
+
+  .ui-gdatepicker-empty:hover {
+    @apply opacity-60;
+  }
+
+  .ui-gdatepicker-empty::before {
+    content: '×';
+    @apply text-xl leading-[30px] text-[#666];
+  }
+
+  .ui-gdatepicker-head {
+    @apply mb-1;
+  }
+
+  .ui-gdatepicker-body {
+    @apply w-auto overflow-hidden;
+    max-height: var(--gdp-body-max-h);
+  }
+
+  .ui-gdatepicker-close {
+    @apply absolute -right-[9px] -top-[9px] h-3 w-3 cursor-pointer border-0 bg-transparent p-0 text-[0] opacity-10 transition;
+  }
+
+  .ui-gdatepicker-close:hover {
+    @apply opacity-60;
+  }
+
+  .ui-gdatepicker-close::before {
+    content: '×';
+    @apply block text-xs leading-3 text-[#666];
+  }
+
+  .ui-gdatepicker-scroll-arrow,
+  .ui-gdatepicker-scroll-arrow-year {
+    @apply absolute h-6 cursor-pointer border-0 p-0 text-center opacity-20 transition;
+    background: var(--gdp-arrow-bg);
+  }
+
+  .ui-gdatepicker-scroll-arrow:hover,
+  .ui-gdatepicker-scroll-arrow-year:hover {
+    @apply opacity-100;
+  }
+
+  .ui-gdatepicker-scroll-arrow {
+    @apply right-[60px] w-[55px];
+  }
+
+  .ui-gdatepicker-scroll-arrow-year {
+    @apply right-[22px] w-[38px];
+  }
+
+  .ui-gdatepicker-scroll-arrow-up,
+  .ui-gdatepicker-scroll-arrow-up-year {
+    @apply top-0;
+  }
+
+  .ui-gdatepicker-scroll-arrow-down,
+  .ui-gdatepicker-scroll-arrow-down-year {
+    @apply -bottom-px;
+  }
+
+  .ui-gdatepicker-scroll-arrow > span,
+  .ui-gdatepicker-scroll-arrow-year > span {
+    @apply block h-full w-full text-[0];
+  }
+
+  .ui-gdatepicker-scroll-arrow-up > span::before,
+  .ui-gdatepicker-scroll-arrow-up-year > span::before,
+  .ui-gdatepicker-scroll-arrow-down > span::before,
+  .ui-gdatepicker-scroll-arrow-down-year > span::before {
+    @apply block text-[12px] leading-6 text-[#444];
+  }
+
+  .ui-gdatepicker-scroll-arrow-up > span::before,
+  .ui-gdatepicker-scroll-arrow-up-year > span::before {
+    content: '▲';
+  }
+
+  .ui-gdatepicker-scroll-arrow-down > span::before,
+  .ui-gdatepicker-scroll-arrow-down-year > span::before {
+    content: '▼';
+  }
+
+  .ui-gdatepicker-day,
+  .ui-gdatepicker-monthname,
+  .ui-gdatepicker-newline {
+    @apply inline-block align-middle border border-transparent;
+    height: var(--gdp-cell-h);
+    line-height: var(--gdp-cell-h);
+    width: var(--gdp-cell-w);
+    color: var(--gdp-day-text);
+    background: var(--gdp-bg);
+  }
+
+  .ui-gdatepicker-current-month {
+    background: var(--gdp-current-month-bg);
+  }
+
+  .ui-gdatepicker-previous-month {
+    color: var(--gdp-prev-month);
+  }
+
+  .ui-gdatepicker-day {
+    @apply ml-0 cursor-pointer text-center;
+  }
+
+  .ui-gdatepicker-day.ui-gdatepicker-dim {
+    color: var(--gdp-day-dim);
+  }
+
+  .ui-gdatepicker-day.ui-gdatepicker-today,
+  .ui-gdatepicker-day:hover {
+    background: var(--gdp-today);
+    @apply text-black;
+  }
+
+  .ui-gdatepicker-day.ui-gdatepicker-selected {
+    @apply text-white;
+    background: var(--gdp-accent);
+  }
+
+  .ui-gdatepicker-monthname,
+  .ui-gdatepicker-head .ui-gdatepicker-day {
+    color: var(--gdp-header-text);
+  }
+
+  .ui-gdatepicker-newline {
+    width: var(--gdp-newline-w);
+    text-indent: 1em;
+  }
+
+  .ui-gdatepicker-divider-top {
+    border-top-color: var(--gdp-accent);
+  }
+
+  .ui-gdatepicker-divider-left {
+    border-left-color: var(--gdp-accent);
+  }
+
+  .ui-gdatepicker-overlay {
+    @apply invisible absolute left-1/2 top-[48%] h-[2.2em] w-[196px] -translate-x-1/2 rounded-[2px] py-2 text-center text-[2em] leading-[2.2] opacity-0;
+    margin-top: -1.5em;
+    background: var(--gdp-overlay-bg);
+    color: var(--gdp-overlay-text);
+    transition: opacity 250ms, top 200ms, visibility 350ms;
+  }
+
+  .ui-gdatepicker-overlay.ui-gdatepicker-overlay-visible {
+    @apply visible z-10 top-1/2 opacity-100;
+  }
+
+  .ui-gdatepicker-theme-purple {
+    --gdp-accent: #8e44ad;
+    --gdp-today: #ebd9f2;
+    --gdp-current-month-bg: #f8f6f9;
+    --gdp-overlay-bg: rgba(142, 68, 173, 0.8);
+  }
+
+  .ui-gdatepicker-theme-midnight {
+    --gdp-font-size: 11px;
+    --gdp-font-family: Arial, sans-serif;
+    --gdp-text: #dddddd;
+    --gdp-bg: #2c3e50;
+    --gdp-border: black;
+    --gdp-input-bg: #fefefe;
+    --gdp-input-text: #555555;
+    --gdp-accent: #1abc9c;
+    --gdp-today: #5f83a7;
+    --gdp-current-month-bg: #395067;
+    --gdp-prev-month: #78848c;
+    --gdp-day-text: #bdc3c7;
+    --gdp-day-dim: rgba(189, 195, 199, 0.33);
+    --gdp-header-text: #dddddd;
+    --gdp-overlay-bg: rgba(44, 62, 80, 0.9);
+    --gdp-overlay-text: #1abc9c;
+    --gdp-arrow-bg: rgba(44, 62, 80, 0.5);
+    --gdp-cell-h: 23px;
+    --gdp-cell-w: 26px;
+    --gdp-newline-w: 145px;
+    --gdp-body-max-h: 276px;
+  }
+
+  .ui-gdatepicker-theme-midnight.ui-gdatepicker {
+    @apply rounded-[3px];
+  }
+
+  .ui-gdatepicker-theme-midnight .ui-gdatepicker-day,
+  .ui-gdatepicker-theme-midnight .ui-gdatepicker-monthname,
+  .ui-gdatepicker-theme-midnight .ui-gdatepicker-newline {
+    @apply border-0 border-l border-t border-transparent;
+    text-shadow: 1px 1px 0 black;
+    margin-right: -1px;
+    margin-bottom: -1px;
+    background: transparent;
+  }
+
+  .ui-gdatepicker-theme-midnight .ui-gdatepicker-day.ui-gdatepicker-dim {
+    text-shadow: none;
+  }
+
+  .ui-gdatepicker-theme-midnight .ui-gdatepicker-day.ui-gdatepicker-selected {
+    @apply text-[#333333];
+    text-shadow: -1px -1px 0 #1bc5a3;
+  }
+
+  .ui-gdatepicker-theme-midnight .ui-gdatepicker-monthname {
+    @apply text-[1.2em];
+  }
+
+  .ui-gdatepicker-theme-midnight .ui-gdatepicker-overlay {
+    @apply h-[2.2em] w-[224px] text-[2.6em];
+    box-shadow: 0 0 60px 40px rgba(44, 62, 80, 0.9);
+  }
+
+  .ui-gdatepicker-zh-cn .ui-gdatepicker-body {
+    padding-top: 22px !important;
+  }
+
+  .ui-gdatepicker-zh-cn .ui-gdatepicker-header-day {
+    font-size: 14px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+  }
+
+  .ui-gdatepicker-zh-cn .ui-gdatepicker-monthname,
+  .ui-gdatepicker-zh-cn .ui-gdatepicker-newline {
+    font-size: 14px !important;
+    width: 150px !important;
+  }
+}
