@@ -7,6 +7,12 @@ A modern rewrite of the original jQuery gDatepicker using:
 - **TailwindCSS (v4)**
 - **Intl (native)** for date localization/formatting (no Moment.js)
 
+Library styling is implemented in Tailwind component layers in:
+
+- `lib/src/app.css`
+
+and no longer depends on importing the legacy copied `jquery.gdatepicker*.css` files at runtime.
+
 ## Goals covered
 
 - Preserves original visual style (default/purple/midnight themes)
