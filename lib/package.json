@@ -1,21 +1,30 @@
 {
-  "name": "lib",
+  "name": "@simeydotme/gdatepicker-svelte",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:ghpages": "vite build --base=/jQuery-ui-gdatepicker/",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "@tailwindcss/vite": "^4.1.8",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/svelte": "^5.2.8",
     "@tsconfig/svelte": "^5.0.8",
     "@types/node": "^24.12.2",
+    "jsdom": "^27.0.1",
     "svelte": "^5.55.4",
     "svelte-check": "^4.4.6",
+    "tailwindcss": "^4.1.8",
     "typescript": "~6.0.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vitest": "^4.0.8"
   }
 }
